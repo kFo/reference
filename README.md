@@ -1,3 +1,10 @@
+# How to build
+
+```
+pip install sphinx recommonmark
+make html
+```
+
 # lean_reference
 
 A temporary repository with a start on the Lean reference manual.
