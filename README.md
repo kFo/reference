@@ -1,2 +1,13 @@
 # lean_reference
-A temporary
+
+A temporary repository with a start on the Lean reference manual.
+
+Intended order:
+
+expressions.md
+declarations.md
+infrastructure.md
+tactics.md
+programming.md
+libraries.md
+
