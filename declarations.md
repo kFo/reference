@@ -40,7 +40,7 @@ def bar := 6
 def baz (x y : ℕ) (s : list ℕ) := [x, y] ++ s
 
 theorem foo_eq_five : foo = 5 := rfl
-theorem baz_lemma   (x y : ℕ) : baz x y [] = [x, y] := rfl
+lemma   baz_lemma   (x y : ℕ) : baz x y [] = [x, y] := rfl
 theorem baz_theorem (x y : ℕ) : baz x y [] = [x, y] := rfl
 ```
 
