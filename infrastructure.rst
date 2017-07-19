@@ -29,7 +29,7 @@ Options
 Instructions
 ============
 
-(`#check`, `#print`, `#reduce`, `#eval`, `run_cmd`.)
+(``#check``, ``#print``, ``#reduce``, ``#eval``, ``run_cmd``.)
 
 Elaborator Hints
 ================
