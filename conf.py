@@ -43,13 +43,13 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = ['.rst', '.md']
+source_suffix = ['.rst']
 
 # The master toctree document.
 master_doc = 'index'
 
 # General information about the project.
-project = 'Lean Reference Manual'
+project = 'The Lean Reference Manual'
 copyright = '2017, Jeremy Avigad'
 author = 'Jeremy Avigad'
 
@@ -90,18 +90,8 @@ source_parsers = {
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
 
-html_sidebars = {
-    '**': [
-        'about.html',
-        'navigation.html',
-        'relations.html',
-        'searchbox.html',
-        'donate.html',
-    ]
-}
-
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -145,7 +135,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'LeanReferenceManual.tex', 'Lean Reference Manual Documentation',
+    (master_doc, 'LeanReferenceManual.tex', 'The Lean Reference Manual',
      'Jeremy Avigad', 'manual'),
 ]
 
@@ -155,7 +145,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'leanreferencemanual', 'Lean Reference Manual Documentation',
+    (master_doc, 'leanreferencemanual', 'The Lean Reference Manual',
      [author], 1)
 ]
 
@@ -166,8 +156,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'LeanReferenceManual', 'Lean Reference Manual Documentation',
-     author, 'LeanReferenceManual', 'One line description of project.',
+    (master_doc, 'LeanReferenceManual', 'The Lean Reference Manual',
+     author, 'LeanReferenceManual', 'Reference for the Lean Theorem Prover.',
      'Miscellaneous'),
 ]
 
