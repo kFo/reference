@@ -31,8 +31,8 @@ The last one denotes the universe level ``0`` if ``v`` is ``0``, and ``max u v``
    #check Prop
    #check Type 
 
-Basic Syntax
-============
+Expression Syntax
+=================
 
 The set of expressions in Lean is defined inductively as follows:
 
@@ -111,20 +111,21 @@ Lean supports anonymous constructor notation, anonymous projections, and various
     #check (5 : (λ x, x) ℕ)
     #check (5 : ℤ)
  
-
 Implicit Arguments
 ==================
 
-When declaring arguments to defined objects in Lean (for example, with ``def``, ``theorem``, ``constant``, ``inductive``, or ``structure``; see [Declarations](declarations.html)) or when declaring variables and parameters in sections (see [Infrastructure](infrastructure.html)), arguments can be annotated as *explicit* or *implicit*. This determines how expressions containing the object are interpred.
+When declaring arguments to defined objects in Lean (for example, with ``def``, ``theorem``, ``constant``, ``inductive``, or ``structure``; see :doc:`declarations`) or when declaring variables and parameters in sections (see :doc:`infrastructure`), arguments can be annotated as *explicit* or *implicit*. This determines how expressions containing the object are interpreted.
 
 * ``(x : α)`` : an explicit argument of type ``α``
 * ``{x : α}`` : an implicit argument, eagerly inserted
 * ``⦃x : α⦄`` or ``{{x : α}}`` : an implicit argument, weakly inserted
-* ``[x : α]`` : an implicit argument, which should be inferred by type class resolution
+* ``[x : α]`` : an implicit argument that should be inferred by type class resolution
 * ``(x : α := t)`` : an optional argument, with default value ``t``
 * ``(x : α . t)`` : an implicit argument, to be synthesized by tactic ``t``
 
 The name of the variable can be ommitted from a class resolution argument, in which case an internal name is generated.
+
+When a function has an explicit argument, you can nonetheless ask Lean's elaborator to infer the argument automatically, by entering it as an underscore (``_``). Conversely, writing ``@foo`` indicates that all of the arguments to be ``foo`` are to be given explicitly, independent of how ``foo`` was declared.
 
 **Examples** 
 
@@ -134,17 +135,24 @@ The name of the variable can be ommitted from a class resolution argument, in wh
 
     def ex1 (x y z : ℕ) : ℕ := x + y + z
 
-    #check ex1 123
+    #check ex1 1 2 3
 
-    def id1 {α : Type u} (x : α) : α := x
+    def id1 (α : Type u) (x : α) : α := x 
 
-    #check id1 3
-    #check (id1 : ℕ → ℕ)
+    #check id1 nat 3
+    #check id1 _ 3
 
-    def id2 {{α : Type u}} (x : α) : α := x
+    def id2 {α : Type u} (x : α) : α := x
 
     #check id2 3
-    #check (id2 : Π α : Type, α → α)
+    #check @id2 ℕ 3
+    #check (id2 : ℕ → ℕ)
+
+    def id3 {{α : Type u}} (x : α) : α := x
+
+    #check id3 3
+    #check @id3 ℕ 3
+    #check (id3 : Π α : Type, α → α)
 
     class cls := (val : ℕ)
     instance cls_five : cls := ⟨5⟩ 
@@ -169,6 +177,120 @@ The name of the variable can be ommitted from a class resolution argument, in wh
 
     example : ex4 = 5 := rfl
 
+Basic Data Types and Assertions
+===============================
+
+The core library contains a numboer of basic data types, such as the natural numbers (``ℕ``, or ``nat``), the integers (``ℤ``), the booleans (``bool``), and common operations on these, as well as the usual logical quantifiers and connectives. Some example are given below. A list of common notations and their precedences can be found in a `file <https://github.com/leanprover/lean/blob/master/library/init/core.lean>`_ in the core library. The core library also contains a number of basic data type constructors. Definitions can also be found the `data <https://github.com/leanprover/lean/blob/master/library/init/data>`_ directory of the core library. For more information, see also :doc:`libraries`.
+
+.. code-block:: lean
+
+    /- numbers -/
+    section
+    variables a b c d : ℕ
+    variables i j k : ℤ
+
+    #check a^2 + b^2 + c^2
+    #check (a + b)^c ≤ d 
+    #check i ∣ j * k 
+    end
+
+    /- booleans -/
+    section
+    variables a b c : bool
+
+    #check a && (b || c)
+    end
+
+    /- pairs -/
+    section
+    variables (a b c : ℕ) (p : ℕ × bool)
+
+    #check (1, 2)
+    #check p.1 * 2
+    #check p.2 && tt
+    #check ((1, 2, 3) : ℕ × ℕ × ℕ)
+    end 
+
+    /- lists -/
+    section
+    variables x y z : ℕ 
+    variables xs ys zs : list ℕ
+    open list
+
+    #check (1 :: xs) ++ (y :: zs) ++ [1,2,3] 
+    #check append (cons 1 xs) (cons y zs)
+    #check map (λ x, x^2) [1, 2, 3]
+    end
+
+    /- sets -/
+    section
+    variables s t u : set ℕ
+
+    #check ({1, 2, 3} ∩ s) ∪ ({x | x < 7} ∩ t)
+    end
+
+    /- strings and characters -/
+    #check "hello world"
+    #check 'a'
+
+    /- assertions -/
+    #check ∀ a b c n : ℕ, a ≠ 0 ∧ b ≠ 0 ∧ c ≠ 0 ∧ n > 2 → a^n + b^n ≠ c^n
+    def unbounded (f : ℕ → ℕ) : Prop := ∀ M, ∃ n, f n ≥ M 
+
+.. _constructors_projections_and_matching:
+
+Constructors, Projections, and Matching
+=======================================
+
+Lean foundation, the *Calculus of Inductive Constructions*, supports the declaration of *inductive types*. Such types can have any number of *constructors*, and an associated *eliminator* (or *recursor*). Inductive types with one constructor, known as *structures*, have *projections*. The full syntax of inductive types is described in :doc:`declarations`, but here we describe some syntactic elements that facilitate their use in expressions.
+
+When Lean can infer the type of an expression and it is an inductive type with one constructor, then one can write ``⟨a1, a2, ..., an⟩`` to apply the constructor without naming it. For example, ``⟨a, b⟩`` denotes ``prod.mk a b`` in a context where the expression can be inferred to be a pair, and ``⟨h₁, h₂⟩`` denotes ``and.intro h₁ h₂`` in a context when the expression can be inferred to be a conjunction. The notation will nest constructions automatically, so ``⟨a1, a2, a3⟩`` is interpreted as ``prod.mk a1 (prod.mk a2 a3)`` when the expression is expected to have a type of the form ``α1 × α2 × α3``. (The latter is interpreted as ``α1 × (α2 × α3)``, since the product associates to the right.)    
+
+Similarly, one can use "dot notation" for projections: one can write ``p.fst`` and ``p.snd`` for ``prod.fst p`` and ``prod.snd p`` when Lean can infer that ``p`` is an element of a product, and ``h.left`` and ``h.right`` for ``and.left h`` and ``and.right h`` when ``h`` is a conjunction.
+
+The anonymous projector notation can used more generally for any objects defined in a *namespace* (see :doc:`infrastructure`). For example, if ``l`` has type ``list α`` then ``l.map f`` abbreviates ``list.map f l``, in which ``l`` has been placed at the first argument position where ``list.map`` expects a ``list``.
+ 
+Finally, for data types with one constructor, one destruct an element by pattern matching using the ``let`` and ``assume`` constructs,
+as in the examples below. Internally, these are interpreted using the ``match`` construct, which is in turn compiled down for the eliminator
+for the inductive type, as described in :doc:`declarations`. 
+
+.. code-block:: lean
+
+    universes u v
+    variables {α : Type u} {β : Type v}
+
+    def p : ℕ × ℤ := ⟨1, 2⟩ 
+    #check p.fst 
+    #check p.snd 
+
+    def p' : ℕ × ℤ × bool := ⟨1, 2, tt⟩ 
+    #check p'.fst
+    #check p'.snd.fst
+    #check p'.snd.snd
+
+    def swap_pair (p : α × β) : β × α :=
+    ⟨p.snd, p.fst⟩
+
+    theorem swap_conj {a b : Prop} (h : a ∧ b) : b ∧ a :=
+    ⟨h.right, h.left⟩ 
+    
+    #check [1, 2, 3].append [2, 3, 4]
+    #check [1, 2, 3].map (λ x, x^2)
+
+    example (p q : Prop) : p ∧ q → q ∧ p :=
+    λ h, ⟨h.right, h.left⟩ 
+
+    def swap_pair' (p : α × β) : β × α :=
+    let (x, y) := p in (y, x) 
+
+    theorem swap_conj' {a b : Prop} (h : a ∧ b) : b ∧ a :=
+    let ⟨ha, hb⟩ := h in ⟨hb, ha⟩ 
+
+    def swap_pair'' : α × β → β × α :=
+    λ ⟨x, y⟩, (y, x) 
+
+    theorem swap_conj'' {a b : Prop} : a ∧ b → b ∧ a :=
+    assume ⟨ha, hb⟩, ⟨hb, ha⟩ 
 
 Structured Proofs
 =================
@@ -184,7 +306,7 @@ As with ``λ``, multiple variables can be bound with ``assume``, and types can b
 
 The notation ``‹p›`` is notation for ``(by assumption : p)``, and can therefore be used to apply hypotheses in the local context.
 
-Anonymous constructor notation, anonymous projections, and match syntax, as described in :doc:`declarations`, is useful for writing proofs as well as defining data.
+As noted in :ref:`constructors_projections_and_matching`, anonymous constructors and projections and match syntax can be used in proofs just as in expressions that denote data.
 
 **Examples**
 
@@ -208,11 +330,12 @@ Anonymous constructor notation, anonymous projections, and match syntax, as desc
     suffices h₃ : q, from and.intro h₁ h₃,
     show q, from and.left h₂ 
 
-
 Computation
 ===========
 
-(Explain the notions of reduction and evaluation.)
+Every expression in Lean has a computational interpretation, unless it involves classical elements that block computation, as described in the next section.
+
+(Explain reduction and evaluation.)
 
 Axioms
 ======
@@ -220,7 +343,7 @@ Axioms
 Lean's foundational framework consists of:
 
 * the core syntax of the calculus of constructions, as described above
-* inductive types, as described in Chapter *Declarations*. 
+* inductive types, as described in :doc:`declarations`. 
 
 In addition, the core library defines (and trusts) the following axiomatic extension:
 
@@ -231,5 +354,3 @@ In addition, the core library defines (and trusts) the following axiomatic exten
 The last principle, in conjunction with the others, makes the axiomatic foundation classical. Functions that make use of ``choice`` to produce data are incompatible with a computational interpretation, and do not produce bytecode. They have to be declared ``noncomputable``.
 
 (Say something about the ``meta`` keyword.)
-
-

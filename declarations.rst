@@ -52,8 +52,8 @@ Inductive Definitions
 
 (Give syntax for inductive definitions, including nested and mutual definitions.) 
 
-Some Basic Types and Type Constructors
-======================================
+Some Basic Types
+================
 
 (Give syntax for natural numbers, bool, unit, product, sum, sigmas, subtypes, lists. Also: propositional connectives and quantifiers. Also bounded quantification. Also number systems, ``fin``.)
 
