@@ -47,6 +47,8 @@ In ``def``, ``theorem``, and ``lemma``, the type (``α`` or ``p``, respectively)
    lemma   baz_lemma   (x y : ℕ) : baz x y [] = [x, y] := rfl
    theorem baz_theorem (x y : ℕ) : baz x y [] = [x, y] := rfl
 
+.. _Inductive_Definitions:
+
 Inductive Definitions
 =====================
 

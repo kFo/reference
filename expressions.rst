@@ -42,7 +42,7 @@ The set of expressions in Lean is defined inductively as follows:
 * ``Π x : α, β`` : the type of functions taking an element ``x`` of ``α`` to an element of ``β``, where ``β`` is an expression whose type is a ``Sort``
 * ``s t`` : the result of applying ``s`` to ``t``, where ``s`` and ``t`` are expressions
 * ``λ x : α, t`` : the function mapping any value ``x`` of type ``α`` to ``t``, where ``t`` is an expression
-* ``let x := t in s``, denoting a local definition, that is, the value of ``s`` when ``x`` denotes ``t``
+* ``let x := t in s`` : a local definition, denote the value of ``s`` when ``x`` denotes ``t``
 
 Every well formed term in Lean has a *type*, which itself is an expression of type ``Sort u`` for some ``u``. The fact that a term ``t`` has type ``α`` is written ``t : α``. 
 
@@ -60,8 +60,7 @@ For an expression to be well formed, its components have to satisfy certain typi
 
 When the expression ``β`` in ``Π x : α, β`` does not depend on ``x``, it can be written ``α → β``. As usual, the variable ``x`` is bound in ``Π x : α, β``, ``λ x : α, t``, and ``let x := t in s``. The expression ``∀ x : α, β`` is alternative syntax for ``Π x : α, β``, and is intended to be used when ``β`` is a proposition. An underscore can be used to generate an internal variable in a binder, as in ``λ _ : α, t``.
 
-In addition to the elements above, expressions can also contain *metavariables*, that is, temporary placeholders, that are used in the process of constructing terms. They can also contain *macros*, which are used to annotate or abbreviate terms.
-Terms that are added to the environment contain neither metavariable nor variables, which is to say, they are fully elaborated and make sense in the empty context.
+In addition to the elements above, expressions can also contain *metavariables*, that is, temporary placeholders, that are used in the process of constructing terms. They can also contain *macros*, which are used to annotate or abbreviate terms. Terms that are added to the environment contain neither metavariable nor variables, which is to say, they are fully elaborated and make sense in the empty context.
  
 Constants can be declared in various ways, such as by the ``constant(s)`` and ``axiom(s)`` keywords, or as the result of an ``inductive`` or ``structure`` declarations. Similarly, objects can be defined in various ways, such as using ``def``, ``theorem``, or the equation compiler. See :doc:`declarations` for more information.
 
@@ -250,9 +249,7 @@ Similarly, one can use "dot notation" for projections: one can write ``p.fst`` a
 
 The anonymous projector notation can used more generally for any objects defined in a *namespace* (see :doc:`infrastructure`). For example, if ``l`` has type ``list α`` then ``l.map f`` abbreviates ``list.map f l``, in which ``l`` has been placed at the first argument position where ``list.map`` expects a ``list``.
  
-Finally, for data types with one constructor, one destruct an element by pattern matching using the ``let`` and ``assume`` constructs,
-as in the examples below. Internally, these are interpreted using the ``match`` construct, which is in turn compiled down for the eliminator
-for the inductive type, as described in :doc:`declarations`. 
+Finally, for data types with one constructor, one destruct an element by pattern matching using the ``let`` and ``assume`` constructs, as in the examples below. Internally, these are interpreted using the ``match`` construct, which is in turn compiled down for the eliminator for the inductive type, as described in :doc:`declarations`. 
 
 .. code-block:: lean
 
@@ -333,19 +330,86 @@ As noted in :ref:`constructors_projections_and_matching`, anonymous constructors
 Computation
 ===========
 
-Every expression in Lean has a computational interpretation, unless it involves classical elements that block computation, as described in the next section.
+Two expressions that differ up to a renaming of their bound variables are said to be *α-equivalent*, and are treated as syntactically equivalent by Lean.
 
-(Explain reduction and evaluation.)
+Every expression in Lean has a natural computational interpretation, unless it involves classical elements that block computation, as described in the next section. The system recognizes the following notions of *reduction*:
+
+* *β-reduction* : An expression ``(λ x, t) s`` β-reduces to ``t[s/x]``, that is, the result of replacing ``x`` by ``s`` in ``t``.
+* *ζ-reduction* : An expression ``let x := s in t`` ζ-reduces to ``t[s/x]``.
+* *δ-reduction* : If ``c`` is a defined constant with definition ``t``, then ``c`` δ-reduces to to ``t``.
+* *ι-reduction* : When a function defined by recursion on an inductive type is applied to an element given by an explicit constructor, the result ι-reduces to the specified function value, as described in :ref:`Inductive_Definitions`.
+
+The reduction relation is transitive, which is to say, is ``s`` reduces to ``s'`` and ``t`` reduces to ``t'``, then ``s t`` reduces to ``s' t'``, ``λ x, s`` reduces to ``λ x, s'``, and so on. If ``s`` and ``t`` reduce to a common term, they are said to be *equivalent* or *definitionally equal*. Definitional equality is defined to be the smallest equivalence relation that satisfies all these properties and also includes α-equivalenece and the following two relations:
+
+* *η-equivalence* : An expression ``(λx, t x)`` is η-equivalent to ``t``, assuming ``x`` does not occur in ``t``. 
+* *proof irrelevance* : If ``p : Prop``, ``s : p``, and ``t : p``, then ``s`` and ``t`` are  considered to be equivalent.
+
+This last fact reflects the intuition that once we have proved a proposition ``p``, we only care that is has been proved; the proof does nothing more than witness the fact that ``p`` is true.
+
+Definitional equality is a strong notion of equalty of values. Lean's logical foundations sanction treating definitionally equal terms as being the same when checking that a term is well-typed and/or that it has a given type.
+
+The reduction relation is believed to be strongly normalizing, which is to say, every sequence of reductions applied to a term will eventually terminate. The consistency of Lean and, say, soundness with respect to a set-theoretic semantics do depend on this property. The property guarantees that Lean's type-checking algorithm terminates, at least in principle, so that is the issue at stake. 
+
+Lean provides two commands to compute with expressions:
+
+* ``#reduce t`` : use the kernel type-checking procedures to carry out reductions on ``t`` until no more reductions are possible, and show the result
+* ``#eval t`` : evaluate ``t`` using a fast bytecode evalator, and show the result
+
+Every computable definition in Lean is compiled to bytecode at definition time. Bytecode evaluation is more liberal than kernel evaluation: types and all propositional information are erased, and functions are evaluated using a stack-based virtual machine. As a result, ``#eval`` is more efficient than ``#reduce,`` and can be used to execute complex programs. In contrast, ``#reduce`` is designed to be small and reliable, and to produce type-correct terms at each step. Bytecode is never used in type checking, so as far as soundness and consistency are concerned, only kernel reduction is part of the trusted computing base.
+
+**Examples**
+
+.. code-block:: lean
+
+    #reduce (λ x, x + 3) 5
+    #eval   (λ x, x + 3) 5
+
+    #reduce let x := 5 in x + 3
+    #eval   let x := 5 in x + 3
+
+    def f x := x + 3
+
+    #reduce f 5
+    #eval   f 5
+
+    #reduce @nat.rec (λ n, ℕ) (0 : ℕ) (λ n recval : ℕ, recval + n + 1) (5 : ℕ)
+    #eval   @nat.rec (λ n, ℕ) (0 : ℕ) (λ n recval : ℕ, recval + n + 1) (5 : ℕ)
+
+    def g : ℕ → ℕ 
+    | 0     := 0
+    | (n+1) := g n + n + 1
+
+    #reduce g 5
+    #eval   g 5
+
+    #eval   g 50000
+
+    example : (λ x, x + 3) 5 = 8 := rfl
+    example : (λ x, f x) = f := rfl
+    example (p : Prop) (h₁ h₂ : p) : h₁ = h₂ := rfl
+
+Note: the combination of proof irrelevance and singleton ``Prop`` elimination in ι-reduction renders the ideal version of definitional equality, as described above, undecidable. Lean's procedure for checking definitional equality is only an approximation to the ideal. It is not transitive, as illustrated by the example below. Once again, this does not compromise the consistency or soundness of Lean; it only means that Lean is more conservative in the terms it recognizes as well typed. Singleton elimination will be discussed in greater detail in :ref:`Inductive_Definitions`.
+
+**Example**
+
+.. code-block:: lean
+
+    def R (x y : unit) := false 
+    def accrec := @acc.rec unit R (λ_, unit) (λ _ a ih, ()) ()
+    example (h) : accrec h = accrec (acc.intro _ (λ y, acc.inv h)) := rfl
+    example (h) : accrec (acc.intro _ (λ y, acc.inv h)) = () := rfl
+    example (h) : accrec h = () := sorry   -- rfl fails
+
 
 Axioms
 ======
 
 Lean's foundational framework consists of:
 
-* the core syntax of the calculus of constructions, as described above
+* the core elements of the calculus of constructions, with type universes and dependent function types, as described above
 * inductive types, as described in :doc:`declarations`. 
 
-In addition, the core library defines (and trusts) the following axiomatic extension:
+In addition, the core library defines (and trusts) the following axiomatic extensions:
 
 * propositional extensionality: ...
 * quotients: ...
@@ -353,4 +417,4 @@ In addition, the core library defines (and trusts) the following axiomatic exten
 
 The last principle, in conjunction with the others, makes the axiomatic foundation classical. Functions that make use of ``choice`` to produce data are incompatible with a computational interpretation, and do not produce bytecode. They have to be declared ``noncomputable``.
 
-(Say something about the ``meta`` keyword.)
+For metaprogramming purposes, Lean also allows the definition of objects which stand outside the object language. These are denoted with the ``meta`` keyword, as described in :doc:`programming`.
