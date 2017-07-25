@@ -339,7 +339,7 @@ Every expression in Lean has a natural computational interpretation, unless it i
 * *δ-reduction* : If ``c`` is a defined constant with definition ``t``, then ``c`` δ-reduces to to ``t``.
 * *ι-reduction* : When a function defined by recursion on an inductive type is applied to an element given by an explicit constructor, the result ι-reduces to the specified function value, as described in :ref:`Inductive_Definitions`.
 
-The reduction relation is transitive, which is to say, is ``s`` reduces to ``s'`` and ``t`` reduces to ``t'``, then ``s t`` reduces to ``s' t'``, ``λ x, s`` reduces to ``λ x, s'``, and so on. If ``s`` and ``t`` reduce to a common term, they are said to be *equivalent* or *definitionally equal*. Definitional equality is defined to be the smallest equivalence relation that satisfies all these properties and also includes α-equivalenece and the following two relations:
+The reduction relation is transitive, which is to say, is ``s`` reduces to ``s'`` and ``t`` reduces to ``t'``, then ``s t`` reduces to ``s' t'``, ``λ x, s`` reduces to ``λ x, s'``, and so on. If ``s`` and ``t`` reduce to a common term, they are said to be *definitionally equal*. Definitional equality is defined to be the smallest equivalence relation that satisfies all these properties and also includes α-equivalenece and the following two relations:
 
 * *η-equivalence* : An expression ``(λx, t x)`` is η-equivalent to ``t``, assuming ``x`` does not occur in ``t``. 
 * *proof irrelevance* : If ``p : Prop``, ``s : p``, and ``t : p``, then ``s`` and ``t`` are  considered to be equivalent.
@@ -348,7 +348,7 @@ This last fact reflects the intuition that once we have proved a proposition ``p
 
 Definitional equality is a strong notion of equalty of values. Lean's logical foundations sanction treating definitionally equal terms as being the same when checking that a term is well-typed and/or that it has a given type.
 
-The reduction relation is believed to be strongly normalizing, which is to say, every sequence of reductions applied to a term will eventually terminate. The consistency of Lean and, say, soundness with respect to a set-theoretic semantics do depend on this property. The property guarantees that Lean's type-checking algorithm terminates, at least in principle, so that is the issue at stake. 
+The reduction relation is believed to be strongly normalizing, which is to say, every sequence of reductions applied to a term will eventually terminate. The property guarantees that Lean's type-checking algorithm terminates, at least in principle. The consistency of Lean and its soundness with respect to a set-theoretic semantics do not depend on either of these properties.
 
 Lean provides two commands to compute with expressions:
 
@@ -388,7 +388,7 @@ Every computable definition in Lean is compiled to bytecode at definition time. 
     example : (λ x, f x) = f := rfl
     example (p : Prop) (h₁ h₂ : p) : h₁ = h₂ := rfl
 
-Note: the combination of proof irrelevance and singleton ``Prop`` elimination in ι-reduction renders the ideal version of definitional equality, as described above, undecidable. Lean's procedure for checking definitional equality is only an approximation to the ideal. It is not transitive, as illustrated by the example below. Once again, this does not compromise the consistency or soundness of Lean; it only means that Lean is more conservative in the terms it recognizes as well typed. Singleton elimination will be discussed in greater detail in :ref:`Inductive_Definitions`.
+Note: the combination of proof irrelevance and singleton ``Prop`` elimination in ι-reduction renders the ideal version of definitional equality, as described above, undecidable. Lean's procedure for checking definitional equality is only an approximation to the ideal. It is not transitive, as illustrated by the example below. Once again, this does not compromise the consistency or soundness of Lean; it only means that Lean is more conservative in the terms it recognizes as well typed, and this does not cause problems in practice. Singleton elimination will be discussed in greater detail in :ref:`Inductive_Definitions`.
 
 **Example**
 
