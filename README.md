@@ -1,3 +1,8 @@
+The Lean Reference Manual
+-------------------------
+
+The manual uses Sphinx and restructured text, and the Read the Docs theme.
+
 # How to build
 
 ```
@@ -5,16 +10,11 @@ pip install sphinx recommonmark
 make html
 ```
 
-# lean_reference
+The first line is only necessary if we eventually incorporate markdown files as restructured text.
 
-A temporary repository with a start on the Lean reference manual.
+# How to deploy
 
-Intended order:
-
-expressions.md
-declarations.md
-infrastructure.md
-tactics.md
-programming.md
-libraries.md
+```
+./deploy.sh leanprover reference
+```
 
