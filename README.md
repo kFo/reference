@@ -10,7 +10,7 @@ pip install sphinx recommonmark
 make html
 ```
 
-The first line is only necessary if we eventually incorporate markdown files as restructured text.
+The first line is only necessary if we eventually incorporate markdown files as well as restructured text.
 
 # How to deploy
 
