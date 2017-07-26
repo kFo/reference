@@ -13,7 +13,7 @@ except:
 class lean_code_goodies(nodes.General, nodes.Element): pass
 
 def mk_try_it_uri(code):
-    uri = 'https://gebner.github.io/lean-web-editor/index.html#code='
+    uri = 'https://gebner.github.io/lean-web-editor/#code='
     uri += urlquote(code, safe='~@#$&()*!+=:;,.?/\'')
     return uri
 
