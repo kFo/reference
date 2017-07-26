@@ -6,16 +6,14 @@ if [ "$#" -ne 2 ]; then
 fi
 
 # Build
-make html
+make clean html
 
 # 3. Deploy
+rm -rf deploy
 mkdir deploy
 cd deploy
-rm -rf *
 git init
-cp -r ../_build/html/* .
-rm README.html
-touch .nojekyll
+cp -r ../_build/html/./ .
 git add .
 git commit -m "Update `date`"
 git push git@github.com:$1/$2 +HEAD:gh-pages
