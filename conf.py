@@ -21,10 +21,6 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-import recommonmark
-from recommonmark.transform import AutoStructify
-from recommonmark.parser import CommonMarkParser
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -81,7 +77,6 @@ pygments_style = 'sphinx'
 todo_include_todos = False
 
 source_parsers = {
-   '.md': CommonMarkParser,
 }
 
 
