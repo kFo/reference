@@ -2,7 +2,7 @@
 Lexical Structure
 =================
 
-This section describes the detailed lexical structure of the Lean language. Most readers may want to skip this section on the first read.
+This section describes the detailed lexical structure of the Lean language. Many readers will want to skip this section on a first reading.
 
 Lean input is processed into a stream of tokens by its scanner, using the UTF-8 encoding. The next token is the longest matching prefix of the remaining input.
 
