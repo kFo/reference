@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'The Lean Reference Manual'
-copyright = '2017, Jeremy Avigad'
+copyright = '2017, Jeremy Avigad, Gabriel Ebner, Sebastian Ullrich'
 author = 'Jeremy Avigad, Gabriel Ebner, Sebastian Ullrich'
 
 # The version info for the project you're documenting, acts as replacement for
