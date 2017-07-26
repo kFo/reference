@@ -1,26 +1,43 @@
+.. _declarations:
+
 ============
 Declarations
 ============
 
-Identifiers
-===========
+.. _decl_names:
 
-An *atomic name* is an alphanumeric string that does not begin with a numeral. A (hierarchical) *identifier*, or *name*, consists of one or more *atomic names* separated by periods.
+Declaration Names
+=================
 
-**Examples**
+A declaration name is a :ref:`hierarchical identifier <identifiers>` that is interpreted relative to the current namespace as well as (during lookup) to the set of open namespaces.
 
 .. code-block:: lean
 
-   def foo := 5
-   def foo.bar.baz := 6
-   def foo.γ1.δ3 := 7
+   namespace a
+     constant b.c : ℕ
+     #print b.c -- constant a.b.c : ℕ
+   end a
+
+   #print a.b.c -- constant a.b.c : ℕ
+   open a
+   #print b.c -- constant a.b.c : ℕ
+
+Declaration names starting with an underscore are reserved for internal use. Names starting with the special atomic name ``_root_`` are interpreted as absolute names.
+
+.. code-block:: lean
+
+   constant a : ℕ
+   namespace a
+     constant a : ℤ
+     #print _root_.a -- constant a : ℕ
+   end a
 
 Basic Declarations
 ==================
 
 All but the last of these provide straightforward ways of adding new objects to the environment:
 
-* ``constant c : α`` : declares a constant named ``c`` of type ``α``, where ``c`` is an identifier
+* ``constant c : α`` : declares a constant named ``c`` of type ``α``, where ``c`` is a :ref:`declaration name <decl_names>`.
 * ``axiom c : α`` : alternative syntax for ``constant``
 * ``def c : α := t`` : defines ``c`` to denote ``t``, which should have type ``α``.
 * ``theorem c : p := t`` : similar to ``def``, but intended to be used when ``p`` is a proposition.

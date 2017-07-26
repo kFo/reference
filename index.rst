@@ -9,6 +9,7 @@ The Lean Reference Manual
 .. toctree::
    :maxdepth: 2
 
+   lexical_structure
    expressions
    declarations
    infrastructure

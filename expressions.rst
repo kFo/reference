@@ -1,3 +1,5 @@
+.. _expressions:
+
 ===========
 Expressions
 ===========
@@ -288,6 +290,8 @@ Finally, for data types with one constructor, one destruct an element by pattern
 
     theorem swap_conj'' {a b : Prop} : a ∧ b → b ∧ a :=
     assume ⟨ha, hb⟩, ⟨hb, ha⟩ 
+
+.. _structured_proofs:
 
 Structured Proofs
 =================
