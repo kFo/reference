@@ -50,6 +50,11 @@ def html_visit_lean_code_goodies(self, node):
 def html_depart_lean_code_goodies(self, node):
     self.body.append('</div>')
 
+def latex_visit_lean_code_goodies(self, node):
+    pass
+
+def latex_depart_lean_code_goodies(self, node):
+    pass
 
 # Extract code snippets for testing.
 
@@ -96,7 +101,8 @@ class LeanTestBuilder(Builder):
 
 def setup(app):
     app.add_node(lean_code_goodies,
-        html=(html_visit_lean_code_goodies, html_depart_lean_code_goodies))
+        html=(html_visit_lean_code_goodies, html_depart_lean_code_goodies),
+        latex=(latex_visit_lean_code_goodies, latex_depart_lean_code_goodies))
     app.connect('doctree-resolved', process_lean_nodes)
 
     app.add_builder(LeanTestBuilder)

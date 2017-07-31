@@ -91,24 +91,3 @@ Match Expressions
 Structures and Records
 ======================
 
-Some Test Data
-==============
-
-Some text before.
-
-**Examples**
-
-.. code-block:: lean
-
-   universe u 
-   variable {α : Type u}
-   variables m n : ℕ
-
-   -- BEGIN
-   example : m + n = n + m := by rw add_comm
-
-   def my_id (x : α) := x
-   -- END
-
-Some text after.
-

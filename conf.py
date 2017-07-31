@@ -88,7 +88,7 @@ source_parsers = {
 html_theme = "alabaster"
 
 html_sidebars = {
-   '**': ['about.html', 'globaltoc.html', 'searchbox.html'],
+   '**': ['about.html', 'navigation.html', 'searchbox.html'],
 }
 
 
@@ -99,7 +99,9 @@ html_sidebars = {
 html_theme_options = {
    'logo': 'lean_logo.svg',
    'font_family': 'Lato, Arial, Helvetica, sans',
-   'head_font_family': 'Lato, Arial, Helvetica, sans'
+   'head_font_family': 'Lato, Arial, Helvetica, sans',
+   'extra_nav_links': {'Home':'index.html', 
+                       'PDF version':'../latex/LeanReferenceManual.pdf'}
 }
 
 
@@ -117,7 +119,12 @@ htmlhelp_basename = 'LeanReferenceManualdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
+latex_engine = 'xelatex'
+
+latex_additional_files = ['unixode.sty']
+
 latex_elements = {
+    'preamble': r'\usepackage{unixode}',
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
@@ -140,7 +147,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'LeanReferenceManual.tex', 'The Lean Reference Manual',
-     'Jeremy Avigad', 'manual'),
+     'Jeremy Avigad, Gabriel Ebner, and Sebastian Ullrich', 'manual'),
 ]
 
 
