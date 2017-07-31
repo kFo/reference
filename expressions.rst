@@ -1,5 +1,7 @@
 .. _expressions:
 
+.. highlight:: lean
+
 ===========
 Expressions
 ===========
@@ -54,9 +56,9 @@ For an expression to be well formed, its components have to satisfy certain typi
 * ``c : α``, where ``α`` is the type that ``c`` has been declared or defined to have
 * ``x : α``, where ``α`` is the type that ``x`` has been assigned in the local context where it is interpreted
 * ``(Π x : α, β) : Sort (imax u v)`` where ``α : Sort u``, and ``β : Sort v`` assuming ``x : α`` 
-* ``s t : β [t/x]`` where ``s`` has type ``Π x : α, β`` and ``t`` has type ``α``
+* ``s t : β[t/x]`` where ``s`` has type ``Π x : α, β`` and ``t`` has type ``α``
 * ``(λ x : α, t) : Π x : α, β`` if ``t`` has type ``β`` whenever ``x`` has type ``α``
-* ``(let x := t in s) : β [t/x]`` where ``s`` has type ``Π x : α, β``, and ``t`` has type ``β`` assuming ``x : α`` 
+* ``(let x := t in s) : β[t/x]`` where ``s`` has type ``Π x : α, β``, and ``t`` has type ``β`` assuming ``x : α`` 
 
 ``Prop`` abbreviates ``Sort 0``, ``Type`` abbreviates ``Sort 1``, and ``Type u`` abbreviates ``Sort (u + 1)`` when ``u`` is a universe variable. We say "``α`` is a type" to express ``α : Type u`` for some ``u``, and we say "``p`` is a proposition" to express ``p : Prop``. Using the *propositions as types* correspondence, given ``p : Prop``, we refer to an expression ``t : p`` as a *proof* of ``p``. In contrast, given ``α : Type u`` for some ``u`` and ``t : α``, we sometimes refer to ``t`` as *data*.
 
