@@ -6,6 +6,7 @@ from sphinx.errors import SphinxError
 import os, os.path, fnmatch, subprocess
 import codecs
 import urllib
+import re
 
 try:
     urlquote = urllib.parse.quote
@@ -32,9 +33,13 @@ def process_lean_nodes(app, doctree, fromdocname):
         new_node = lean_code_goodies()
         new_node['full_code'] = node.rawsource
         node.replace_self([new_node])
-        new_node += node
 
-        # TODO(gabriel): remove code outside BEGIN/END
+        code = node.rawsource
+        m = re.search(r'--[^\n]*BEGIN[^\n]*\n(.*)--[^\n]*END', code, re.DOTALL)
+        if m:
+            node = nodes.literal_block(m.group(1), m.group(1))
+            node['language'] = 'lean'
+        new_node += node
 
 def html_visit_lean_code_goodies(self, node):
     self.body.append(self.starttag(node, 'div', style='position: relative'))
