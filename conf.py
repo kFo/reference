@@ -101,7 +101,7 @@ html_theme_options = {
    'font_family': 'Lato, Arial, Helvetica, sans',
    'head_font_family': 'Lato, Arial, Helvetica, sans',
    'extra_nav_links': {'Home':'index.html', 
-                       'PDF version':'../latex/LeanReferenceManual.pdf'}
+                       'PDF version':'LeanReferenceManual.pdf'}
 }
 
 
