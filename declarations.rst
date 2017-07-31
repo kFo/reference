@@ -46,7 +46,7 @@ All but the last of these provide straightforward ways of adding new objects to 
 
 ``constant`` and ``axiom`` have plural versions, ``constants`` and ``axioms``.
 
-In ``def``, ``theorem``, and ``lemma``, the type (``α`` or ``p``, respectively) can be omitted when it can be inferred by Lean. These elements can take a list of arguments before the colon, which are interpreted as a lambda abstraction.
+In ``def``, the type (``α`` or ``p``, respectively) can be omitted when it can be inferred by Lean. Constants declared with ``theorem`` or ``lemma`` are marked as ``irreducible``. Any of ``def``, ``theorem``, ``lemma``, or ``example`` can take a list of arguments before the colon, which are interpreted as a lambda abstraction.
 
 **Examples**
 
@@ -61,9 +61,11 @@ In ``def``, ``theorem``, and ``lemma``, the type (``α`` or ``p``, respectively)
    def baz (x y : ℕ) (s : list ℕ) := [x, y] ++ s
 
    theorem foo_eq_five : foo = 5 := rfl
-   lemma   baz_lemma   (x y : ℕ) : baz x y [] = [x, y] := rfl
    theorem baz_theorem (x y : ℕ) : baz x y [] = [x, y] := rfl
-
+   lemma baz_lemma (x y : ℕ) : baz x y [] = [x, y] := rfl
+   
+   example (x y : ℕ) : baz x y [] = [x, y] := rfl
+   
 .. _Inductive_Definitions:
 
 Inductive Definitions
