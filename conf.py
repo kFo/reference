@@ -102,7 +102,9 @@ html_theme_options = {
    'font_family': 'Lato, Arial, Helvetica, sans',
    'head_font_family': 'Lato, Arial, Helvetica, sans',
    'extra_nav_links': {'PDF version':'LeanReferenceManual.pdf',
-                       'Lean Home':'https://leanprover.github.io/',}
+                       'Lean Home':'https://leanprover.github.io/',},
+   'sidebar_width' : '200px',
+   'page_width' : '960px'
 }
 
 
