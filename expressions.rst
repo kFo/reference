@@ -181,7 +181,7 @@ When a function has an explicit argument, you can nonetheless ask Lean's elabora
 Basic Data Types and Assertions
 ===============================
 
-The core library contains a numboer of basic data types, such as the natural numbers (``ℕ``, or ``nat``), the integers (``ℤ``), the booleans (``bool``), and common operations on these, as well as the usual logical quantifiers and connectives. Some example are given below. A list of common notations and their precedences can be found in a `file <https://github.com/leanprover/lean/blob/master/library/init/core.lean>`_ in the core library. The core library also contains a number of basic data type constructors. Definitions can also be found the `data <https://github.com/leanprover/lean/blob/master/library/init/data>`_ directory of the core library. For more information, see also :doc:`libraries`.
+The core library contains a number of basic data types, such as the natural numbers (``ℕ``, or ``nat``), the integers (``ℤ``), the booleans (``bool``), and common operations on these, as well as the usual logical quantifiers and connectives. Some example are given below. A list of common notations and their precedences can be found in a `file <https://github.com/leanprover/lean/blob/master/library/init/core.lean>`_ in the core library. The core library also contains a number of basic data type constructors. Definitions can also be found the `data <https://github.com/leanprover/lean/blob/master/library/init/data>`_ directory of the core library. For more information, see also :doc:`libraries`.
 
 .. code-block:: lean
 
