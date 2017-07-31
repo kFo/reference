@@ -97,11 +97,12 @@ html_sidebars = {
 # documentation.
 #
 html_theme_options = {
-   'logo': 'lean_logo.svg',
+#   'logo': 'lean_logo.svg',
+   'logo_name': True,
    'font_family': 'Lato, Arial, Helvetica, sans',
    'head_font_family': 'Lato, Arial, Helvetica, sans',
-   'extra_nav_links': {'Home':'index.html', 
-                       'PDF version':'LeanReferenceManual.pdf'}
+   'extra_nav_links': {'PDF version':'LeanReferenceManual.pdf',
+                       'Lean Home':'https://leanprover.github.io/',}
 }
 
 
