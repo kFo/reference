@@ -35,7 +35,7 @@ Parts of atomic names can be escaped by enclosing them in pairs of French double
 
 .. code-block:: lean
 
-   foo.«bar.baz» -- name parts ["foo", "bar.baz"]
+   def foo.«bar.baz» := 0  -- name parts ["foo", "bar.baz"]
 
 .. productionlist::
    ident: `atomic_ident` | `ident` "." `atomic_ident`
