@@ -3,7 +3,8 @@ from docutils.parsers.rst import Directive
 from sphinx.builders import Builder
 from sphinx.directives import CodeBlock
 from sphinx.errors import SphinxError
-import os, os.path, glob, subprocess
+import os, os.path, fnmatch, subprocess
+import codecs
 import urllib
 
 try:
@@ -63,19 +64,22 @@ class LeanTestBuilder(Builder):
             i += 1
             fn = os.path.join(self.outdir, '{0}_{1}.lean'.format(docname, i))
             self.written_files.add(fn)
-            out = open(fn, mode='w', encoding='utf-8')
+            out = codecs.open(fn, 'w', encoding='utf-8')
             out.write(node.rawsource)
-    
-    def finish(self):
-        old_files = glob.glob(os.path.join(self.outdir, '**', '*.lean'), recursive=True)
-        for fn in old_files:
-            if fn not in self.written_files:
-                os.remove(fn)       
 
-        output = subprocess.run(['lean', '--make', self.outdir], stdout=subprocess.PIPE)
-        errors = '\n'.join(l for l in output.stdout.decode('utf-8').split('\n') if ': error:' in l)
+    def finish(self):
+        for root, _, filenames in os.walk(self.outdir):
+            for fn in fnmatch.filter(filenames, '*.lean'):
+                fn = os.path.join(root, fn)
+                if fn not in self.written_files:
+                    os.remove(fn)
+
+        proc = subprocess.Popen(['lean', '--make', self.outdir], stdout=subprocess.PIPE)
+        stdout, stderr = proc.communicate()
+        errors = '\n'.join(l for l in stdout.decode('utf-8').split('\n') if ': error:' in l)
         if errors != '': raise SphinxError('\nlean exited with errors:\n{0}\n'.format(errors))
-        output.check_returncode()
+        retcode = proc.wait()
+        if retcode: raise SphinxError('lean exited with error code {0}'.format(retcode))
 
     def prepare_writing(self, docnames): pass
 
