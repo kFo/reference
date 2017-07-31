@@ -50,7 +50,7 @@ In ``def``, the type (``α`` or ``p``, respectively) can be omitted when it can 
 
 **Examples**
 
-.. code-block :: lean
+.. code-block:: lean
 
    constant  c : ℕ
    constants (d e : ℕ) (f : ℕ → ℕ)
@@ -63,7 +63,7 @@ In ``def``, the type (``α`` or ``p``, respectively) can be omitted when it can 
    theorem foo_eq_five : foo = 5 := rfl
    theorem baz_theorem (x y : ℕ) : baz x y [] = [x, y] := rfl
    lemma baz_lemma (x y : ℕ) : baz x y [] = [x, y] := rfl
-   
+
    example (x y : ℕ) : baz x y [] = [x, y] := rfl
    
 .. _Inductive_Definitions:
@@ -91,4 +91,24 @@ Match Expressions
 Structures and Records
 ======================
 
+Some Test Data
+==============
+
+Some text before.
+
+**Examples**
+
+.. code-block:: lean
+
+   universe u 
+   variable {α : Type u}
+   variables m n : ℕ
+
+   -- BEGIN
+   example : m + n = n + m := by rw add_comm
+
+   def my_id (x : α) := x
+   -- END
+
+Some text after.
 
