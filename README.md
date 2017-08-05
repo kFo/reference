@@ -1,24 +1,18 @@
 The Lean Reference Manual
 -------------------------
 
-The manual uses Sphinx and restructured text, and the Read the Docs theme.
+The manual uses Sphinx and restructured text.
 
 # How to build
 
+The build requires python 3.
+
 ```
-pip install sphinx recommonmark
+make install-deps
 make html
 ```
 
-The first line is only necessary if we eventually incorporate markdown files as well as restructured text.
-
-On OSX, after the El Capitan update, we need to install our own version of python, or use `--user` flag when installing `sphinx`.
-
-```
-pip install --user sphinx recommonmark
-pip install --user sphinx_rtd_theme
-make html
-```
+The call to `make install-deps` is only required the first time, and only if you want to use the bundled version of Sphinx and Pygments with improved syntax highlighting for Lean.
 
 # How to deploy
 

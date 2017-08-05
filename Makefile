@@ -12,6 +12,14 @@ BUILDDIR      = _build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+VENVDIR := .venv
+export PATH := $(VENVDIR)/bin:$(PATH)
+
+install-deps:
+	test -d $(VENVDIR) || python3 -m venv $(VENVDIR)
+	pip install https://bitbucket.org/gebner/pygments-main/get/default.tar.gz#egg=Pygments
+	pip install sphinx
+
 .PHONY: help Makefile
 
 # Catch-all target: route all unknown targets to Sphinx using the new
