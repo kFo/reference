@@ -5,7 +5,7 @@ The manual uses Sphinx and restructured text.
 
 # How to build
 
-The build requires python 3.
+The build requires python 3 (install `python3-venv` on ubuntu).
 
 ```
 make install-deps

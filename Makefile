@@ -16,8 +16,9 @@ VENVDIR := .venv
 export PATH := $(VENVDIR)/bin:$(PATH)
 
 install-deps:
-	test -d $(VENVDIR) || python3 -m venv $(VENVDIR)
+	test -d $(VENVDIR)/bin/pip || python3 -m venv $(VENVDIR)
 	pip install https://bitbucket.org/gebner/pygments-main/get/default.tar.gz#egg=Pygments
+	pip install 'wheel>=0.29' # needed for old ubuntu versions, https://github.com/pallets/markupsafe/issues/59
 	pip install sphinx
 
 .PHONY: help Makefile
