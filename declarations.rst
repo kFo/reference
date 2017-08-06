@@ -4,7 +4,7 @@
 Declarations
 ============
 
-.. _decl_names:
+.. _declaration_names:
 
 Declaration Names
 =================
@@ -30,25 +30,59 @@ Declaration names starting with an underscore are reserved for internal use. Nam
    namespace a
      constant a : ℤ
      #print _root_.a -- constant a : ℕ
+     #print a.a  --
    end a
+
+Contexts and Telescopes
+=======================
+
+When processing user input, Lean first parses text to a raw expression format. It then uses background information and type constants to disambiguate overloaded symbols and infer implicit arguments, resulting in a fully-formed expression. This process is known as *elaboration*.
+
+As hinted in :ref:`expression_syntax`, expressions are parsed and elaborated with respect to an *environment* and a *local context*. Roughly speaking, an environment represents the state of Lean at the point where an expression is parsed, including previously declared axioms, constants, definitions, and theorems. In a given environment, a *local context* consists of a sequence ``(a₁ : α₁) (a₂ : α₂) ... (aₙ : αₙ)`` where each ``aᵢ`` is a name denoting a local constant and each ``αᵢ`` is an expression of type ``Sort u`` for some ``u`` which can involve elements of the environment and the local constants ``aⱼ`` for ``j < i``. 
+
+Intuitively, a local context is a list of variables that are held constant while an expression is being elaborated. Consider the following example:
+
+.. code-block:: lean
+
+   def (a b : ℕ) : ℕ → ℕ := λ c, a + (b + c)
+
+Here the expression ``λ c, a + (b + c)`` is elaborated in the context ``(a : ℕ) (b : ℕ`` and the expression ``a + (b + c)`` is elaborated in the context ``(a : ℕ) (b : ℕ) (c : ℕ)``. If you replace the expression ``a + (b + c)`` with an underscore, the error message from Lean will include the current *goal*:
+
+.. code-block:: text
+
+   a b c : ℕ
+   ⊢ ℕ
+
+Here ``a b c : ℕ`` indicates the local context, and the second ``ℕ`` indicates the expected type of the result.
+
+A *context* is sometimes called a *telescope*, but the latter is used more generally to include a sequence of declarations occuring relative to a given context. For example, relative to the context ``(a₁ : α₁) (a₂ : α₂) ... (aₙ : αₙ)``, the types ``βᵢ`` in a telescope ``(b₁ : β₁) (b₂ : β₂) ... (bₙ : βₙ)`` can refer to ``a₁, ..., aₙ``. Thus a context can be viewed as a telescope relative to the empty context.
+
+Telescopes are often used to describe a list of arguments, or parameters, to a declaration. In such cases, it is often notationally convenient to let ``(a : α)`` stand for a telescope rather than just a single argument. In general, the annotations described in :ref:`implicit_arguments` can be used to mark arguments as implicit.
+
+.. _basic_declarations:
 
 Basic Declarations
 ==================
 
-All but the last of these provide straightforward ways of adding new objects to the environment:
+Lean provides ways of adding new objects to the environment. The following provide straightforward ways of declaring new objects:
 
-* ``constant c : α`` : declares a constant named ``c`` of type ``α``, where ``c`` is a :ref:`declaration name <decl_names>`.
+* ``constant c : α`` : declares a constant named ``c`` of type ``α``, where ``c`` is a :ref:`declaration name <declaration_names>`.
 * ``axiom c : α`` : alternative syntax for ``constant``
 * ``def c : α := t`` : defines ``c`` to denote ``t``, which should have type ``α``.
 * ``theorem c : p := t`` : similar to ``def``, but intended to be used when ``p`` is a proposition.
 * ``lemma c : p := t`` : alternative syntax for ``theorem``
+
+It is sometimes useful to be able to simulate a definition or theorem without naming it or adding it to the environment.
+
 * ``example : α := t`` : elaborates ``t`` and checks that it has sort ``α`` (often a proposition), without adding it to the environment.
 
 ``constant`` and ``axiom`` have plural versions, ``constants`` and ``axioms``.
 
-In ``def``, the type (``α`` or ``p``, respectively) can be omitted when it can be inferred by Lean. Constants declared with ``theorem`` or ``lemma`` are marked as ``irreducible``. Any of ``def``, ``theorem``, ``lemma``, or ``example`` can take a list of arguments before the colon, which are interpreted as a lambda abstraction.
+In ``def``, the type (``α`` or ``p``, respectively) can be omitted when it can be inferred by Lean. Constants declared with ``theorem`` or ``lemma`` are marked as ``irreducible``. 
 
-**Examples**
+Any of ``def``, ``theorem``, ``lemma``, or ``example`` can take a list of arguments (that is, a context) before the colon. If ``(a : α)`` is a context, the definition ``def foo (a : α) : β := t`` is interpreted as ``def foo : Π a : α, β := λ a : α, t``. Similarly, a theorem ``theorem foo (a : α) : p := t`` is interpreted as ``theorem foo : ∀ a : α, p := assume a : α, t``. (Remember that ``∀`` is syntactic sugar for ``Π``, and ``assume`` is syntactic sugar for ``λ``.)
+
+.. rubric:: Examples
 
 .. code-block:: lean
 
@@ -68,15 +102,204 @@ In ``def``, the type (``α`` or ``p``, respectively) can be omitted when it can 
    
 .. _Inductive_Definitions:
 
-Inductive Definitions
-=====================
+Inductive Types
+===============
 
-(Give syntax for inductive definitions, including nested and mutual definitions.) 
+Lean's axiomatic foundation allows users to declare arbitrary inductive families, following the pattern described by [Dybjer]_. To make the presentation more manageable, we first describe inductives *types*, and then describe the generalization to inductive *families* in the next section.
 
-Some Basic Types
-================
+The declaration of an induction type in Lean has the following form:
 
-(Give syntax for natural numbers, bool, unit, product, sum, sigmas, subtypes, lists. Also: propositional connectives and quantifiers. Also bounded quantification. Also number systems, ``fin``.)
+.. code-block:: text
+
+   inductive foo (a : α) : Sort u
+   | constructor₁ : Π (c : γ₁), foo
+   | constructor₂ : Π (c : γ₂), foo
+   ...
+   | constructorₙ : Π (c : γₙ), foo
+
+Here ``(a : α)`` is a context and each ``(c : γᵢ)`` is a telescope in the context ``(a : α)`` together with ``(foo : Sort u)``, subject to the following constraints.
+
+Suppose the telescope ``(c : γᵢ)`` is ``(c₁ : γᵢ₁) ... (cᵤ : γᵢᵤ)``. Each argument in the telescope is either *nonrecursive* or *recursive*.
+
+- An argument ``(cⱼ : γᵢⱼ)`` is *nonrecursive* if it does not refer to ``foo,`` the inductive type being defined. In that case, ``γᵢ`` can be any type, so long as it does not refer to any nonrecursive arguments.
+
+- An argument ``(cⱼ : γᵢⱼ)`` is *recursive* if it is of the form ``Π (d : δ), foo`` where ``(d : δ)`` is a telescope which does not refer to ``foo`` or any nonrecursive arguments.
+
+The inductive type ``foo`` represents a type that is freely generated by the constructors. Each constructor can take arbitrary data and facts as arguments (the nonrecursive arguments), as well as indexed sequences of elements of ``foo`` that have been previously constructed (the recursive arguments). In set theoretic models, such sets can be represented by well-founded trees labeled by the constructor data, or they can defined using other transfinite or impredicative means.
+
+The declaration of the type ``foo`` as above results in the addition of the following constants to the environment:
+
+- the *type former* ``foo : Π (a : α), Sort u``
+- for each ``i``, the *constructor* ``foo.constructorᵢ : Π (a : α) (c : γᵢ), foo a``
+- the *eliminator* ``foo.rec``, which takes arguments
+
+  + ``(a : α)`` (the parameters)
+  + ``Π {C : foo a → Type u}`` (the *motive* of the elimination)
+  + for each ``i``, the *minor premise* corresponding to ``constructorᵢ``
+  + an element ``x : foo a``
+
+  and returns an element of ``C x``. Here, The ith minor premise is a function which takes
+
+  +  ``(c : γᵢ)`` (the arguments to the constructor)
+  + an argument of type ``Π (d : δ), C (cⱼ d)`` corresponding to each recursive argument ``(cⱼ : γᵢⱼ)``, where ``γᵢⱼ``  is of the form ``Π (d : δ), foo`` (the recursive values of the function being defined)
+
+  and returns an element of ``C (constructorᵢ a c)``, the intended value of the function at ``constructorᵢ a c``.
+
+The eliminator represents a principle of recursion: to construct an element of ``C x`` where ``x : foo a``, it suffices to consider each of the cases where ``x`` is of the form ``constructorᵢ a c`` and to provide an auxiliary construction in each case. In the case where some of the arguments to ``constructorᵢ`` are recursive, we can assume that we have already constructed values of ``C y`` for each value ``y`` constructed at an earlier stage. 
+
+Under the propositions-as-type correspondence, when ``C x`` is an element of ``Prop``, the eliminator represents a principle of induction. In order to show ``∀ x, C x``, it suffices to show that ``C`` holds for each constructor, under the inductive hypothesis that it holds for all recursive inputs to the constructor.
+
+The eliminator and constructors satisfy the following identities, in which all the arguments are shown explicitly. Suppose we set ``F := foo.rec a C f₁ ... fₙ``. Then for each constructor, we have the definitional reduction:
+
+.. code-block :: text
+  
+   F (constructorᵢ a c) = fᵢ c ... (λ d : δᵢⱼ, F (cⱼ d)) ...
+
+where the ellipses include one entry for each recursive argument.
+
+The type former, constructors, and eliminator are all part of Lean's axiomatic foundation, which is to say, they are part of the trusted kernel.
+
+Below are some common examples of inductive types, many of which are defined in the core library.
+
+.. rubric:: Examples
+
+.. code-block:: lean
+
+  namespace hide
+  universes u v
+
+  -- BEGIN
+  inductive empty : Type
+
+  inductive unit : Type
+  | star : unit
+
+  inductive bool : Type
+  | ff : bool
+  | tt : bool
+
+  inductive prod (α : Type u) (β : Type v) : Type (max u v)
+  | mk : α → β → prod
+
+  inductive sum (α : Type u) (β : Type v)
+  | inl : α → sum
+  | inr : β → sum
+
+  inductive sigma (α : Type u) (β : α → Type v)
+  | mk : Π a : α, β a → sigma
+
+  inductive false : Prop
+
+  inductive true : Prop
+  | trivial : true
+
+  inductive and (p q : Prop) : Prop 
+  | intro : p → q → and
+
+  inductive or (p q : Prop) : Prop
+  | inl : p → or
+  | inr : q → or
+
+  inductive Exists (α : Type u) (p : α → Prop) : Prop
+  | intro : ∀ x : α, p x → Exists
+
+  inductive subtype (α : Type u) (p : α → Prop) : Type u
+  | intro : ∀ x : α, p x → subtype
+
+  inductive nat : Type
+  | zero : nat
+  | succ : nat → nat
+
+  inductive list (α : Type u)
+  | nil : list 
+  | cons : α → list → list
+
+  -- full binary tree with nodes and leaves labeled from α 
+  inductive bintree (α : Type u)
+  | leaf : α → bintree
+  | node : bintree → α → bintree → bintree
+
+  -- every internal node has subtrees indexed by ℕ
+  inductive cbt (α : Type u) 
+  | leaf : α → cbt
+  | node : (ℕ → cbt) → cbt
+  -- END
+  end hide
+
+Note that in the syntax of the inductive definition ``foo``, the context ``(a : α)`` is left implicit. In other words, constructors and recursive arguments are written as though they have return type ``foo`` rather than ``foo a``.
+
+Elements of the context ``(a : α)`` can be marked implicit as described in :ref:`implicit_arguments`. These annotations bear only on the type former, ``foo``. Lean uses a heuristic to determine which arguments to the constructors should be marked implicit, namely, an argument is marked implicit if it can be inferred from the type of a subsequent argument. If the annotation ``{}`` appears after the constructor, a argument is marked implicit if it can be inferred from the type of a subsequent argument *or the return type*. For example, it is useful to let ``nil`` denote the empty list of any type, since the type can usually be inferred in the context in which it appears. These heuristics are imperfect, and you may sometimes wish to define your own constructors in terms of the default ones. In that case, use the ``[pattern]`` :ref:`attribute <attributes>` to ensure that these will be used appropriately by the :ref:`equation compiler <equation_compiler>`.
+
+There are restrictions on the universe ``u`` in the return type ``Sort u`` of the type former. There are also resrictions on the universe ``u`` in the return type ``Sort u`` of the motive of the eliminator. These will be discussed in the next section in the more general setting of inductive families.
+
+Lean allows some additional syntactic conveniences. You can omit the return type of the type formder, ``Sort u``, in which case Lean will infer the minimal ascription. As with function definitions, you can list arguments to the constructors before the colon. In an enumerated type (that is, one where the constructors have no arguments), you can also leave out the return type of the constructors. 
+
+.. rubric:: Examples
+
+.. code-block:: lean
+
+  namespace hide
+  universe u
+
+  -- BEGIN
+  inductive weekday
+  | sunday | monday | tuesday | wednesday 
+  | thursday | friday | saturday
+
+  inductive nat 
+  | zero
+  | succ (n : nat) : nat
+
+  inductive list (α : Type u)
+  | nil {} : list
+  | cons (a : α) (l : list) : list
+
+  @[pattern]
+  def list.nil' (α : Type u) : list α := list.nil
+
+  def length {α : Type u} : list α → ℕ
+  | (list.nil' .(α)) := 0
+  | (list.cons a l) := 1 + length l
+  -- END
+
+  end hide
+
+Inductive Families
+==================
+
+.. TODO: give the synax for inductive families
+
+.. rubric:: Examples
+
+.. code-block:: lean
+
+  namespace hide
+  universe u
+
+  -- BEGIN
+  inductive vector {α : Type u} : ℕ → Type u
+  | nil  : vector 0
+  | succ : Π n, vector n → vector (n + 1)
+
+  -- 'is_prod s n' means n is a product of elements of s
+  inductive is_prod (s : set ℕ) : ℕ → Prop
+  | base : ∀ n ∈ s, is_prod n
+  | step : ∀ m n, is_prod m → is_prod n → is_prod (m * n)
+
+  inductive eq {α : Sort u} (a : α) : α → Prop
+  | refl : eq a
+  -- END
+
+  end hide
+
+.. TODO: describe constraints on universes
+.. TODO: describe singleton elimination
+
+
+Mutual and Nested Inductive Definitions
+=======================================
+
+.. _equation_compiler:
 
 The Equation Compiler
 =====================
@@ -91,3 +314,11 @@ Match Expressions
 Structures and Records
 ======================
 
+
+Type Classes
+============
+
+
+.. rubric:: Citations
+
+.. [Dybjer] Dybjer, Peter, *Inductive Families*. Formal Aspects of Computing 6, 1994, pages 440-465.

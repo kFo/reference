@@ -6,6 +6,8 @@
 Expressions
 ===========
 
+.. universes_:
+
 Universes
 =========
 
@@ -19,7 +21,7 @@ Every type in Lean is, by definition, an expression of type ``Sort u`` for some 
 
 The last one denotes the universe level ``0`` if ``v`` is ``0``, and ``max u v`` otherwise.
 
-**Examples**
+.. rubric:: Examples
 
 .. code-block:: lean
 
@@ -34,6 +36,8 @@ The last one denotes the universe level ``0`` if ``v`` is ``0``, and ``max u v``
    #check Sort (imax (u + 3) v)
    #check Prop
    #check Type 
+
+.. _expression_syntax:
 
 Expression Syntax
 =================
@@ -58,7 +62,7 @@ For an expression to be well formed, its components have to satisfy certain typi
 * ``(Π x : α, β) : Sort (imax u v)`` where ``α : Sort u``, and ``β : Sort v`` assuming ``x : α`` 
 * ``s t : β[t/x]`` where ``s`` has type ``Π x : α, β`` and ``t`` has type ``α``
 * ``(λ x : α, t) : Π x : α, β`` if ``t`` has type ``β`` whenever ``x`` has type ``α``
-* ``(let x := t in s) : β[t/x]`` where ``s`` has type ``Π x : α, β``, and ``t`` has type ``β`` assuming ``x : α`` 
+* ``(let x := t in s) : β[t/x]`` where ``t`` havs type ``α`` and ``s`` has type ``β`` assuming ``x : α`` 
 
 ``Prop`` abbreviates ``Sort 0``, ``Type`` abbreviates ``Sort 1``, and ``Type u`` abbreviates ``Sort (u + 1)`` when ``u`` is a universe variable. We say "``α`` is a type" to express ``α : Type u`` for some ``u``, and we say "``p`` is a proposition" to express ``p : Prop``. Using the *propositions as types* correspondence, given ``p : Prop``, we refer to an expression ``t : p`` as a *proof* of ``p``. In contrast, given ``α : Type u`` for some ``u`` and ``t : α``, we sometimes refer to ``t`` as *data*.
 
@@ -72,7 +76,7 @@ Writing an expression ``(t : α)`` forces Lean to elaborate ``t`` so that it has
 
 Lean supports anonymous constructor notation, anonymous projections, and various forms of match syntax, including destructuring ``λ`` and ``let``. These, as well as notation for common data types (like pairs, lists, and so on) are discussed in :doc:`declarations` in connection with inductive types. 
 
-**Examples**
+.. rubric:: Examples
 
 .. code-block:: lean
 
@@ -113,7 +117,9 @@ Lean supports anonymous constructor notation, anonymous projections, and various
     #check (5 : ℕ)
     #check (5 : (λ x, x) ℕ)
     #check (5 : ℤ)
- 
+
+.. _implicit_arguments:
+
 Implicit Arguments
 ==================
 
@@ -130,7 +136,7 @@ The name of the variable can be ommitted from a class resolution argument, in wh
 
 When a function has an explicit argument, you can nonetheless ask Lean's elaborator to infer the argument automatically, by entering it as an underscore (``_``). Conversely, writing ``@foo`` indicates that all of the arguments to be ``foo`` are to be given explicitly, independent of how ``foo`` was declared.
 
-**Examples** 
+.. rubric:: Examples 
 
 .. code-block:: lean
 
@@ -311,7 +317,7 @@ The notation ``‹p›`` is notation for ``(by assumption : p)``, and can theref
 
 As noted in :ref:`constructors_projections_and_matching`, anonymous constructors and projections and match syntax can be used in proofs just as in expressions that denote data.
 
-**Examples**
+.. rubric:: Examples
 
 .. code-block:: lean
 
@@ -332,6 +338,8 @@ As noted in :ref:`constructors_projections_and_matching`, anonymous constructors
     assume h₂ : q ∧ r,
     suffices h₃ : q, from and.intro h₁ h₃,
     show q, from and.left h₂ 
+
+.. _computation:
 
 Computation
 ===========
@@ -363,7 +371,7 @@ Lean provides two commands to compute with expressions:
 
 Every computable definition in Lean is compiled to bytecode at definition time. Bytecode evaluation is more liberal than kernel evaluation: types and all propositional information are erased, and functions are evaluated using a stack-based virtual machine. As a result, ``#eval`` is more efficient than ``#reduce,`` and can be used to execute complex programs. In contrast, ``#reduce`` is designed to be small and reliable, and to produce type-correct terms at each step. Bytecode is never used in type checking, so as far as soundness and consistency are concerned, only kernel reduction is part of the trusted computing base.
 
-**Examples**
+.. rubric:: Examples
 
 .. code-block:: lean
 
