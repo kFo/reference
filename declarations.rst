@@ -82,8 +82,6 @@ In ``def``, the type (``α`` or ``p``, respectively) can be omitted when it can 
 
 Any of ``def``, ``theorem``, ``lemma``, or ``example`` can take a list of arguments (that is, a context) before the colon. If ``(a : α)`` is a context, the definition ``def foo (a : α) : β := t`` is interpreted as ``def foo : Π a : α, β := λ a : α, t``. Similarly, a theorem ``theorem foo (a : α) : p := t`` is interpreted as ``theorem foo : ∀ a : α, p := assume a : α, t``. (Remember that ``∀`` is syntactic sugar for ``Π``, and ``assume`` is syntactic sugar for ``λ``.)
 
-.. rubric:: Examples
-
 .. code-block:: lean
 
    constant  c : ℕ
@@ -161,8 +159,6 @@ The type former, constructors, and eliminator are all part of Lean's axiomatic f
 
 Below are some common examples of inductive types, many of which are defined in the core library.
 
-.. rubric:: Examples
-
 .. code-block:: lean
 
   namespace hide
@@ -234,8 +230,6 @@ There are restrictions on the universe ``u`` in the return type ``Sort u`` of th
 
 Lean allows some additional syntactic conveniences. You can omit the return type of the type formder, ``Sort u``, in which case Lean will infer the minimal ascription. As with function definitions, you can list arguments to the constructors before the colon. In an enumerated type (that is, one where the constructors have no arguments), you can also leave out the return type of the constructors. 
 
-.. rubric:: Examples
-
 .. code-block:: lean
 
   namespace hide
@@ -268,8 +262,6 @@ Inductive Families
 ==================
 
 .. TODO: give the synax for inductive families
-
-.. rubric:: Examples
 
 .. code-block:: lean
 

@@ -21,8 +21,6 @@ Every type in Lean is, by definition, an expression of type ``Sort u`` for some 
 
 The last one denotes the universe level ``0`` if ``v`` is ``0``, and ``max u v`` otherwise.
 
-.. rubric:: Examples
-
 .. code-block:: lean
 
    universes u v
@@ -75,8 +73,6 @@ Constants can be declared in various ways, such as by the ``constant(s)`` and ``
 Writing an expression ``(t : α)`` forces Lean to elaborate ``t`` so that it has type ``α`` or report an error if it fails.
 
 Lean supports anonymous constructor notation, anonymous projections, and various forms of match syntax, including destructuring ``λ`` and ``let``. These, as well as notation for common data types (like pairs, lists, and so on) are discussed in :doc:`declarations` in connection with inductive types. 
-
-.. rubric:: Examples
 
 .. code-block:: lean
 
@@ -135,8 +131,6 @@ When declaring arguments to defined objects in Lean (for example, with ``def``, 
 The name of the variable can be ommitted from a class resolution argument, in which case an internal name is generated.
 
 When a function has an explicit argument, you can nonetheless ask Lean's elaborator to infer the argument automatically, by entering it as an underscore (``_``). Conversely, writing ``@foo`` indicates that all of the arguments to be ``foo`` are to be given explicitly, independent of how ``foo`` was declared.
-
-.. rubric:: Examples 
 
 .. code-block:: lean
 
@@ -317,8 +311,6 @@ The notation ``‹p›`` is notation for ``(by assumption : p)``, and can theref
 
 As noted in :ref:`constructors_projections_and_matching`, anonymous constructors and projections and match syntax can be used in proofs just as in expressions that denote data.
 
-.. rubric:: Examples
-
 .. code-block:: lean
 
     example (p q r : Prop) : p → (q ∧ r) → p ∧ q :=
@@ -371,8 +363,6 @@ Lean provides two commands to compute with expressions:
 
 Every computable definition in Lean is compiled to bytecode at definition time. Bytecode evaluation is more liberal than kernel evaluation: types and all propositional information are erased, and functions are evaluated using a stack-based virtual machine. As a result, ``#eval`` is more efficient than ``#reduce,`` and can be used to execute complex programs. In contrast, ``#reduce`` is designed to be small and reliable, and to produce type-correct terms at each step. Bytecode is never used in type checking, so as far as soundness and consistency are concerned, only kernel reduction is part of the trusted computing base.
 
-.. rubric:: Examples
-
 .. code-block:: lean
 
     #reduce (λ x, x + 3) 5
@@ -403,8 +393,6 @@ Every computable definition in Lean is compiled to bytecode at definition time. 
     example (p : Prop) (h₁ h₂ : p) : h₁ = h₂ := rfl
 
 Note: the combination of proof irrelevance and singleton ``Prop`` elimination in ι-reduction renders the ideal version of definitional equality, as described above, undecidable. Lean's procedure for checking definitional equality is only an approximation to the ideal. It is not transitive, as illustrated by the example below. Once again, this does not compromise the consistency or soundness of Lean; it only means that Lean is more conservative in the terms it recognizes as well typed, and this does not cause problems in practice. Singleton elimination will be discussed in greater detail in :ref:`Inductive_Definitions`.
-
-**Example**
 
 .. code-block:: lean
 

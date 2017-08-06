@@ -128,6 +128,10 @@ latex_additional_files = ['unixode.sty']
 
 latex_elements = {
     'preamble': r'\usepackage{unixode}',
+
+    # eliminate box around code blocks
+    # 'preamble': r'\definecolor{VerbatimBorderColor}{rgb}{1,1,1}'  
+
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
