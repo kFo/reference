@@ -376,8 +376,10 @@ Every computable definition in Lean is compiled to bytecode at definition time. 
     #reduce f 5
     #eval   f 5
 
-    #reduce @nat.rec (λ n, ℕ) (0 : ℕ) (λ n recval : ℕ, recval + n + 1) (5 : ℕ)
-    #eval   @nat.rec (λ n, ℕ) (0 : ℕ) (λ n recval : ℕ, recval + n + 1) (5 : ℕ)
+    #reduce @nat.rec (λ n, ℕ) (0 : ℕ) 
+                     (λ n recval : ℕ, recval + n + 1) (5 : ℕ)
+    #eval   @nat.rec (λ n, ℕ) (0 : ℕ) 
+                     (λ n recval : ℕ, recval + n + 1) (5 : ℕ)
 
     def g : ℕ → ℕ 
     | 0     := 0
@@ -398,7 +400,8 @@ Note: the combination of proof irrelevance and singleton ``Prop`` elimination in
 
     def R (x y : unit) := false 
     def accrec := @acc.rec unit R (λ_, unit) (λ _ a ih, ()) ()
-    example (h) : accrec h = accrec (acc.intro _ (λ y, acc.inv h)) := rfl
+    example (h) : accrec h = accrec (acc.intro _ (λ y, acc.inv h)) := 
+                  rfl
     example (h) : accrec (acc.intro _ (λ y, acc.inv h)) = () := rfl
     example (h) : accrec h = () := sorry   -- rfl fails
 
@@ -408,15 +411,87 @@ Axioms
 
 Lean's foundational framework consists of:
 
-* the core elements of the calculus of constructions, with type universes and dependent function types, as described above
-* inductive types, as described in :doc:`declarations`. 
+- type universes and dependent function types, as described above
+
+- inductive definitions, as described in :ref:`inductive_types` and :ref:`inductive_families`.
 
 In addition, the core library defines (and trusts) the following axiomatic extensions:
 
-* propositional extensionality: ...
-* quotients: ...
-* choice: ...
+- propositional extensionality: 
 
-The last principle, in conjunction with the others, makes the axiomatic foundation classical. Functions that make use of ``choice`` to produce data are incompatible with a computational interpretation, and do not produce bytecode. They have to be declared ``noncomputable``.
+  .. code-block:: lean
+  
+     namespace hide
+
+     -- BEGIN
+     axiom propext {a b : Prop} : (a ↔ b) → a = b
+     -- END
+
+     end hide
+
+- quotients:
+
+  .. code-block:: lean
+
+     namespace hide
+     -- BEGIN
+     universes u v
+
+     constant quot      : Π {α : Sort u}, (α → α → Prop) → Sort u
+
+     constant quot.mk   : Π {α : Sort u} (r : α → α → Prop), 
+                          α → quot r
+
+     axiom    quot.ind  : ∀ {α : Sort u} {r : α → α → Prop} 
+                            {β : quot r → Prop},
+                          (∀ a, β (quot.mk r a)) → 
+                            ∀ (q : quot r), β q
+
+     constant quot.lift : Π {α : Sort u} {r : α → α → Prop} 
+                            {β : Sort u} (f : α → β),
+                          (∀ a b, r a b → f a = f b) → quot r → β
+
+     axiom quot.sound   : ∀ {α : Type u} {r : α → α → Prop} 
+                            {a b : α},
+                          r a b → quot.mk r a = quot.mk r b
+     -- END
+     end hide
+
+  ``quot r`` represents the quotient of ``α`` by the smallest equivalence relation containing ``r``. ``quot.mk`` and ``quot.lift`` satisfy the following computation rule:
+
+  .. code-block:: text
+
+     quot.lift f h (quot.mk r a) = f a
+
+- choice: 
+
+  .. code-block:: lean
+
+     namespace hide
+     universe u
+
+     -- BEGIN
+     axiom choice {α : Sort u} : nonempty α → α
+     -- END
+
+     end hide
+
+  Here ``nonempty α`` is defined as follows:
+
+  .. code-block:: lean
+
+     namespace hide
+     universe u
+
+     -- BEGIN
+     class inductive nonempty (α : Sort u) : Prop
+     | intro : α → nonempty
+     -- END
+
+     end hide
+
+  It is equivalent to  ``∃ x : α, true``.
+
+The quotient construction implies function extensionality. The ``choice`` principle, in conjunction with the others, makes the axiomatic foundation classical; in particular, it implies the law of the excluded middle and propositional decidability. Functions that make use of ``choice`` to produce data are incompatible with a computational interpretation, and do not produce bytecode. They have to be declared ``noncomputable``.
 
 For metaprogramming purposes, Lean also allows the definition of objects which stand outside the object language. These are denoted with the ``meta`` keyword, as described in :doc:`programming`.
