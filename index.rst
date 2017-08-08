@@ -12,7 +12,7 @@ The Lean Reference Manual
    lexical_structure
    expressions
    declarations
-   infrastructure
+   other_commands
    tactics
    programming
    libraries

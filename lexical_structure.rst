@@ -20,7 +20,7 @@ Symbols and Commands
 
 Symbols are static tokens that are used in term notations and commands. They can be both keyword-like (e.g. the :keyword:`have <structured_proofs>` keyword) or use arbitrary Unicode characters.
 
-Command tokens are static tokens that prefix any top-level declaration or action. They are usually keyword-like, with transitory commands like :keyword:`#print` prefixed by an additional ``#``. The set of built-in commands is listed in the :ref:`declarations` section.
+Command tokens are static tokens that prefix any top-level declaration or action. They are usually keyword-like, with transitory commands like :keyword:`#print` prefixed by an additional ``#``. The set of built-in commands is listed in the :ref:`other_commands` section.
 
 Users can dynamically extend the sets of both symbols (via the commands listed in :ref:`quoted_symbols`) and command tokens (via the :keyword:`[user_command]` attribute).
 
