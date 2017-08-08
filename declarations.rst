@@ -98,7 +98,7 @@ Any of ``def``, ``theorem``, ``lemma``, or ``example`` can take a list of argume
 
    example (x y : ℕ) : baz x y [] = [x, y] := rfl
    
-.. _Inductive_Definitions:
+.. _inductive_types:
 
 Inductive Types
 ===============
@@ -256,6 +256,8 @@ Lean allows some additional syntactic conveniences. You can omit the return type
 
   end hide
 
+.. _inductive_families:
+
 Inductive Families
 ==================
 
@@ -351,6 +353,8 @@ Structures and Records
 
 Type Classes
 ============
+
+(Classes and instances. Anonymous instances. Local instances.) 
 
 
 .. [Dybjer] Dybjer, Peter, *Inductive Families*. Formal Aspects of Computing 6, 1994, pages 440-465.

@@ -16,7 +16,7 @@ Tokens can be separated by the whitespace characters space, tab, line feed, and 
 Symbols and Commands
 ====================
 
-*(TODO: list built-in symbols and command tokens?)*
+.. *(TODO: list built-in symbols and command tokens?)*
 
 Symbols are static tokens that are used in term notations and commands. They can be both keyword-like (e.g. the :keyword:`have <structured_proofs>` keyword) or use arbitrary Unicode characters.
 
