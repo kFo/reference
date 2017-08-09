@@ -117,20 +117,21 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'LeanReferenceManualdoc'
+htmlhelp_basename = 'LeanReferenceManual'
 
 
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_engine = 'xelatex'
 
-latex_additional_files = ['unixode.sty']
+# latex_additional_files = ['unixode.sty']
 
 latex_elements = {
-    'preamble': r'\usepackage{unixode}',
-
-    # eliminate box around code blocks
-    # 'preamble': r'\definecolor{VerbatimBorderColor}{rgb}{1,1,1}'  
+    # load packages and make box around code lighter
+    'preamble': r'''
+\usepackage{unixode}
+\definecolor{VerbatimBorderColor}{rgb}{0.7,0.7,0.7}
+''',
 
     # The paper size ('letterpaper' or 'a4paper').
     #
