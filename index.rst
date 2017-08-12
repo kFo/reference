@@ -7,6 +7,7 @@ The Lean Reference Manual
 =========================
 
 .. toctree::
+   :numbered:
    :maxdepth: 2
 
    lexical_structure

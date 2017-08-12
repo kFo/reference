@@ -97,16 +97,17 @@ html_sidebars = {
 # documentation.
 #
 html_theme_options = {
-#   'logo': 'lean_logo.svg',
+   # 'logo': 'lean_logo.svg',
    'logo_name': True,
-   'font_family': 'Lato, Arial, Helvetica, sans',
-   'head_font_family': 'Lato, Arial, Helvetica, sans',
+   'font_family': 'Times New Roman, Times, serif',
+   'head_font_family': 'Times New Roman, Times, serif',
+   # 'font_family': 'Lato, Arial, Helvetica, sans',
+   # 'head_font_family': 'Lato, Arial, Helvetica, sans',
    'extra_nav_links': {'PDF version':'LeanReferenceManual.pdf',
                        'Lean Home':'https://leanprover.github.io/',},
-   'sidebar_width' : '200px',
-   'page_width' : '960px'
+   # 'sidebar_width' : '200px',
+   # 'page_width' : '960px'
 }
-
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -124,15 +125,9 @@ htmlhelp_basename = 'LeanReferenceManual'
 
 latex_engine = 'xelatex'
 
-# latex_additional_files = ['unixode.sty']
+latex_additional_files = ['unixode.sty']
 
 latex_elements = {
-    # load packages and make box around code lighter
-    'preamble': r'''
-\usepackage{unixode}
-\definecolor{VerbatimBorderColor}{rgb}{0.7,0.7,0.7}
-''',
-
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
@@ -142,8 +137,11 @@ latex_elements = {
     # 'pointsize': '10pt',
 
     # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
+    # load packages and make box around code lighter
+    'preamble': r'''
+\usepackage{unixode}
+\definecolor{VerbatimBorderColor}{rgb}{0.7,0.7,0.7}
+''',
 
     # Latex figure (float) alignment
     #
@@ -201,5 +199,3 @@ epub_copyright = copyright
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
-
-
