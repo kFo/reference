@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=LeanReferenceManual
+set SPHINXPROJ=lean_reference
 
 if "%1" == "" goto help
 

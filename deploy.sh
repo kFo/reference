@@ -14,7 +14,7 @@ mkdir deploy
 cd deploy
 git init
 cp -r ../_build/html/./ .
-cp ../_build/latex/LeanReferenceManual.pdf .
+cp ../_build/latex/lean_reference.pdf .
 git add .
 git commit -m "Update `date`"
 git push git@github.com:$1/$2 +HEAD:gh-pages

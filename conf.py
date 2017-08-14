@@ -103,7 +103,7 @@ html_theme_options = {
    'head_font_family': 'Times New Roman, Times, serif',
    # 'font_family': 'Lato, Arial, Helvetica, sans',
    # 'head_font_family': 'Lato, Arial, Helvetica, sans',
-   'extra_nav_links': {'PDF version':'LeanReferenceManual.pdf',
+   'extra_nav_links': {'PDF version':'lean_reference.pdf',
                        'Lean Home':'https://leanprover.github.io/',},
    # 'sidebar_width' : '200px',
    # 'page_width' : '960px'
@@ -118,7 +118,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'LeanReferenceManual'
+htmlhelp_basename = 'lean_reference'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -152,7 +152,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'LeanReferenceManual.tex', 'The Lean Reference Manual',
+    (master_doc, 'lean_reference.tex', 'The Lean Reference Manual',
      'Jeremy Avigad, Gabriel Ebner, and Sebastian Ullrich', 'manual'),
 ]
 
@@ -162,7 +162,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'leanreferencemanual', 'The Lean Reference Manual',
+    (master_doc, 'lean_reference', 'The Lean Reference Manual',
      [author], 1)
 ]
 
@@ -173,8 +173,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'LeanReferenceManual', 'The Lean Reference Manual',
-     author, 'LeanReferenceManual', 'Reference for the Lean Theorem Prover.',
+    (master_doc, 'lean_reference', 'The Lean Reference Manual',
+     author, 'lean_reference', 'Reference for the Lean Theorem Prover.',
      'Miscellaneous'),
 ]
 

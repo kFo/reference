@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = LeanReferenceManual
+SPHINXPROJ    = lean_reference
 SOURCEDIR     = .
 BUILDDIR      = _build
 
