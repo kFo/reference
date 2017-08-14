@@ -88,7 +88,7 @@ source_parsers = {
 html_theme = "alabaster"
 
 html_sidebars = {
-   '**': ['about.html', 'navigation.html', 'searchbox.html'],
+   '**': ['about.html', 'navigation_without_header.html', 'searchbox.html'],
 }
 
 
