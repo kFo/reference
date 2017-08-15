@@ -38,7 +38,7 @@ Contexts and Telescopes
 
 When processing user input, Lean first parses text to a raw expression format. It then uses background information and type constants to disambiguate overloaded symbols and infer implicit arguments, resulting in a fully-formed expression. This process is known as *elaboration*.
 
-As hinted in :ref:`expression_syntax`, expressions are parsed and elaborated with respect to an *environment* and a *local context*. Roughly speaking, an environment represents the state of Lean at the point where an expression is parsed, including previously declared axioms, constants, definitions, and theorems. In a given environment, a *local context* consists of a sequence ``(a₁ : α₁) (a₂ : α₂) ... (aₙ : αₙ)`` where each ``aᵢ`` is a name denoting a local constant and each ``αᵢ`` is an expression of type ``Sort u`` for some ``u`` which can involve elements of the environment and the local constants ``aⱼ`` for ``j < i``. 
+As hinted in :numref:`expression_syntax`, expressions are parsed and elaborated with respect to an *environment* and a *local context*. Roughly speaking, an environment represents the state of Lean at the point where an expression is parsed, including previously declared axioms, constants, definitions, and theorems. In a given environment, a *local context* consists of a sequence ``(a₁ : α₁) (a₂ : α₂) ... (aₙ : αₙ)`` where each ``aᵢ`` is a name denoting a local constant and each ``αᵢ`` is an expression of type ``Sort u`` for some ``u`` which can involve elements of the environment and the local constants ``aⱼ`` for ``j < i``. 
 
 Intuitively, a local context is a list of variables that are held constant while an expression is being elaborated. Consider the following example:
 
@@ -222,7 +222,7 @@ Below are some common examples of inductive types, many of which are defined in 
 
 Note that in the syntax of the inductive definition ``foo``, the context ``(a : α)`` is left implicit. In other words, constructors and recursive arguments are written as though they have return type ``foo`` rather than ``foo a``.
 
-Elements of the context ``(a : α)`` can be marked implicit as described in :ref:`implicit_arguments`. These annotations bear only on the type former, ``foo``. Lean uses a heuristic to determine which arguments to the constructors should be marked implicit, namely, an argument is marked implicit if it can be inferred from the type of a subsequent argument. If the annotation ``{}`` appears after the constructor, a argument is marked implicit if it can be inferred from the type of a subsequent argument *or the return type*. For example, it is useful to let ``nil`` denote the empty list of any type, since the type can usually be inferred in the context in which it appears. These heuristics are imperfect, and you may sometimes wish to define your own constructors in terms of the default ones. In that case, use the ``[pattern]`` :ref:`attribute <attributes>` to ensure that these will be used appropriately by the :ref:`equation compiler <equation_compiler>`.
+Elements of the context ``(a : α)`` can be marked implicit as described in :numref:`implicit_arguments`. These annotations bear only on the type former, ``foo``. Lean uses a heuristic to determine which arguments to the constructors should be marked implicit, namely, an argument is marked implicit if it can be inferred from the type of a subsequent argument. If the annotation ``{}`` appears after the constructor, a argument is marked implicit if it can be inferred from the type of a subsequent argument *or the return type*. For example, it is useful to let ``nil`` denote the empty list of any type, since the type can usually be inferred in the context in which it appears. These heuristics are imperfect, and you may sometimes wish to define your own constructors in terms of the default ones. In that case, use the ``[pattern]`` :ref:`attribute <attributes>` to ensure that these will be used appropriately by the :ref:`equation compiler <equation_compiler>`.
 
 There are restrictions on the universe ``u`` in the return type ``Sort u`` of the type former. There are also resrictions on the universe ``u`` in the return type ``Sort u`` of the motive of the eliminator. These will be discussed in the next section in the more general setting of inductive families.
 
@@ -350,6 +350,8 @@ Match Expressions
 Structures and Records
 ======================
 
+
+.. _type_classes:
 
 Type Classes
 ============

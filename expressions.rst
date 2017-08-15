@@ -6,7 +6,7 @@
 Expressions
 ===========
 
-.. universes_:
+.. _universes:
 
 Universes
 =========
@@ -68,11 +68,11 @@ When the expression ``β`` in ``Π x : α, β`` does not depend on ``x``, it can
 
 In addition to the elements above, expressions can also contain *metavariables*, that is, temporary placeholders, that are used in the process of constructing terms. They can also contain *macros*, which are used to annotate or abbreviate terms. Terms that are added to the environment contain neither metavariable nor variables, which is to say, they are fully elaborated and make sense in the empty context.
  
-Constants can be declared in various ways, such as by the ``constant(s)`` and ``axiom(s)`` keywords, or as the result of an ``inductive`` or ``structure`` declarations. Similarly, objects can be defined in various ways, such as using ``def``, ``theorem``, or the equation compiler. See :doc:`declarations` for more information.
+Constants can be declared in various ways, such as by the ``constant(s)`` and ``axiom(s)`` keywords, or as the result of an ``inductive`` or ``structure`` declarations. Similarly, objects can be defined in various ways, such as using ``def``, ``theorem``, or the equation compiler. See :numref:`Chapter %s <declarations>` for more information.
 
 Writing an expression ``(t : α)`` forces Lean to elaborate ``t`` so that it has type ``α`` or report an error if it fails.
 
-Lean supports anonymous constructor notation, anonymous projections, and various forms of match syntax, including destructuring ``λ`` and ``let``. These, as well as notation for common data types (like pairs, lists, and so on) are discussed in :doc:`declarations` in connection with inductive types. 
+Lean supports anonymous constructor notation, anonymous projections, and various forms of match syntax, including destructuring ``λ`` and ``let``. These, as well as notation for common data types (like pairs, lists, and so on) are discussed in :numref:`Chapter %s <declarations>` in connection with inductive types. 
 
 .. code-block:: lean
 
@@ -119,7 +119,7 @@ Lean supports anonymous constructor notation, anonymous projections, and various
 Implicit Arguments
 ==================
 
-When declaring arguments to defined objects in Lean (for example, with ``def``, ``theorem``, ``constant``, ``inductive``, or ``structure``; see :doc:`declarations`) or when declaring variables and parameters in sections (see :doc:`infrastructure`), arguments can be annotated as *explicit* or *implicit*. This determines how expressions containing the object are interpreted.
+When declaring arguments to defined objects in Lean (for example, with ``def``, ``theorem``, ``constant``, ``inductive``, or ``structure``; see :numref:`Chapter %s <declarations>`) or when declaring variables and parameters in sections (see :numref:`Chapter %s <infrastructure>`), arguments can be annotated as *explicit* or *implicit*. This determines how expressions containing the object are interpreted.
 
 * ``(x : α)`` : an explicit argument of type ``α``
 * ``{x : α}`` : an implicit argument, eagerly inserted
@@ -183,7 +183,7 @@ When a function has an explicit argument, you can nonetheless ask Lean's elabora
 Basic Data Types and Assertions
 ===============================
 
-The core library contains a number of basic data types, such as the natural numbers (``ℕ``, or ``nat``), the integers (``ℤ``), the booleans (``bool``), and common operations on these, as well as the usual logical quantifiers and connectives. Some example are given below. A list of common notations and their precedences can be found in a `file <https://github.com/leanprover/lean/blob/master/library/init/core.lean>`_ in the core library. The core library also contains a number of basic data type constructors. Definitions can also be found the `data <https://github.com/leanprover/lean/blob/master/library/init/data>`_ directory of the core library. For more information, see also :doc:`libraries`.
+The core library contains a number of basic data types, such as the natural numbers (``ℕ``, or ``nat``), the integers (``ℤ``), the booleans (``bool``), and common operations on these, as well as the usual logical quantifiers and connectives. Some example are given below. A list of common notations and their precedences can be found in a `file <https://github.com/leanprover/lean/blob/master/library/init/core.lean>`_ in the core library. The core library also contains a number of basic data type constructors. Definitions can also be found the `data <https://github.com/leanprover/lean/blob/master/library/init/data>`_ directory of the core library. For more information, see also :numref:`Chapter %s <libraries>`.
 
 .. code-block:: lean
 
@@ -245,15 +245,15 @@ The core library contains a number of basic data types, such as the natural numb
 Constructors, Projections, and Matching
 =======================================
 
-Lean's foundation, the *Calculus of Inductive Constructions*, supports the declaration of *inductive types*. Such types can have any number of *constructors*, and an associated *eliminator* (or *recursor*). Inductive types with one constructor, known as *structures*, have *projections*. The full syntax of inductive types is described in :doc:`declarations`, but here we describe some syntactic elements that facilitate their use in expressions.
+Lean's foundation, the *Calculus of Inductive Constructions*, supports the declaration of *inductive types*. Such types can have any number of *constructors*, and an associated *eliminator* (or *recursor*). Inductive types with one constructor, known as *structures*, have *projections*. The full syntax of inductive types is described in :numref:`Chapter %s <declarations>`, but here we describe some syntactic elements that facilitate their use in expressions.
 
 When Lean can infer the type of an expression and it is an inductive type with one constructor, then one can write ``⟨a1, a2, ..., an⟩`` to apply the constructor without naming it. For example, ``⟨a, b⟩`` denotes ``prod.mk a b`` in a context where the expression can be inferred to be a pair, and ``⟨h₁, h₂⟩`` denotes ``and.intro h₁ h₂`` in a context when the expression can be inferred to be a conjunction. The notation will nest constructions automatically, so ``⟨a1, a2, a3⟩`` is interpreted as ``prod.mk a1 (prod.mk a2 a3)`` when the expression is expected to have a type of the form ``α1 × α2 × α3``. (The latter is interpreted as ``α1 × (α2 × α3)``, since the product associates to the right.)    
 
 Similarly, one can use "dot notation" for projections: one can write ``p.fst`` and ``p.snd`` for ``prod.fst p`` and ``prod.snd p`` when Lean can infer that ``p`` is an element of a product, and ``h.left`` and ``h.right`` for ``and.left h`` and ``and.right h`` when ``h`` is a conjunction.
 
-The anonymous projector notation can used more generally for any objects defined in a *namespace* (see :doc:`infrastructure`). For example, if ``l`` has type ``list α`` then ``l.map f`` abbreviates ``list.map f l``, in which ``l`` has been placed at the first argument position where ``list.map`` expects a ``list``.
+The anonymous projector notation can used more generally for any objects defined in a *namespace* (see :numref:`Chapter %s <other_commands>`). For example, if ``l`` has type ``list α`` then ``l.map f`` abbreviates ``list.map f l``, in which ``l`` has been placed at the first argument position where ``list.map`` expects a ``list``.
  
-Finally, for data types with one constructor, one destruct an element by pattern matching using the ``let`` and ``assume`` constructs, as in the examples below. Internally, these are interpreted using the ``match`` construct, which is in turn compiled down for the eliminator for the inductive type, as described in :doc:`declarations`. 
+Finally, for data types with one constructor, one destruct an element by pattern matching using the ``let`` and ``assume`` constructs, as in the examples below. Internally, these are interpreted using the ``match`` construct, which is in turn compiled down for the eliminator for the inductive type, as described in :numref:`Chapter %s <declarations>`. 
 
 .. code-block:: lean
 
@@ -309,7 +309,7 @@ As with ``λ``, multiple variables can be bound with ``assume``, and types can b
 
 The notation ``‹p›`` is notation for ``(by assumption : p)``, and can therefore be used to apply hypotheses in the local context.
 
-As noted in :ref:`constructors_projections_and_matching`, anonymous constructors and projections and match syntax can be used in proofs just as in expressions that denote data.
+As noted in :numref:`constructors_projections_and_matching`, anonymous constructors and projections and match syntax can be used in proofs just as in expressions that denote data.
 
 .. code-block:: lean
 
@@ -329,7 +329,39 @@ As noted in :ref:`constructors_projections_and_matching`, anonymous constructors
     assume h₁ : p,
     assume h₂ : q ∧ r,
     suffices h₃ : q, from and.intro h₁ h₃,
-    show q, from and.left h₂ 
+    show q, from and.left h₂
+
+Lean also supports a calculational environment, which is introduced with the keyword ``calc``. The syntax is as follows:
+
+.. code-block:: text
+
+    calc
+      <expr>_0  'op_1'  <expr>_1  ':'  <proof>_1
+        '...'   'op_2'  <expr>_2  ':'  <proof>_2
+         ...
+        '...'   'op_n'  <expr>_n  ':'  <proof>_n
+
+Each ``<proof>_i`` is a proof for ``<expr>_{i-1} op_i <expr>_i``.
+
+Here is an example:
+
+.. code-block:: lean
+
+    variables (a b c d e : ℕ)
+    variable h1 : a = b
+    variable h2 : b = c + 1
+    variable h3 : c = d
+    variable h4 : e = 1 + d
+
+    theorem T : a = e :=
+    calc
+      a     = b      : h1
+        ... = c + 1  : h2
+        ... = d + 1  : congr_arg _ h3
+        ... = 1 + d  : add_comm d (1 : ℕ)
+        ... =  e     : eq.symm h4
+
+The style of writing proofs is most effective when it is used in conjunction with the ``simp`` and ``rewrite`` tactics.
 
 .. _computation:
 
@@ -343,7 +375,7 @@ Every expression in Lean has a natural computational interpretation, unless it i
 * *β-reduction* : An expression ``(λ x, t) s`` β-reduces to ``t[s/x]``, that is, the result of replacing ``x`` by ``s`` in ``t``.
 * *ζ-reduction* : An expression ``let x := s in t`` ζ-reduces to ``t[s/x]``.
 * *δ-reduction* : If ``c`` is a defined constant with definition ``t``, then ``c`` δ-reduces to to ``t``.
-* *ι-reduction* : When a function defined by recursion on an inductive type is applied to an element given by an explicit constructor, the result ι-reduces to the specified function value, as described in :ref:`Inductive_Definitions`.
+* *ι-reduction* : When a function defined by recursion on an inductive type is applied to an element given by an explicit constructor, the result ι-reduces to the specified function value, as described in :numref:`inductive_types`.
 
 The reduction relation is transitive, which is to say, is ``s`` reduces to ``s'`` and ``t`` reduces to ``t'``, then ``s t`` reduces to ``s' t'``, ``λ x, s`` reduces to ``λ x, s'``, and so on. If ``s`` and ``t`` reduce to a common term, they are said to be *definitionally equal*. Definitional equality is defined to be the smallest equivalence relation that satisfies all these properties and also includes α-equivalenece and the following two relations:
 
@@ -394,7 +426,7 @@ Every computable definition in Lean is compiled to bytecode at definition time. 
     example : (λ x, f x) = f := rfl
     example (p : Prop) (h₁ h₂ : p) : h₁ = h₂ := rfl
 
-Note: the combination of proof irrelevance and singleton ``Prop`` elimination in ι-reduction renders the ideal version of definitional equality, as described above, undecidable. Lean's procedure for checking definitional equality is only an approximation to the ideal. It is not transitive, as illustrated by the example below. Once again, this does not compromise the consistency or soundness of Lean; it only means that Lean is more conservative in the terms it recognizes as well typed, and this does not cause problems in practice. Singleton elimination will be discussed in greater detail in :ref:`Inductive_Definitions`.
+Note: the combination of proof irrelevance and singleton ``Prop`` elimination in ι-reduction renders the ideal version of definitional equality, as described above, undecidable. Lean's procedure for checking definitional equality is only an approximation to the ideal. It is not transitive, as illustrated by the example below. Once again, this does not compromise the consistency or soundness of Lean; it only means that Lean is more conservative in the terms it recognizes as well typed, and this does not cause problems in practice. Singleton elimination will be discussed in greater detail in :numref:`inductive_types`.
 
 .. code-block:: lean
 
@@ -413,7 +445,7 @@ Lean's foundational framework consists of:
 
 - type universes and dependent function types, as described above
 
-- inductive definitions, as described in :ref:`inductive_types` and :ref:`inductive_families`.
+- inductive definitions, as described in :numref:`inductive_types` and :numref:`inductive_families`.
 
 In addition, the core library defines (and trusts) the following axiomatic extensions:
 
@@ -494,4 +526,4 @@ In addition, the core library defines (and trusts) the following axiomatic exten
 
 The quotient construction implies function extensionality. The ``choice`` principle, in conjunction with the others, makes the axiomatic foundation classical; in particular, it implies the law of the excluded middle and propositional decidability. Functions that make use of ``choice`` to produce data are incompatible with a computational interpretation, and do not produce bytecode. They have to be declared ``noncomputable``.
 
-For metaprogramming purposes, Lean also allows the definition of objects which stand outside the object language. These are denoted with the ``meta`` keyword, as described in :doc:`programming`.
+For metaprogramming purposes, Lean also allows the definition of objects which stand outside the object language. These are denoted with the ``meta`` keyword, as described in :numref:`Chapter %s <programming>`.
