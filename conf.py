@@ -79,6 +79,8 @@ todo_include_todos = False
 source_parsers = {
 }
 
+# use numbering for section references with :numref:, e.g. 'Section 3.2'.
+numfig = True
 
 # -- Options for HTML output ----------------------------------------------
 
