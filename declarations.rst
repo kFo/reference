@@ -44,7 +44,7 @@ Intuitively, a local context is a list of variables that are held constant while
 
 .. code-block:: lean
 
-   def (a b : ℕ) : ℕ → ℕ := λ c, a + (b + c)
+   def f (a b : ℕ) : ℕ → ℕ := λ c, a + (b + c)
 
 Here the expression ``λ c, a + (b + c)`` is elaborated in the context ``(a : ℕ) (b : ℕ`` and the expression ``a + (b + c)`` is elaborated in the context ``(a : ℕ) (b : ℕ) (c : ℕ)``. If you replace the expression ``a + (b + c)`` with an underscore, the error message from Lean will include the current *goal*:
 
