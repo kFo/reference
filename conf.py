@@ -118,6 +118,8 @@ html_static_path = ['_static']
 
 html_favicon = '_static/favicon.ico'
 
+html_output_encoding = 'latin-1'
+
 
 # -- Options for HTMLHelp output ------------------------------------------
 
