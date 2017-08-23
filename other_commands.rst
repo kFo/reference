@@ -79,6 +79,8 @@ As with the ``variable`` and ``variables`` commands, variables introduced with `
 
 Sections also delimit the scope of local :ref:`attributes <attributes>` and :ref:`notation declarations <notation_declarations>`.
 
+.. _namespaces:
+
 Namespaces
 ==========
 
@@ -142,6 +144,20 @@ Declarations in a namespace or at the top level can also bear the ``private`` mo
     export foo.bar
 
     example : fzz = 9 := rfl
+
+If ``t`` is an element of an inductive type or family ``foo``, then any function ``bar`` defined in the namespace ``foo`` can be treated as a "projection" using the anonymous projector notation described in :numref:`structures_and_records`. Specifically, if the first argument to ``foo.bar`` is of type ``foo``, then ``t.bar x y z`` abbreviates ``foo.bar t x y z``. More generally, as long as ``foo.bar`` has any argument of type ``foo``, then ``t.bar x y z`` is interpreted as the result of applying ``foo.bar`` to ``x``, ``y``, and ``z``, inserting ``t`` at the position of the first argument of type ``foo``.
+
+.. code-block:: lean
+
+    variables (xs ys : list ℕ) (f : ℕ → ℕ)
+
+    #check xs.length
+    #check xs.append ys
+    #check (xs.append ys).length
+    #check xs.map f
+    #check xs.reverse.reverse
+
+    example : [1, 2, 3].reverse.map (λ x, x + 2) = [5, 4, 3] := rfl
 
 .. _attributes:
 

@@ -153,8 +153,6 @@ The eliminator and constructors satisfy the following identities, in which all t
 
 where the ellipses include one entry for each recursive argument.
 
-The type former, constructors, and eliminator are all part of Lean's axiomatic foundation, which is to say, they are part of the trusted kernel.
-
 Below are some common examples of inductive types, many of which are defined in the core library.
 
 .. code-block:: lean
@@ -256,6 +254,44 @@ Lean allows some additional syntactic conveniences. You can omit the return type
 
   end hide
 
+The type former, constructors, and eliminator are all part of Lean's axiomatic foundation, which is to say, they are part of the trusted kernel. In addition to these axiomatically declared constants, Lean automatically defines some additional objects in terms of these, and adds them to the environment. These include the following:
+
+- ``foo.rec_on`` : a variant of the eliminator, in which the major premise comes first
+- ``foo.cases_on`` : a restricted version of the eliminator which omits any recursive calls
+- ``foo.no_confusion_type``, ``foo.no_confusion`` : functions which witness the fact that the inductive type is freely generated, i.e. that the constructors are injective and that distinct constructors produce distinct objects
+- ``foo.below``, ``foo.ibelow``, ``foo.ibelow`` : functions used by the equation compiler to implement structural recursion
+- ``foo.sizeof`` : a measure which can be used for well-founded recursion
+
+Note that it is common to put definitions and theorems related to a datatype ``foo`` in a namespace of the same name. This makes it possible to use projection notation described in :numref:`structures_and_records` and :numref:`namespaces`.
+
+.. code-block:: lean
+
+  namespace hide
+  universe u
+
+  -- BEGIN
+  inductive nat 
+  | zero
+  | succ (n : nat) : nat
+
+  #check nat
+  #check nat.rec
+  #check nat.zero
+  #check nat.succ
+
+  #check nat.rec_on
+  #check nat.cases_on
+  #check nat.no_confusion_type
+  #check @nat.no_confusion
+  #check nat.brec_on
+  #check nat.below
+  #check nat.ibelow
+  #check nat.sizeof
+
+  -- END
+
+  end hide
+
 .. _inductive_families:
 
 Inductive Families
@@ -347,9 +383,123 @@ Match Expressions
 
 (Give the syntax for this, as well as de-structuring ``let`` and ``assume``.)
 
+.. _structures_and_records:
+
 Structures and Records
 ======================
 
+The ``structure`` command in Lean is used to define an inductive data type with a single constructor and to define its projections at the same time. The syntax is as follows:
+
+.. code-block:: text
+
+    structure foo (a : α) extends bar, baz : Sort u :=
+    constructor :: (field₁ : β₁) ... (fieldₙ : βₙ)
+
+Here ``(a : α)`` is a telescope, that is, the parameters to the inductive definition. The name ``constructor`` followed by the double colon is optional; if it is not present, the name ``mk`` is used by default. The keyword ``extends`` followed by a list of previously defined structures is also optional; if it is present, an instance of each of these structures is included among the fields to ``foo,`` and the types ``βᵢ`` can refer to their fields as well. The output type, ``Sort u``, can be omitted, in which case Lean infers to smallest non-``Prop`` sort possible. Finally, ``(field₁ : β₁) ... (fieldₙ : βₙ)`` is a telescope relative to ``(a : α)`` and the fields in ``bar`` and ``baz``.
+
+The declaration above is syntactic sugar for an inductive type declaration, and so results in the addition of the following constants to the environment:
+
+- the type former : ``foo : Π (a : α), Sort u``
+- the single constructor :
+
+  .. code-block:: text
+  
+     foo.constructor : Π (a : α) (_to_foo : foo) (_to_bar : bar) 
+       (field₁ : β₁) ... (fieldₙ : βₙ), foo a
+
+- the eliminator ``foo.rec`` for the inductive type with that constructor
+
+In addition, Lean defines 
+
+- the projections : ``fieldᵢ : Π (a : α) (c : foo) : βᵢ`` for each ``i``
+
+where any other fields mentioned in ``βᵢ`` are replaced by the relevant projections from ``c``.
+
+Given ``c : foo``, Lean offers the following convenient syntax for the projection ``foo.fieldᵢ c``:
+
+- *anonymous projections* : ``c.fieldᵢ``
+- *numbered projections* : ``c.i``
+
+These can be used in any situation where Lean can infer that the type of ``c`` is of the form ``foo a``. The convention for anonymous projections is extended to any function ``f`` defined in the namespace ``foo``, as described in :numref:`namespaces`.
+
+Similarly, Lean offers the following convenient syntax for constructing elements of ``foo``. They are equivalent to ``foo.constructor b₁ b₂ f₁ f₁ ... fₙ``, where ``b₁ : foo``, ``b₂ : bar``, and each ``fᵢ : βᵢ`` :
+
+- *anonymous constructor*: ``⟨ b₁, b₂, f₁, ..., fₙ ⟩``
+- *record notation*: 
+  
+  .. code-block:: text
+  
+     { foo . to_bar := b₁, to_baz := b₂, field₁ := f₁, ..., 
+         fieldₙ := fₙ }
+
+The anonymous constructor can be used in any context where Lean can infer that the expression should have a type of the form ``foo a``. The unicode brackets are entered as ``\<`` and ``\>`` respectively. The tokens ``(|`` and ``|)`` are ascii equivalents. 
+
+When using record notation, you can omit the annotation ``foo .`` when Lean can infer that the expression should have a type of the form ``foo a``. You can replace either ``to_bar`` or ``to_baz`` by assignments to *their* fields as well, essentially acting as though the fields of ``bar`` and ``baz`` are simply imported into ``foo``. Finally, record notation also supports
+
+- *record updates*: ``{ t with ... fieldᵢ := fᵢ ...}``
+
+Here ``t`` is a term of type ``foo a`` for some ``a``. The notation instructs Lean to take values from ``t`` for any field assignment that is omitted from the list.
+
+Lean also allows you to specify a default value for any field in a structure by writing ``(fieldᵢ : βᵢ := t)``. Here ``t`` specifies the value to use when the field ``fieldᵢ`` is left unspecified in an instance of record notation.
+
+.. code-block:: lean
+
+    universes u v
+
+    structure vec (α : Type u) (n : ℕ) :=
+    (l : list α) (h : l.length = n)
+
+    structure foo (α : Type u) (β : ℕ → Type v) : Type (max u v) :=
+    (a : α) (n : ℕ) (b : β n)
+
+    structure bar :=
+    (c : ℕ := 8) (d : ℕ)
+
+    structure baz extends foo ℕ (vec ℕ), bar :=
+    (v : vec ℕ n)
+
+    #check foo
+    #check @foo.mk
+    #check @foo.rec
+
+    #check foo.a
+    #check foo.n
+    #check foo.b
+
+    #check baz
+    #check @baz.mk
+    #check @baz.rec
+
+    #check baz.to_foo
+    #check baz.to_bar
+    #check baz.v
+
+    def bzz := vec.mk [1, 2, 3] rfl
+
+    #check vec.l bzz
+    #check vec.h bzz
+    #check bzz.l
+    #check bzz.h
+    #check bzz.1
+    #check bzz.2
+
+    example : vec ℕ 3 := vec.mk [1, 2, 3] rfl
+    example : vec ℕ 3 := ⟨[1, 2, 3], rfl⟩
+    example : vec ℕ 3 := (| [1, 2, 3], rfl |) 
+    example : vec ℕ 3 := { vec . l := [1, 2, 3], h := rfl }
+    example : vec ℕ 3 := { l := [1, 2, 3], h := rfl }
+
+    example : foo ℕ (vec ℕ) := ⟨1, 3, bzz⟩
+
+    example : baz := ⟨⟨1, 3, bzz⟩, ⟨5, 7⟩, bzz⟩ 
+    example : baz := { a := 1, n := 3, b := bzz, c := 5, d := 7, v := bzz}
+    def fzz : foo ℕ (vec ℕ) := {a := 1, n := 3, b := bzz}
+
+    example : foo ℕ (vec ℕ) := { fzz with a := 7 }
+    example : baz := { fzz with c := 5, d := 7, v := bzz }
+
+    example : bar := { c := 8, d := 9 }
+    example : bar := { d := 9 }  -- uses the default value for c
 
 .. _type_classes:
 
