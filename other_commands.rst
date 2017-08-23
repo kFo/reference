@@ -290,3 +290,52 @@ In addition, Lean provides the command ``run_cmd`` to execute an expression of t
 
 Notation Declarations
 =====================
+
+Lean's parser is a Pratt-style parser, which means that tokens can serve separate functions at the beginning of an expression and in the middle of an expression, and every expression has a "left-binding power." Roughly, tokens with a higher left-binding power bind more tightly as an expression is parsed from left to right.
+
+The following commands can be used in Lean to declare tokens and assign a left-binding power:
+
+- ``reserve infix `tok`:n``
+- ``reserve infixl `tok`:n``
+- ``reserve infixr `tok`:n``
+- ``reserve prefix `tok`:n``
+- ``reserve postfix `tok`:n``
+
+In each case, ``tok`` is a string of characters that will become a new token, ``n`` is a natural number. The annotations ``infix`` and ``infixl`` mean the same thing, and specify that the infix notation should associate to the left. The keywords ``prefix`` and ``postfix`` are used to declare prefix and postfix notation, respectively.
+
+Instance of the notation can later be assigned as follows:
+
+- ``infix tok := t``
+
+where ``t`` is the desired interpretation, and similarly for the others. Notation can be overloaded. 
+
+It is not necessary to ``reserve`` a token before using it in notation. You can combine the two steps by writing
+
+- ``infix `tok`:n := t``
+
+Note that in this case, backticks are needed to delimit the token. If a left binding power has already been assigned using the ``reserve`` keyword, it cannot be reassigned by an ordinary notation declaration. A later ``reserve`` command can, however, change the left binding power.
+
+Surrounding the token by spaces in an infix declaration (that is, writing ``` tok ```) instructs Lean's pretty printer to use extra space when displaying the notation. The spaces are not, however, part of the token. For example, all the following declarations are taken from the core library:
+
+.. code-block:: text
+
+    notation `Prop` := Sort 0
+    notation f ` $ `:1 a:0 := f a
+    notation `∅` := has_emptyc.emptyc _
+    notation h1 ▸ h2 := eq.subst h1 h2
+    notation h :: t  := list.cons h t
+    notation `[` l:(foldr `, ` (h t, list.cons h t) list.nil `]`) := l
+    notation `∃!` binders `, ` r:(scoped P, exists_unique P) := r
+
+Note that, here, too, left-binding powers can be assigned on the fly, and backticks need to be used to enclose a token if it has not been declared before. 
+
+More examples can be found in the core library, for example in this `file <https://github.com/leanprover/lean/blob/master/library/init/core.lean>`_, which shows the binding strength of common symbols. The implication arrow binds with strength 25, denoted by ``std.prec.arrow`` in that file. Application has a high binding power, denoted ``std.prec.max``. For postfix notation, you may wish to use the higher value, ``std.prec.max_plus``. For example, according to the definition of the ``inv`` notation there, ``f x⁻¹`` is parsed as ``f (x⁻¹)``.
+
+The last two examples make possible list notation like ``[1, 2, 3]`` and the exists-unique binder, respectively. In the first, ``foldr`` specifies that the iterated operation is a right-associative fold, and binds the result to ``l``. The four arguments then specify the separation token (in this case a comma, to be followed by a space when pretty printing), the fold operation, the start value, and the terminating token. You can use ``foldl`` instead for a left-associative fold.
+
+In the last example, ``binders`` specifies that any number of binders can occur in that position, and the annotation after the comma indicates that these binders are to be iteratively abstracted using ``exists_unique``.
+
+Notation declarations can be preceded by the word "local," in which case the notation only remains in use in the current section or namespace, or in the current file if it is declared outside of any namespace.
+
+Remember that you can use the ``#print notation`` command to show the notation that has been declared in the current environment. Given a token, it shows the notation associated with the token. Without arguments, it displays all notation currently in use. You can also use ``set_option pp.notation false`` to turn off the pretty-printing of notation.
+
