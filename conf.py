@@ -118,7 +118,7 @@ html_static_path = ['_static']
 
 html_favicon = '_static/favicon.ico'
 
-html_output_encoding = 'latin-1'
+html_output_encoding = 'ascii'
 
 
 # -- Options for HTMLHelp output ------------------------------------------
