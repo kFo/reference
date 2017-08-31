@@ -119,7 +119,7 @@ Lean supports anonymous constructor notation, anonymous projections, and various
 Implicit Arguments
 ==================
 
-When declaring arguments to defined objects in Lean (for example, with ``def``, ``theorem``, ``constant``, ``inductive``, or ``structure``; see :numref:`Chapter %s <declarations>`) or when declaring variables and parameters in sections (see :numref:`Chapter %s <infrastructure>`), arguments can be annotated as *explicit* or *implicit*. This determines how expressions containing the object are interpreted.
+When declaring arguments to defined objects in Lean (for example, with ``def``, ``theorem``, ``constant``, ``inductive``, or ``structure``; see :numref:`Chapter %s <declarations>`) or when declaring variables and parameters in sections (see :numref:`Chapter %s <other_commands>`), arguments can be annotated as *explicit* or *implicit*. This determines how expressions containing the object are interpreted.
 
 * ``(x : α)`` : an explicit argument of type ``α``
 * ``{x : α}`` : an implicit argument, eagerly inserted

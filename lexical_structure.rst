@@ -20,9 +20,9 @@ Symbols and Commands
 
 Symbols are static tokens that are used in term notations and commands. They can be both keyword-like (e.g. the :keyword:`have <structured_proofs>` keyword) or use arbitrary Unicode characters.
 
-Command tokens are static tokens that prefix any top-level declaration or action. They are usually keyword-like, with transitory commands like :keyword:`#print` prefixed by an additional ``#``. The set of built-in commands is listed in the :numref:`Chapter %s <other_commands>` section.
+Command tokens are static tokens that prefix any top-level declaration or action. They are usually keyword-like, with transitory commands like :keyword:`#print <instructions>` prefixed by an additional ``#``. The set of built-in commands is listed in the :numref:`Chapter %s <other_commands>` section.
 
-Users can dynamically extend the sets of both symbols (via the commands listed in :numref:`quoted_symbols`) and command tokens (via the :keyword:`[user_command]` attribute).
+Users can dynamically extend the sets of both symbols (via the commands listed in :numref:`quoted_symbols`) and command tokens (via the :keyword:`[user_command] <attributes>` attribute).
 
 .. _identifiers:
 
@@ -81,7 +81,7 @@ Numeric literals can be specified in various bases.
    numeral8   : "0" [oO] [0-7]+
    numeral16  : "0" [xX] `hex_char`+
 
-Decimal literals are currently only being used for some :keyword:`set_option` values.
+Decimal literals are currently only being used for some :keyword:`set_option <options>` values.
 
 .. productionlist::
    decimal    : [0-9]+ "." [0-9]+
@@ -91,7 +91,7 @@ Decimal literals are currently only being used for some :keyword:`set_option` va
 Quoted Symbols
 ==============
 
-In a fixed set of commands (:keyword:`notation`, :keyword:`local notation`, and :keyword:`reserve`), symbols (known or unknown) can be quoted by enclosing them in backticks (`````). Quoted symbols are used by these commands for registering new notations and symbols.
+In a fixed set of commands (:keyword:`notation <notation_declarations>`, :keyword:`local notation <notation_declarations>`, and :keyword:`reserve <notation_declarations>`), symbols (known or unknown) can be quoted by enclosing them in backticks (`````). Quoted symbols are used by these commands for registering new notations and symbols.
 
 .. productionlist::
    quoted_symbol      : "`" " "* `quoted_symbol_start` `quoted_symbol_rest`* " "* "`"
@@ -100,7 +100,7 @@ In a fixed set of commands (:keyword:`notation`, :keyword:`local notation`, and 
 
 A quoted symbol may contain surrounding whitespace, which is customarily used for pretty printing the symbol and ignored while scanning.
 
-While backticks are not allowed in a user-defined symbol, they are used in some built-in symbols (see :ref:`quoting`), which are accessible outside of the set of commands noted above.
+While backticks are not allowed in a user-defined symbol, they are used in some built-in symbols (see :ref:`quotations`), which are accessible outside of the set of commands noted above.
 
 Doc Comments
 ============

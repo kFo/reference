@@ -213,6 +213,8 @@ There are also attributes used to specify strategies for elaboration:
 
     #print attributes
 
+.. _options:
+
 Options
 =======
 
@@ -238,6 +240,9 @@ As an example, the following settings yield much longer output:
     #check 2 + 2 = 4
     #reduce (λ x, x + 2) = (λ x, x + 3)
     #check (λ x, x + 1) 1
+
+
+.. _instructions:
 
 Instructions
 ============
