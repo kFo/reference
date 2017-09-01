@@ -399,6 +399,8 @@ A nested inductive definitions are compiled down to an ordinary inductive defini
 
 .. code-block:: lean
 
+    universe u
+    -- BEGIN
     mutual inductive even, odd
     with even : ℕ → Prop
     | even_zero : even 0
@@ -411,6 +413,7 @@ A nested inductive definitions are compiled down to an ordinary inductive defini
 
     inductive double_tree (α : Type u)
     | mk : α → list double_tree × list double_tree → double_tree
+    -- END
 
 .. _equation_compiler:
 
