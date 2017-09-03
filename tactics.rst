@@ -23,11 +23,15 @@ Structured Tactic Proofs
 (`assume`, `let`, `have`, `show`)
 
 
+.. _the_rewriter:
+
 The Rewriter
 ============
 
 (also unfolding definitions)
 
+
+.. _the_simplifier:
 
 The Simplifier
 ==============

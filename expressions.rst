@@ -237,7 +237,9 @@ The core library contains a number of basic data types, such as the natural numb
     #check 'a'
 
     /- assertions -/
-    #check ∀ a b c n : ℕ, a ≠ 0 ∧ b ≠ 0 ∧ c ≠ 0 ∧ n > 2 → a^n + b^n ≠ c^n
+    #check ∀ a b c n : ℕ, 
+      a ≠ 0 ∧ b ≠ 0 ∧ c ≠ 0 ∧ n > 2 → a^n + b^n ≠ c^n
+      
     def unbounded (f : ℕ → ℕ) : Prop := ∀ M, ∃ n, f n ≥ M 
 
 .. _constructors_projections_and_matching:

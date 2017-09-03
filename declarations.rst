@@ -220,9 +220,9 @@ Below are some common examples of inductive types, many of which are defined in 
 
 Note that in the syntax of the inductive definition ``foo``, the context ``(a : α)`` is left implicit. In other words, constructors and recursive arguments are written as though they have return type ``foo`` rather than ``foo a``.
 
-Elements of the context ``(a : α)`` can be marked implicit as described in :numref:`implicit_arguments`. These annotations bear only on the type former, ``foo``. Lean uses a heuristic to determine which arguments to the constructors should be marked implicit, namely, an argument is marked implicit if it can be inferred from the type of a subsequent argument. If the annotation ``{}`` appears after the constructor, a argument is marked implicit if it can be inferred from the type of a subsequent argument *or the return type*. For example, it is useful to let ``nil`` denote the empty list of any type, since the type can usually be inferred in the context in which it appears. These heuristics are imperfect, and you may sometimes wish to define your own constructors in terms of the default ones. In that case, use the ``[pattern]`` :ref:`attribute <attributes>` to ensure that these will be used appropriately by the :ref:`equation compiler <equation_compiler>`.
+Elements of the context ``(a : α)`` can be marked implicit as described in :numref:`implicit_arguments`. These annotations bear only on the type former, ``foo``. Lean uses a heuristic to determine which arguments to the constructors should be marked implicit, namely, an argument is marked implicit if it can be inferred from the type of a subsequent argument. If the annotation ``{}`` appears after the constructor, a argument is marked implicit if it can be inferred from the type of a subsequent argument *or the return type*. For example, it is useful to let ``nil`` denote the empty list of any type, since the type can usually be inferred in the context in which it appears. These heuristics are imperfect, and you may sometimes wish to define your own constructors in terms of the default ones. In that case, use the ``[pattern]`` :ref:`attribute <attributes>` to ensure that these will be used appropriately by the :ref:`equation compiler <the_equation_compiler>`.
 
-There are restrictions on the universe ``u`` in the return type ``Sort u`` of the type former. There are also resrictions on the universe ``u`` in the return type ``Sort u`` of the motive of the eliminator. These will be discussed in the next section in the more general setting of inductive families.
+There are restrictions on the universe ``u`` in the return type ``Sort u`` of the type former. There are also restrictions on the universe ``u`` in the return type ``Sort u`` of the motive of the eliminator. These will be discussed in the next section in the more general setting of inductive families.
 
 Lean allows some additional syntactic conveniences. You can omit the return type of the type former, ``Sort u``, in which case Lean will infer the minimal possible nonzero value for ``u``. As with function definitions, you can list arguments to the constructors before the colon. In an enumerated type (that is, one where the constructors have no arguments), you can also leave out the return type of the constructors. 
 
@@ -324,7 +324,7 @@ The declaration of the type ``foo`` as above results in the addition of the foll
   + ``(a : α)`` (the parameters)
   + ``{C : Π (c : γ), foo a c → Type u}`` (the motive of the elimination)
   + for each ``i``, the minor premise corresponding to ``constructorᵢ``
-  + ``(x : foo a)`` (the major premsise) 
+  + ``(x : foo a)`` (the major premise) 
 
   and returns an element of ``C x``. Here, The ith minor premise is a function which takes
 
@@ -364,9 +364,11 @@ The following are examples of inductive families.
 
   end hide
 
-We can now describe the constraints on the return type of the type former, ``Sort u``. We can always take ``u`` to be ``0``, in which case we are defining an inductive family of propositions. If ``u`` is nonzero, however, it must satisfy the following constraint: for each type ``βᵢⱼ : Sort v`` ocurring in the constructors, we must have ``u ≥ v``. In the set-theoretic interpretation, this ensures that the universe in which the resulting type resides is large enough to contain the inductively generated family, given the number of distinctly-labeled constructors. The restriction does not hold for inductively defined propositions, since these contain no data.
+We can now describe the constraints on the return type of the type former, ``Sort u``. We can always take ``u`` to be ``0``, in which case we are defining an inductive family of propositions. If ``u`` is nonzero, however, it must satisfy the following constraint: for each type ``βᵢⱼ : Sort v`` occurring in the constructors, we must have ``u ≥ v``. In the set-theoretic interpretation, this ensures that the universe in which the resulting type resides is large enough to contain the inductively generated family, given the number of distinctly-labeled constructors. The restriction does not hold for inductively defined propositions, since these contain no data.
 
 Putting an inductive family in ``Prop``, however, does impose a restriction on the eliminator. Generally speaking, for an inductive family in ``Prop``, the motive in the eliminator is required to be in ``Prop``. But there is an exception to this rule: you are allowed to eliminate from an inductively defined ``Prop`` to an arbitrary ``Sort`` when there is only one constructor, and each argument to that constructor is either in ``Prop`` or an index. The intuition is that in this case the elimination does not make use of any information that is not already given by the mere fact that the type of argument is inhabited. This special case is known as *singleton elimination*.
+
+.. _mutual_and_nested_inductive_definitions:
 
 Mutual and Nested Inductive Definitions
 =======================================
@@ -415,17 +417,255 @@ A nested inductive definitions are compiled down to an ordinary inductive defini
     | mk : α → list double_tree × list double_tree → double_tree
     -- END
 
-.. _equation_compiler:
+.. _the_equation_compiler:
 
 The Equation Compiler
 =====================
 
-(Define the syntax, explaining patterns and inaccessible terms. Include well founded recursion.)
+The equation compiler takes an equational description of a function or proof and tries to define an object meeting that specification. It expects input with the following syntax:
+
+.. code-block:: text
+
+    def foo (a : α) : Π (b : β), γ
+    | [patterns₁] := t₁
+    ...
+    | [patternsₙ] := tₙ
+
+Here ``(a : α)`` is a telescope, ``(b : β)`` is a telescope in the context ``(a : α)``, and ``γ`` is an expression in the context ``(a : α) (b : β)`` denoting a ``Type`` or a ``Prop``. 
+
+Each ``patternsᵢ`` is a sequence of patterns of the same length as ``(b : β)``. A pattern is either:
+
+- a variable, denoting an arbitrary value of the relevant type,
+- an underscore, denoting a *wildcard* or *anonymous variable*,
+- an inaccessible term (see below), or
+- a constructor for the inductive type of the corresponding argument, applied to a sequence of patterns.
+
+In the last case, the pattern must be enclosed in parentheses. 
+
+Each term ``tᵢ`` is an expression in the context ``(a : α)`` together with the variables introduced on the left-hand side of the token ``:=``. The term ``tᵢ`` can also include recursive calls to ``foo``, as described below. The equation compiler does case splitting on the variables ``(b : β)`` as necessary to match the patterns, and defines ``foo`` so that it has the value ``tᵢ`` in each of the cases. In ideal circumstances (see below), the equations hold definitionally. Whether they hold definitionally or only propositionally, the equation compiler proves the relevant equations and assigns them internal names. They are accessible by the ``rewrite`` and ``simp`` tactics under the name ``foo`` (see :numref:`the_rewriter` and :numref:`the_simplifier`). If some of the patterns overlap, the equation compiler interprets the definition so that the first matching pattern applies in each case. Thus, if the last pattern is a variable, it covers all the remaining cases. If the patterns that are presented do not cover all possible cases, the equation compiler raises an error. 
+
+When identifiers are marked with the ``[pattern]`` attribute, the equation compiler unfolds them in the hopes of exposing a constructor. For example, this makes it possible to write ``n+1`` and ``0`` instead of ``nat.succ n`` and ``nat.zero`` in patterns.
+
+For a nonrecursive definition involving case splits, the defining equations will hold definitionally. With inductive types like ``char``, ``string``, and ``fin n``, a case split on would produce definitions with an inordinate number of cases. To avoid this, the equation compiler uses ``if ... then ... else`` instead of ``cases_on`` when defining the function. In this case, the defining equations hold definitionally as well.
+
+.. code-block:: lean
+
+    open nat
+
+    def sub2 : ℕ → ℕ
+    | zero            := 0
+    | (succ zero)     := 0
+    | (succ (succ a)) := a
+
+    def bar : ℕ → list ℕ → bool → ℕ
+    | 0     _        ff := 0
+    | 0     (b :: _) _  := b
+    | 0     []       tt := 7
+    | (a+1) []       ff := a
+    | (a+1) []       tt := a + 1
+    | (a+1) (b :: _) _  := a + b
+
+    def baz : char → ℕ 
+    | 'A' := 1
+    | 'B' := 2
+    | _   := 3
+
+If any of the terms ``tᵢ`` in the template above contain a recursive call to ``foo``, the equation compiler tries to interpret the definition as a structural recursion. In order for that to succeed, the recursive arguments must be subterms of the corresponding arguments on the left-hand side. The function is then defined using a *course of values* recursion, using automatically generated functions ``below`` and ``brec`` in the namespace corresponding to the inductive type of the recursive argument. In this case the defining equations hold definitionally, possible with additional case splits.
+
+.. code-block:: lean
+
+    namespace hide
+
+    -- BEGIN
+    def fib : nat → nat
+    | 0     := 1
+    | 1     := 1
+    | (n+2) := fib (n+1) + fib n
+
+    def append {α : Type} : list α → list α → list α
+    | []     l := l
+    | (h::t) l := h :: append t l
+
+    example : append [(1 : ℕ), 2, 3] [4, 5] = [1, 2, 3, 4, 5] := rfl
+    -- END
+
+    end hide
+
+If structural recursion fails, the equation compiler falls back on well-founded recursion. It tries to infer an instance of ``has_sizeof`` for the type of each argument, and then show that each recursive call is decreasing under the lexicographic order of the arguments with respect to ``sizeof`` measure. If it fails, the error message provides information as to the goal that Lean tried to prove. Lean uses information in the local context, so you can often provide the relevant proof manually using ``have`` in the body of the definition. In this case of well-founded recursion, the defining equations hold only propositionally, and can be accessed using ``simp`` and ``rewrite`` with the name ``foo``.
+
+.. code-block:: lean
+
+    namespace hide
+    open nat
+
+    -- BEGIN
+    def div : ℕ → ℕ → ℕ
+    | x y := 
+      if h : 0 < y ∧ y ≤ x then
+        have x - y < x, 
+          from sub_lt (lt_of_lt_of_le h.left h.right) h.left,
+        div (x - y) y + 1
+      else
+        0
+
+    example (x y : ℕ) :  
+      div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
+    by rw [div]
+    -- END
+        
+    end hide
+
+Note that recursive definitions can in general require nested recursions, that is, recursion on different arguments of ``foo`` in the template above. The equation compiler handles this by abstracting later arguments, and recursively defining higher-order functions to meet the specification.
+
+The equation compiler also allows mutual recursive definitions, with a syntax similar to that of :ref:`mutual inductive definitions <mutual_and_nested_inductive_definitions>`. They are compiled using well-founded recursion, and so once again the defining equations hold only propositionally.
+
+.. code-block:: lean
+
+    mutual def even, odd
+    with even : ℕ → bool
+    | 0     := tt
+    | (a+1) := odd a
+    with odd : ℕ → bool
+    | 0     := ff
+    | (a+1) := even a
+
+    example (a : ℕ) : even (a + 1) = odd a :=
+    by simp [even]
+
+    example (a : ℕ) : odd (a + 1) = even a :=
+    by simp [odd]
+
+Well-founded recursion is especially useful with :ref:`mutual and nested inductive definitions <mutual_and_nested_inductive_definitions>`, since it provides the canonical way of defining functions on these types.
+
+.. code-block:: lean
+
+    mutual inductive even, odd
+    with even : ℕ → Prop
+    | even_zero : even 0
+    | even_succ : ∀ n, odd n → even (n + 1)
+    with odd : ℕ → Prop
+    | odd_succ : ∀ n, even n → odd (n + 1)
+
+    open even odd
+
+    theorem not_odd_zero : ¬ odd 0.
+
+    mutual theorem even_of_odd_succ, odd_of_even_succ
+    with even_of_odd_succ : ∀ n, odd (n + 1) → even n
+    | _ (odd_succ n h) := h
+    with odd_of_even_succ : ∀ n, even (n + 1) → odd n
+    | _ (even_succ n h) := h
+
+    inductive term
+    | const : string → term
+    | app   : string → list term → term
+
+    open term
+
+    mutual def num_consts, num_consts_lst
+    with num_consts : term → nat
+    | (term.const n)  := 1
+    | (term.app n ts) := num_consts_lst ts
+    with num_consts_lst : list term → nat
+    | []      := 0
+    | (t::ts) := num_consts t + num_consts_lst ts
+
+The case where patterns are matched against an argument whose type is an inductive family is known as *dependent pattern matching*. This is more complicated, because the type of the function being defined can impose constraints on the patterns that are matched. In this case, the equation compiler will detect inconsistent cases and rule them out.
+
+.. code-block:: lean
+
+    universe u
+
+    inductive vector (α : Type u) : ℕ → Type u
+    | nil {} : vector 0
+    | cons   : Π {n}, α → vector n → vector (n+1)
+
+    namespace vector
+
+    def head {α : Type} : Π {n}, vector α (n+1) → α
+    | n (cons h t) := h
+
+    def tail {α : Type} : Π {n}, vector α (n+1) → vector α n
+    | n (cons h t) := t
+
+    def map {α β γ : Type} (f : α → β → γ) :
+      Π {n}, vector α n → vector β n → vector γ n
+    | 0     nil         nil         := nil
+    | (n+1) (cons a va) (cons b vb) := cons (f a b) (map va vb)
+
+    end vector
+
+An expression of the form ``.(t)`` in a pattern is known as an *inaccessible term*. It is not viewed as part of the pattern; rather, it is explicit information that is used by the elaborator and equation compiler when interpreting the definition. Inaccessible terms do not participate in pattern matching. They are sometimes needed for a pattern to make sense, for example, when a constructor depends on a parameter that is not a pattern-matching variable. In other cases, they can be used to inform the equation compiler that certain arguments do not require a case split, and they can be used to make a definition more readable.
+
+.. code-block:: lean
+
+    universe u
+
+    inductive vector (α : Type u) : ℕ → Type u
+    | nil {} : vector 0
+    | cons   : Π {n}, α → vector n → vector (n+1)
+
+    namespace vector
+
+    -- BEGIN
+    variable {α : Type u}
+
+    def add [has_add α] : 
+      Π {n : ℕ}, vector α n → vector α n → vector α n 
+    | ._ nil        nil        := nil
+    | ._ (cons a v) (cons b w) := cons (a + b) (add v w)
+
+    def add' [has_add α] : 
+      Π {n : ℕ}, vector α n → vector α n → vector α n 
+    | .(0)   nil                nil        := nil
+    | .(n+1) (@cons .(α) n a v) (cons b w) := cons (a + b) (add' v w)
+    -- END
+
+    end vector
+
+.. _match_expressions:
 
 Match Expressions
 =================
 
-(Give the syntax for this, as well as de-structuring ``let`` and ``assume``.)
+Lean supports a ``match ... with ...`` construct similar to ones found on most functional programming languages. The syntax is as follows:
+
+.. code-block:: text
+
+    match t₁, ..., tₙ with
+    | p₁₁, ..., p₁ₙ := s₁
+    ...
+    | pₘ₁, ..., pₘₙ := sₘ
+
+Here ``t₁, ..., tₙ`` are any terms in the context in which the expression appears, the expressions ``pᵢⱼ`` are patterns, and the terms ``sᵢ`` are expressions in the local context together with variables introduced by the patterns on the left-hand side. Each ``sᵢ`` should have the expected type of the entire ``match`` expression.
+
+Any ``match`` expression is interpreted using the equation compiler, which generalizes ``t₁, ..., tₙ``, defines an internal function meeting the specification, and then applies it to ``t₁, ..., tₙ``. In contrast to the definitions in :numref:`the_equation_compiler`, the term ``tᵢ`` are arbitrary terms rather than just variables, and the expression can occur anywhere within a Lean expression, not just at the top level of a definition. Note that the syntax here is somewhat different: both the terms ``tᵢ`` and the patterns ``pᵢⱼ`` are separated by commas.
+
+.. code-block:: lean
+
+    def foo (n : ℕ) (b c : bool) :=
+    5 + match n - 5, b && c with
+        | 0,      tt := 0
+        | m+1,    tt := m + 7
+        | 0,      ff := 5
+        | m+1,    ff := m + 3
+        end
+
+When a ``match`` has only one line, the vertical bar may be left out. In that case, Lean provides alternative syntax with a destructuring ``let``, as well as a destructuring lambda abstraction. Thus the following definitions all have the same net effect.
+
+.. code-block:: lean
+
+    def bar₁ : ℕ × ℕ → ℕ 
+    | (m, n) := m + n
+
+    def bar₂ (p : ℕ × ℕ) : ℕ :=
+    match p with (m, n) := m + n end
+
+    def bar₃ : ℕ × ℕ → ℕ := 
+    λ ⟨m, n⟩, m + n
+
+    def bar₄ (p : ℕ × ℕ) : ℕ :=
+    let ⟨m, n⟩ := p in m + n 
 
 .. _structures_and_records:
 
