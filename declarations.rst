@@ -628,7 +628,7 @@ An expression of the form ``.(t)`` in a pattern is known as an *inaccessible ter
 Match Expressions
 =================
 
-Lean supports a ``match ... with ...`` construct similar to ones found on most functional programming languages. The syntax is as follows:
+Lean supports a ``match ... with ...`` construct similar to ones found in most functional programming languages. The syntax is as follows:
 
 .. code-block:: text
 
