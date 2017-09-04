@@ -16,4 +16,5 @@ The Lean Reference Manual
    other_commands
    tactics
    programming
+   metaprogramming
    libraries
