@@ -35,8 +35,9 @@ You can use the keyword ``by`` instead of ``begin ... end`` to invoke a single t
 
 The documentation below coincides with documentation strings that are stored in the Lean source files and displayed by editors. The argument types are as follows:
 
-- *id* : an :ref:`identifier <identifiers>`
-- *expr* : an :ref:`expression <expression_syntax>`
+- ``id`` : an :ref:`identifier <identifiers>`
+- ``expr`` : an :ref:`expression <expression_syntax>`
+- ``<binders>`` : a sequence of identifiers and expressions ``(a : α)`` where ``a`` is an identifier and ``α`` is a ``Type`` or a ``Prop``.
 
 An annotation ``t?`` means that the argument ``t`` is optional, and an annotation ``t*`` means any number of instances, possibly none. Many tactics parse arguments with additional tokens like ``with``, ``at``, ``only``, ``*``, or ``⊢``, as indicated below. The token ``*`` is typically used to denote all the hypotheses, and ``⊢`` is typically used to denote the goal.
 
@@ -59,7 +60,7 @@ Basic Tactics
 
     Similar to ``intro`` tactic. The tactic ``intros`` will keep introducing new hypotheses until the goal target is not a Pi/forall or let binder.
 
-    The variant ``intros h_1 ... h_n`` introduces ``n` new hypotheses using the given identifiers to name them.
+    The variant ``intros h_1 ... h_n`` introduces ``n`` new hypotheses using the given identifiers to name them.
 
 ``introv id*``
 
@@ -125,7 +126,7 @@ Basic Tactics
 
 ``apply_instance``
 
-    This tactic tries to close the main goal ``... |- U`` by generating a term of type ``U`` using type class resolution.
+    This tactic tries to close the main goal ``... ⊢ U`` by generating a term of type ``U`` using type class resolution.
 
 ``refine expr``
 
@@ -164,14 +165,73 @@ Basic Tactics
 Structured Tactic Proofs
 ========================
 
-(To do: describe ``assume``, ``let``, ``have``, ``show``, ``from``, also nested ``begin ... end`` and curly braces.)
+Tactic blocks can have nested ``begin ... end`` blocks and, equivalently, blocks ``{ ... }`` enclosed with curly braces. Opening such a block focuses on the current goal, so that no other goals are visible within the nested block. Closing a block while any subgoals remain results in an error.
+
+``assume (: expr | <binders>)``
+
+    Assuming the target of the goal is a Pi or a let, ``assume h : T`` unifies the type of the binder with ``T`` and introduces it with name ``h``, just like ``intro h``. If ``h`` is absent, the tactic uses the name ``this``. If ``T`` is omitted, it will be inferred. 
+
+    ``assume (h₁ : T₁) ... (hₙ : Tₙ)`` introduces multiple hypotheses. Any of the types may be omitted, but the names must be present.
+
+``have id? (: expr)? (:= expr)?``
+
+    ``have h : T := p`` adds the hypothesis ``h : T`` to the current goal if ``p`` a term of type ``T``. If ``T`` is omitted, it will be inferred. 
+
+    ``have h : T`` adds the hypothesis ``h : T`` to the current goal and opens a new subgoal with target ``T``. The new subgoal becomes the main goal. If ``T`` is omitted, it will be replaced by a fresh metavariable.
+
+    If ``h`` is omitted, the name ``this`` is used.
+
+``let id? (: expr)? (:= expr)?``
+
+    ``let h : T := p`` adds the hypothesis ``h : T := p`` to the current goal if ``p`` a term of type ``T``. If `T` is omitted, it will be inferred.
+
+    ``let h : T`` adds the hypothesis ``h : T := ?M`` to the current goal and opens a new subgoal ``?M : T``. The new subgoal becomes the main goal. If ``T`` is omitted, it will be replaced by a fresh metavariable.
+
+    If ``h`` is omitted, the name ``this`` is used.
+
+``suffices id? (: expr)?``
+
+    ``suffices h : T`` is the same as ``have h : T, tactic.swap``. In other words, it adds the hypothesis ``h : T`` to the current goal and opens a new subgoal with target ``T``.
+
+``show expr``
+
+    ``show T`` finds the first goal whose target unifies with ``T``. It makes that the main goal, performs the unification, and replaces the target with the unified version of ``T``. 
+
+``from expr``
+
+    A synonym for ``exact`` that allows writing ``have/suffices/show ..., from ...`` in tactic mode. 
+
+.. code-block :: lean
+
+    variables (p q : Prop)
+
+    example : p ∧ (p → q) → q ∧ p :=
+    begin
+      assume h : (p ∧ (p → q)),
+      have h₁ : p, from and.left h,
+      have : p → q := and.right h,
+      suffices : q, from and.intro this h₁,
+      show q, from ‹p → q› h₁ 
+    end
+
+    example (p q : Prop) : p → p → p :=
+    begin
+      assume h (h' : p),
+      from h
+    end
+
+    example : ∃ x, x = 5 :=
+    begin
+      let u := 3 + 2,
+      existsi u, reflexivity
+    end
 
 .. _tactics_for_inductive_types:
 
 Tactics for Inductive Types
 ===========================
 
-(To do: ``induction``, ``cases``, ``destruct``, ``left``, ``right``, ``split``, ``constructor``, etc.)
+(To do: ``induction``, ``cases``, ``destruct``, ``left``, ``right``, ``split``, ``constructor``, ``existsi``, etc.)
 
 .. _tactic_combinators:
 
