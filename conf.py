@@ -99,7 +99,6 @@ html_sidebars = {
 # documentation.
 #
 html_theme_options = {
-   # 'logo': 'lean_logo.svg',
    'logo_name': True,
    'font_family': '"Times New Roman", Times, serif',
    'head_font_family': '"Times New Roman", Times, serif',
