@@ -103,6 +103,7 @@ html_theme_options = {
    'logo_name': True,
    'font_family': 'Times New Roman, Times, serif',
    'head_font_family': 'Times New Roman, Times, serif',
+   'code_bg': 'white',
    # 'font_family': 'Lato, Arial, Helvetica, sans',
    # 'head_font_family': 'Lato, Arial, Helvetica, sans',
    'extra_nav_links': {'PDF version':'lean_reference.pdf',
