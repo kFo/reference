@@ -158,7 +158,49 @@ Basic Tactics
 
     ``revert h₁ ... hₙ`` applies to any goal with hypotheses ``h₁ ... hₙ``. It moves the hypotheses and their dependencies to the target of the goal. This tactic is the inverse of `intro`.
 
-(To do: add ``ex_falso``, ``generalize``, ``trivial``, ``admit``, ``contradiction``.)
+``generalize id? : expr = id``
+
+    ``generalize : e = x`` replaces all occurrences of ``e`` in the target with a new hypothesis ``x`` of the same type.
+
+    ``generalize h : e = x`` in addition registers the hypothesis ``h : e = x``.
+
+``admit``
+
+    Closes the main goal using ``sorry``.
+
+``contradiction``
+
+    The contradiction tactic attempts to find in the current local context an hypothesis that is equivalent to an empty inductive type (e.g. ``false``), a hypothesis of the form ``c_1 ... = c_2 ...`` where ``c_1`` and ``c_2`` are distinct constructors, or two contradictory hypotheses.
+
+``trivial``
+
+    Tries to solve the current goal using a canonical proof of `true`, or the `reflexivity` tactic, or the `contradiction` tactic.
+
+``exfalso``
+
+    Replaces the target of the first goal by ``false``.
+
+Equality and Other Relations
+============================
+
+``reflexivity``
+
+    This tactic applies to a goal that has the form ``t ~ u`` where ``~`` is a reflexive relation, that is, a relation which has a reflexivity lemma tagged with the attribute ``[refl]``. The tactic checks whether ``t`` and ``u`` are definitionally equal and then solves the goal.
+
+``refl``
+
+    Shorter name for the tactic `reflexivity`.
+
+``symmetry``
+
+    This tactic applies to a goal that has the form ``t ~ u`` where ``~`` is a symmetric relation, that is, a relation which has a symmetry lemma tagged with the attribute ``[symm]``. It replaces the goal with ``u ~ t``.
+
+``transitivity ?expr``
+
+    This tactic applies to a goal that has the form ``t ~ u`` where ``~`` is a transitive relation, that is, a relation which has a transitivity lemma tagged with the attribute ``[trans]``.
+
+    ``transitivity s`` replaces the goal with the two subgoals ``t ~ s`` and ``s ~ u``. If ``s`` is omitted, then a metavariable is used instead.
+
 
 .. _structured_tactic_proofs:
 
@@ -207,7 +249,7 @@ Tactic blocks can have nested ``begin ... end`` blocks and, equivalently, blocks
 
     example : p ∧ (p → q) → q ∧ p :=
     begin
-      assume h : (p ∧ (p → q)),
+      assume h : p ∧ (p → q),
       have h₁ : p, from and.left h,
       have : p → q := and.right h,
       suffices : q, from and.intro this h₁,
@@ -231,25 +273,180 @@ Tactic blocks can have nested ``begin ... end`` blocks and, equivalently, blocks
 Tactics for Inductive Types
 ===========================
 
-(To do: ``induction``, ``cases``, ``destruct``, ``left``, ``right``, ``split``, ``constructor``, ``existsi``, etc.)
+The following tactics are designed specifically to work with elements on an inductive type.
+
+``induction expr (using id)? (with id*)? (generalizing id*)?``
+
+    Assuming ``x`` is a variable in the local context with an inductive type, ``induction x`` applies induction on ``x`` to the first goal, producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor and an inductive hypothesis is added for each recursive argument to the constructor. If the type of an element in the local context depends on ``x``, that element is reverted and reintroduced afterward, so that the inductive hypothesis incorporates that hypothesis as well.
+
+    For example, given ``n : nat`` and a goal with a hypothesis ``h : P n`` and target ``Q n``, ``induction n`` produces one goal with hypothesis ``h : P 0`` and target ``Q 0``, and one goal with hypotheses ``h : P (nat.succ a)`` and ``ih_1 : P a → Q a`` and target ``Q (nat.succ a)``. Here the names ``a`` and ``ih_1`` ire chosen automatically.
+
+    ``induction e``, where ``e`` is an expression instead of a variable, generalizes ``e`` in the goal, and then performs induction on the resulting variable.
+
+    ``induction e with y1 y2 ... yn``, where ``e`` is a variable or an expression, specifies that the sequence of names ``y1 y2 ... yn`` should be used for the arguments to the constructors and inductive hypotheses, including implicit arguments. If the list does not include enough names for all of the arguments, additional names are generated automatically. If too many names are given, the extra ones are ignored. Underscores can be used in the list, in which case the corresponding names are generated automatically.
+
+    ``induction e using r`` allows the user to specify the principle of induction that should be used. Here ``r`` should be a theorem whose result type must be of the form ``C t``, where ``C`` is a bound variable and ``t`` is a (possibly empty) sequence of bound variables
+
+    ``induction e generalizing z1 ... zn``, where ``z1 ... zn`` are variables in the local context, generalizes over ``z1 ... zn`` before applying the induction but then introduces them in each goal. In other words, the net effect is that each inductive hypothesis is generalized.
+
+``cases (id :)? expr (with id*)?``
+
+    Assuming ``x`` is a variable in the local context with an inductive type, ``cases x`` splits the first goal, producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor. If the type of an element in the local context depends on ``x``, that element is reverted and reintroduced afterward, so that the case split affects that hypothesis as well.
+
+    For example, given ``n : nat`` and a goal with a hypothesis ``h : P n`` and target ``Q n``, ``cases n`` produces one goal with hypothesis ``h : P 0`` and target ``Q 0``, and one goal with hypothesis ``h : P (nat.succ a)`` and target ``Q (nat.succ a)``. Here the name ``a`` is chosen automatically.
+
+    ``cases e``, where ``e`` is an expression instead of a variable, generalizes ``e`` in the goal, and then cases on the resulting variable.
+
+    ``cases e with y1 y2 ... yn``, where ``e`` is a variable or an expression, specifies that the sequence of names ``y1 y2 ... yn`` should be used for the arguments to the constructors, including implicit arguments. If the list does not include enough names for all of the arguments, additional names are generated automatically. If too many names are given, the extra ones are ignored. Underscores can be used in the list, in which case the corresponding names are generated automatically.
+
+    ``cases h : e``, where ``e`` is a variable or an expression, performs cases on ``e`` as above, but also adds a hypothesis ``h : e = ...`` to each hypothesis, where ``...`` is the constructor instance for that particular case.
+
+``case id id* { tactic }``
+
+    Focuses on the ``induction``/``cases`` subgoal corresponding to the given introduction rule, optionally renaming introduced locals.
+
+    .. code-block:: text
+
+        example (n : ℕ) : n = n :=
+        begin
+          induction n,
+          case nat.zero { reflexivity },
+          case nat.succ a ih { reflexivity }
+        end
+
+``destruct expr``
+
+    Assuming ``x`` is a variable in the local context with an inductive type, ``destruct x`` splits the first goal, producing one goal for each constructor of the inductive type, in which ``x`` is assumed to be a general instance of that constructor. In contrast to ``cases``, the local context is unchanged, i.e. no elements are reverted or introduced.
+
+    For example, given ``n : nat`` and a goal with a hypothesis ``h : P n`` and target ``Q n``, ``destruct n`` produces one goal with target ``n = 0 → Q n``, and one goal with target ``∀ (a : ℕ), (λ (w : ℕ), n = w → Q n) (nat.succ a)``. Here the name ``a`` is chosen automatically.
+
+``existsi``
+
+    ``existsi e`` will instantiate an existential quantifier in the target with ``e`` and leave the instantiated body as the new target. More generally, it applies to any inductive type with one constructor and at least two arguments, applying the constructor with ``e`` as the first argument and leaving the remaining arguments as goals.
+
+    ``existsi [e1, e2, ..., en]``
+
+``constructor``
+
+    This tactic applies to a goal such that its conclusion is an inductive type (say ``I``). It tries to apply each constructor of ``I`` until it succeeds.
+
+``econstructor``
+
+    Similar to ``constructor``, but only non dependent premises are added as new goals.  
+
+``left``
+
+    Applies the first constructor when the type of the target is an inductive data type with two constructors.
+
+``right``
+
+    Applies the second constructor when the type of the target is an inductive data type with two constructors.
+
+``split``
+
+    Applies the constructor when the type of the target is an inductive data type with one constructor.
+
+``injection expr (with id*)?``
+
+    The ``injection`` tactic is based on the fact that constructors of inductive data types are injections. That means that if ``c`` is a constructor of an inductive datatype, and if ``(c t₁)`` and ``(c t₂)`` are two terms that are equal then  ``t₁`` and ``t₂`` are equal too.
+
+    If ``q`` is a proof of a statement of conclusion ``t₁ = t₂``, then injection applies injectivity to derive the equality of all arguments of ``t₁`` and ``t₂`` placed in the same positions. For example, from ``(a::b) = (c::d)`` we derive ``a=c`` and ``b=d``. To use this tactic ``t₁`` and ``t₂`` should be constructor applications of the same constructor.
+
+    Given ``h : a::b = c::d``, the tactic ``injection h`` adds to new hypothesis with types ``a = c`` and ``b = d`` to the main goal. The tactic ``injection h with h₁ h₂`` uses the names ``h₁`` an ``h₂`` to name the new hypotheses.
+
+``injections (with id*)?``
+
+    ``injections h1 h2 ... hn` iteratively applies `injection` to hypotheses using the names `h1 h2 ... hn``.
 
 .. _tactic_combinators:
 
 Tactic Combinators
 ==================
 
+*Tactic combinators* build compound tactics from simpler ones.
+
+``repeat { tactic }``
+
+    ``repeat { t }`` repeatedly applies ``t`` until ``t`` fails. The compound tactic always succeeds.
+
+``try { tactic }``
+
+    ``try { t }`` tries to apply tactic ``t``, but succeeds whether or not ``t`` succeeds.
+
+``skip``
+
+    A do-nothing tactic that always succeeds.
+
+``solve1 { tactic }``
+
+    ``solve1 { t }`` applies the tactic ``t`` to the first goal and fails if it is not solved. 
+
+``abstract id? { tactic }``
+
+    ``abstract id { t }`` tries to use tactic ``t`` to solve the first goal. If it succeeds, it abstracts the goal as an independent definition or theorem with name ``id``. If ``id`` is omitted, a name is generated automatically.
+
+``all_goals { tactic }``
+
+    ``all_goals { t }`` applies the tactic ``t`` to every goal, and succeeds if each application succeeds.
+
+``any_goals { tactic }``
+
+    ``any_goals { t }`` applies the tactic ``t`` to every goal, and succeeds if at least one application succeeds.
+
+``done``
+
+    Fail if there are unsolved goals.
+
 .. _the_rewriter:
 
 The Rewriter
 ============
 
-(also unfolding definitions)
 
 .. _the_simplifier:
 
 The Simplifier
 ==============
 
+``simp only? (* | [(* | (- id | expr)), ...]?) (with id*)? (at (* | (⊢ | id)*))? tactic.simp_config_ext?``
+
+    This tactic uses lemmas and hypotheses to simplify the main goal target or non-dependent hypotheses. It has many variants.
+
+    ``simp`` simplifies the main goal target using lemmas tagged with the attribute ``[simp]``.
+
+    ``simp [h_1, ..., h_n]`` simplifies the main goal target using the lemmas tagged with the attribute ``[simp]`` and the given ``h_i``s, where the ``h_i``'s are terms. If a ``h_i`` is a definition ``f``, then the equational lemmas associated with ``f`` are used. This is a convenient way to "unfold" ``f``.
+
+    ``simp [*]`` simplifies the main goal target using the lemmas tagged with the attribute ``[simp]`` and all hypotheses.
+  
+    ``simp *`` is a shorthand for ``simp [*]``.
+
+    ``simp only [h_1, ..., h_n]`` is like ``simp [h_1, ..., h_n]`` but does not use ``[simp]`` lemmas
+
+    ``simp [-id_1, ... -id_n]`` simplifies the main goal target using the lemmas tagged with the attribute ``[simp]``, but removes the ones named ``id_i``.
+
+    ``simp at h_1 ... h_n`` simplifies the non dependent hypotheses ``h_1 : T_1`` ... ``h_n : T : n``. The tactic fails if the target or another hypothesis depends on one of them.
+
+    ``simp at *`` simplifies all the hypotheses and the target.
+
+    ``simp * at *`` simplifies target and all (non-dependent propositional) hypotheses using the other hypotheses.
+
+    ``simp with attr_1 ... attr_n`` simplifies the main goal target using the lemmas tagged with any of the attributes ``[attr_1]``, ..., ``[attr_n]`` or ``[simp]``.
+
+
+Other Tactics
+=============
+
+``trace_state``
+
+    This tactic displays the current state in the tracing buffer.
+
+``trace a``
+
+    ``trace a`` displays ``a`` in the tracing buffer.
+
+``type_check expr``
+
+    Type check the given expression, and trace its type. 
 
 The SMT State
 =============
