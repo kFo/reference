@@ -39,7 +39,7 @@ The documentation below coincides with documentation strings that are stored in 
 - ``expr`` : an :ref:`expression <expression_syntax>`
 - ``<binders>`` : a sequence of identifiers and expressions ``(a : α)`` where ``a`` is an identifier and ``α`` is a ``Type`` or a ``Prop``.
 
-An annotation ``t?`` means that the argument ``t`` is optional, and an annotation ``t*`` means any number of instances, possibly none. Many tactics parse arguments with additional tokens like ``with``, ``at``, ``only``, ``*``, or ``⊢``, as indicated below. The token ``*`` is typically used to denote all the hypotheses, and ``⊢`` is typically used to denote the goal.
+An annotation ``t?`` means that the argument ``t`` is optional, and an annotation ``t*`` means any number of instances, possibly none. Many tactics parse arguments with additional tokens like ``with``, ``at``, ``only``, ``*``, or ``⊢``, as indicated below. The token ``*`` is typically used to denote all the hypotheses, and ``⊢`` is typically used to denote the goal, with ascii equivalent ``|-``.
 
 .. _basic_tactics:
 
@@ -48,19 +48,17 @@ Basic Tactics
 
 ``intro id?``
 
-    This tactic applies to a goal that is either a Pi/forall or starts with a let binder.
+    If the current goal is a Pi / forall ``∀ x : t, u`` (resp. ``let x := t in u``) then ``intro`` puts ``x : t`` (resp. ``x := t``) in the local context. The new subgoal target is ``u``.
 
-    If the current goal is a Pi / forall ``∀ x : T, U`` (resp. ``let x := t in U``) then ``intro`` puts ``x : T`` (resp. ``x := t``) in the local context. The new subgoal target is ``U``.
+    If the goal is an arrow ``t → u``, then it puts ``h : t`` in the local context and the new goal target is ``u``.
 
-    If the goal is an arrow ``T → U``, then it puts ``h : T`` in the local context and the new goal target is ``U``.
-
-    If the goal is neither a Pi/forall nor begins with a let binder, the tactic ``intro`` applies the tactic ``whnf`` until the tactic ``intro`` can be applied or the goal is not head reducible.
+    If the goal is neither a Pi/forall nor begins with a let binder, the tactic ``intro`` applies the tactic ``whnf`` until the tactic ``intro`` can be applied or the goal is not head reducible. In the latter case, the tactic fails.
 
 ``intros id*``
 
     Similar to ``intro`` tactic. The tactic ``intros`` will keep introducing new hypotheses until the goal target is not a Pi/forall or let binder.
 
-    The variant ``intros h_1 ... h_n`` introduces ``n`` new hypotheses using the given identifiers to name them.
+    The variant ``intros h₁ ... hₙ`` introduces ``n`` new hypotheses using the given identifiers to name them.
 
 ``introv id*``
 
@@ -108,7 +106,7 @@ Basic Tactics
 
 ``apply expr``
 
-    The ``apply`` tactic applies to any goal. The argument term is a term well-formed in the local context of the main goal. The tactic tries to match the current goal against the conclusion of the type of term. If it succeeds, then the tactic returns as many subgoals as the number of premises that have not been fixed by type inference or type class resolution. Non dependent premises are added before dependent ones.
+    The ``apply`` tactic tries to match the current goal against the conclusion of the type of term. The argument term should be a term well-formed in the local context of the main goal. If it succeeds, then the tactic returns as many subgoals as the number of premises that have not been fixed by type inference or type class resolution. Non-dependent premises are added before dependent ones.
 
     The ``apply`` tactic uses higher-order pattern matching, type class resolution, and first-order unification with dependent types.
 
@@ -126,13 +124,13 @@ Basic Tactics
 
 ``apply_instance``
 
-    This tactic tries to close the main goal ``... ⊢ U`` by generating a term of type ``U`` using type class resolution.
+    This tactic tries to close the main goal ``... ⊢ t`` by generating a term of type ``t`` using type class resolution.
 
 ``refine expr``
 
-    This tactic applies to any goal. It behaves like ``exact``, but with a big difference: the user can leave some holes ``_`` in the term, and ``refine`` will generate as many subgoals as there are holes.
+    This tactic behaves like ``exact``, but with a big difference: the user can put underscores ``_`` in the expression as placeholders for holes that need to be filled, and ``refine`` will generate as many subgoals as there are holes.
 
-    Note that some holes may be implicit. The type of each hole must either be synthesized by the system or declared by an explicit type ascription like (e.g. ``(_ : nat → Prop)``).
+    Note that some holes may be implicit. The type of each hole must either be synthesized by the system or declared by an explicit type ascription like ``(_ : nat → Prop)``.
 
 ``assumption``
 
@@ -140,15 +138,15 @@ Basic Tactics
 
 ``change expr (with expr)? (at (* | (⊢ | id)*))?``
 
-    This tactic applies to any goal. ``change U`` replaces the target ``T`` of the main goal to ``U`` provided that ``U`` is well formed with respect to the local context of the main goal and ``T`` and ``U`` are definitionally equal. 
+    ``change u`` replaces the target ``t`` of the main goal to ``u`` provided that ``t`` is well formed with respect to the local context of the main goal and ``t`` and ``u`` are definitionally equal. 
 
-    ``change U at h`` will change a local hypothesis to ``U``. 
+    ``change u at h`` will change a local hypothesis to ``u``. 
 
-    ``change A with B at h1 h2 ...`` will replace ``A`` with ``B`` in all the supplied hypotheses (or ``*``), or in the goal if no ``at`` clause is specified, provided that ``A`` and ``B`` are definitionally equal.
+    ``change t with u at h1 h2 ...`` will replace ``t`` with ``u`` in all the supplied hypotheses (or ``*``), or in the goal if no ``at`` clause is specified, provided that ``t`` and ``u`` are definitionally equal.
 
 ``exact expr``
 
-    This tactic applies to any goal, providing an exact proof term. If ``T`` is the goal and ``p`` is a term of type ``U`` then ``exact p`` succeeds iff ``T`` and ``U`` are definitionally equal.
+    This tactic provides an exact proof term to solve the main goal. If ``t`` is the goal and ``p`` is a term of type ``u`` then ``exact p`` succeeds if and only if ``t`` and ``u`` can be unified.
 
 ``exacts ([expr, ...] | expr)``
 
@@ -174,30 +172,55 @@ Basic Tactics
 
 ``trivial``
 
-    Tries to solve the current goal using a canonical proof of `true`, or the `reflexivity` tactic, or the `contradiction` tactic.
+    Tries to solve the current goal using a canonical proof of ``true``, or the ``reflexivity`` tactic, or the `contradiction` tactic.
 
 ``exfalso``
 
-    Replaces the target of the first goal by ``false``.
+    Replaces the target of the main goal by ``false``.
+
+``clear id*``
+
+    ``clear h₁ ... hₙ`` tries to clear each hypothesis ``hᵢ`` from the local context.
+
+``specialize expr``
+
+    The tactic ``specialize h a₁ ... aₙ`` works on local hypothesis ``h``. The premises of this hypothesis, either universal quantifications or non-dependent implications, are instantiated by concrete terms coming either from arguments ``a₁`` ... ``aₙ``. The tactic adds a new hypothesis with the same name ``h := h a₁ ... aₙ`` and tries to clear the previous one.
+
+``by_cases expr (with id)?``
+
+    ``by_cases p with h`` splits the main goal into two cases, assuming ``h : p`` in the first branch, and ``h : ¬ p`` in the second branch.
+
+    This tactic requires that ``p`` is decidable. To ensure that all propositions are decidable via classical reasoning, use  ``local attribute classical.prop_decidable [instance]``.
+
+``by_contradiction id?``
+
+    If the target of the main goal is a proposition ``p``, ``by_contradiction h`` reduces to goal to proving ``false`` using the additional hypothesis ``h : ¬ p``. If ``h`` is omitted, a name is generated automatically.
+
+    This tactic requires that ``p`` is decidable. To ensure that all propositions are decidable via classical reasoning, use  ``local attribute classical.prop_decidable [instance]``.
+
+``by_contra id?``
+
+    An abbreviation for ``by_contradiction``.
+
 
 Equality and Other Relations
 ============================
 
 ``reflexivity``
 
-    This tactic applies to a goal that has the form ``t ~ u`` where ``~`` is a reflexive relation, that is, a relation which has a reflexivity lemma tagged with the attribute ``[refl]``. The tactic checks whether ``t`` and ``u`` are definitionally equal and then solves the goal.
+    This tactic applies to a goal whose goal has the form ``t ~ u`` where ``~`` is a reflexive relation, that is, a relation which has a reflexivity lemma tagged with the attribute ``[refl]``. The tactic checks whether ``t`` and ``u`` are definitionally equal and then solves the goal.
 
 ``refl``
 
-    Shorter name for the tactic `reflexivity`.
+    Shorter name for the tactic ``reflexivity``.
 
 ``symmetry``
 
-    This tactic applies to a goal that has the form ``t ~ u`` where ``~`` is a symmetric relation, that is, a relation which has a symmetry lemma tagged with the attribute ``[symm]``. It replaces the goal with ``u ~ t``.
+    This tactic applies to a goal whose target has the form ``t ~ u`` where ``~`` is a symmetric relation, that is, a relation which has a symmetry lemma tagged with the attribute ``[symm]``. It replaces the goal with ``u ~ t``.
 
 ``transitivity ?expr``
 
-    This tactic applies to a goal that has the form ``t ~ u`` where ``~`` is a transitive relation, that is, a relation which has a transitivity lemma tagged with the attribute ``[trans]``.
+    This tactic applies to a goal whose target has the form ``t ~ u`` where ``~`` is a transitive relation, that is, a relation which has a transitivity lemma tagged with the attribute ``[trans]``.
 
     ``transitivity s`` replaces the goal with the two subgoals ``t ~ s`` and ``s ~ u``. If ``s`` is omitted, then a metavariable is used instead.
 
@@ -211,33 +234,33 @@ Tactic blocks can have nested ``begin ... end`` blocks and, equivalently, blocks
 
 ``assume (: expr | <binders>)``
 
-    Assuming the target of the goal is a Pi or a let, ``assume h : T`` unifies the type of the binder with ``T`` and introduces it with name ``h``, just like ``intro h``. If ``h`` is absent, the tactic uses the name ``this``. If ``T`` is omitted, it will be inferred. 
+    Assuming the target of the goal is a Pi or a let, ``assume h : t`` unifies the type of the binder with ``t`` and introduces it with name ``h``, just like ``intro h``. If ``h`` is absent, the tactic uses the name ``this``. If ``T`` is omitted, it will be inferred. 
 
-    ``assume (h₁ : T₁) ... (hₙ : Tₙ)`` introduces multiple hypotheses. Any of the types may be omitted, but the names must be present.
+    ``assume (h₁ : t₁) ... (hₙ : tₙ)`` introduces multiple hypotheses. Any of the types may be omitted, but the names must be present.
 
 ``have id? (: expr)? (:= expr)?``
 
-    ``have h : T := p`` adds the hypothesis ``h : T`` to the current goal if ``p`` a term of type ``T``. If ``T`` is omitted, it will be inferred. 
+    ``have h : t := p`` adds the hypothesis ``h : t`` to the current goal if ``p`` a term of type ``t``. If ``t`` is omitted, it will be inferred. 
 
-    ``have h : T`` adds the hypothesis ``h : T`` to the current goal and opens a new subgoal with target ``T``. The new subgoal becomes the main goal. If ``T`` is omitted, it will be replaced by a fresh metavariable.
+    ``have h : t`` adds the hypothesis ``h : t`` to the current goal and opens a new subgoal with target ``t``. The new subgoal becomes the main goal. If ``t`` is omitted, it will be replaced by a fresh metavariable.
 
     If ``h`` is omitted, the name ``this`` is used.
 
 ``let id? (: expr)? (:= expr)?``
 
-    ``let h : T := p`` adds the hypothesis ``h : T := p`` to the current goal if ``p`` a term of type ``T``. If `T` is omitted, it will be inferred.
+    ``let h : T := p`` adds the hypothesis ``h : t := p`` to the current goal if ``p`` a term of type ``t``. If `t` is omitted, it will be inferred.
 
-    ``let h : T`` adds the hypothesis ``h : T := ?M`` to the current goal and opens a new subgoal ``?M : T``. The new subgoal becomes the main goal. If ``T`` is omitted, it will be replaced by a fresh metavariable.
+    ``let h : t`` adds the hypothesis ``h : t := ?M`` to the current goal and opens a new subgoal ``?M : t``. The new subgoal becomes the main goal. If ``t`` is omitted, it will be replaced by a fresh metavariable.
 
     If ``h`` is omitted, the name ``this`` is used.
 
 ``suffices id? (: expr)?``
 
-    ``suffices h : T`` is the same as ``have h : T, tactic.swap``. In other words, it adds the hypothesis ``h : T`` to the current goal and opens a new subgoal with target ``T``.
+    ``suffices h : t`` is the same as ``have h : t, tactic.swap``. In other words, it adds the hypothesis ``h : t`` to the current goal and opens a new subgoal with target ``t``.
 
 ``show expr``
 
-    ``show T`` finds the first goal whose target unifies with ``T``. It makes that the main goal, performs the unification, and replaces the target with the unified version of ``T``. 
+    ``show t`` finds the first goal whose target unifies with ``t``. It makes that the main goal, performs the unification, and replaces the target with the unified version of ``t``. 
 
 ``from expr``
 
@@ -270,34 +293,34 @@ Tactic blocks can have nested ``begin ... end`` blocks and, equivalently, blocks
 
 .. _tactics_for_inductive_types:
 
-Tactics for Inductive Types
-===========================
+Inductive Types
+===============
 
 The following tactics are designed specifically to work with elements on an inductive type.
 
 ``induction expr (using id)? (with id*)? (generalizing id*)?``
 
-    Assuming ``x`` is a variable in the local context with an inductive type, ``induction x`` applies induction on ``x`` to the first goal, producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor and an inductive hypothesis is added for each recursive argument to the constructor. If the type of an element in the local context depends on ``x``, that element is reverted and reintroduced afterward, so that the inductive hypothesis incorporates that hypothesis as well.
+    Assuming ``x`` is a variable in the local context with an inductive type, ``induction x`` applies induction on ``x`` to the main goal, producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor and an inductive hypothesis is added for each recursive argument to the constructor. If the type of an element in the local context depends on ``x``, that element is reverted and reintroduced afterward, so that the inductive hypothesis incorporates that hypothesis as well.
 
-    For example, given ``n : nat`` and a goal with a hypothesis ``h : P n`` and target ``Q n``, ``induction n`` produces one goal with hypothesis ``h : P 0`` and target ``Q 0``, and one goal with hypotheses ``h : P (nat.succ a)`` and ``ih_1 : P a → Q a`` and target ``Q (nat.succ a)``. Here the names ``a`` and ``ih_1`` ire chosen automatically.
+    For example, given ``n : nat`` and a goal with a hypothesis ``h : P n`` and target ``Q n``, ``induction n`` produces one goal with hypothesis ``h : P 0`` and target ``Q 0``, and one goal with hypotheses ``h : P (nat.succ a)`` and ``ih₁ : P a → Q a`` and target ``Q (nat.succ a)``. Here the names ``a`` and ``ih₁`` ire chosen automatically.
 
     ``induction e``, where ``e`` is an expression instead of a variable, generalizes ``e`` in the goal, and then performs induction on the resulting variable.
 
-    ``induction e with y1 y2 ... yn``, where ``e`` is a variable or an expression, specifies that the sequence of names ``y1 y2 ... yn`` should be used for the arguments to the constructors and inductive hypotheses, including implicit arguments. If the list does not include enough names for all of the arguments, additional names are generated automatically. If too many names are given, the extra ones are ignored. Underscores can be used in the list, in which case the corresponding names are generated automatically.
+    ``induction e with y₁ ... yₙ``, where ``e`` is a variable or an expression, specifies that the sequence of names ``y₁ ... yₙ`` should be used for the arguments to the constructors and inductive hypotheses, including implicit arguments. If the list does not include enough names for all of the arguments, additional names are generated automatically. If too many names are given, the extra ones are ignored. Underscores can be used in the list, in which case the corresponding names are generated automatically.
 
     ``induction e using r`` allows the user to specify the principle of induction that should be used. Here ``r`` should be a theorem whose result type must be of the form ``C t``, where ``C`` is a bound variable and ``t`` is a (possibly empty) sequence of bound variables
 
-    ``induction e generalizing z1 ... zn``, where ``z1 ... zn`` are variables in the local context, generalizes over ``z1 ... zn`` before applying the induction but then introduces them in each goal. In other words, the net effect is that each inductive hypothesis is generalized.
+    ``induction e generalizing z₁ ... zₙ``, where ``z₁ ... zₙ`` are variables in the local context, generalizes over ``z₁ ... zₙ`` before applying the induction but then introduces them in each goal. In other words, the net effect is that each inductive hypothesis is generalized.
 
 ``cases (id :)? expr (with id*)?``
 
-    Assuming ``x`` is a variable in the local context with an inductive type, ``cases x`` splits the first goal, producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor. If the type of an element in the local context depends on ``x``, that element is reverted and reintroduced afterward, so that the case split affects that hypothesis as well.
+    Assuming ``x`` is a variable in the local context with an inductive type, ``cases x`` splits the main goal, producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor. If the type of an element in the local context depends on ``x``, that element is reverted and reintroduced afterward, so that the case split affects that hypothesis as well.
 
     For example, given ``n : nat`` and a goal with a hypothesis ``h : P n`` and target ``Q n``, ``cases n`` produces one goal with hypothesis ``h : P 0`` and target ``Q 0``, and one goal with hypothesis ``h : P (nat.succ a)`` and target ``Q (nat.succ a)``. Here the name ``a`` is chosen automatically.
 
     ``cases e``, where ``e`` is an expression instead of a variable, generalizes ``e`` in the goal, and then cases on the resulting variable.
 
-    ``cases e with y1 y2 ... yn``, where ``e`` is a variable or an expression, specifies that the sequence of names ``y1 y2 ... yn`` should be used for the arguments to the constructors, including implicit arguments. If the list does not include enough names for all of the arguments, additional names are generated automatically. If too many names are given, the extra ones are ignored. Underscores can be used in the list, in which case the corresponding names are generated automatically.
+    ``cases e with y₁ ... yₙ``, where ``e`` is a variable or an expression, specifies that the sequence of names ``y₁ ... yₙ`` should be used for the arguments to the constructors, including implicit arguments. If the list does not include enough names for all of the arguments, additional names are generated automatically. If too many names are given, the extra ones are ignored. Underscores can be used in the list, in which case the corresponding names are generated automatically.
 
     ``cases h : e``, where ``e`` is a variable or an expression, performs cases on ``e`` as above, but also adds a hypothesis ``h : e = ...`` to each hypothesis, where ``...`` is the constructor instance for that particular case.
 
@@ -316,7 +339,7 @@ The following tactics are designed specifically to work with elements on an indu
 
 ``destruct expr``
 
-    Assuming ``x`` is a variable in the local context with an inductive type, ``destruct x`` splits the first goal, producing one goal for each constructor of the inductive type, in which ``x`` is assumed to be a general instance of that constructor. In contrast to ``cases``, the local context is unchanged, i.e. no elements are reverted or introduced.
+    Assuming ``x`` is a variable in the local context with an inductive type, ``destruct x`` splits the main goal, producing one goal for each constructor of the inductive type, in which ``x`` is assumed to be a general instance of that constructor. In contrast to ``cases``, the local context is unchanged, i.e. no elements are reverted or introduced.
 
     For example, given ``n : nat`` and a goal with a hypothesis ``h : P n`` and target ``Q n``, ``destruct n`` produces one goal with target ``n = 0 → Q n``, and one goal with target ``∀ (a : ℕ), (λ (w : ℕ), n = w → Q n) (nat.succ a)``. Here the name ``a`` is chosen automatically.
 
@@ -324,7 +347,7 @@ The following tactics are designed specifically to work with elements on an indu
 
     ``existsi e`` will instantiate an existential quantifier in the target with ``e`` and leave the instantiated body as the new target. More generally, it applies to any inductive type with one constructor and at least two arguments, applying the constructor with ``e`` as the first argument and leaving the remaining arguments as goals.
 
-    ``existsi [e1, e2, ..., en]``
+    ``existsi [e₁, ..., eₙ]`` iteratively does the same for each expression in the list.
 
 ``constructor``
 
@@ -332,7 +355,7 @@ The following tactics are designed specifically to work with elements on an indu
 
 ``econstructor``
 
-    Similar to ``constructor``, but only non dependent premises are added as new goals.  
+    Similar to ``constructor``, but only non-dependent premises are added as new goals.  
 
 ``left``
 
@@ -356,7 +379,7 @@ The following tactics are designed specifically to work with elements on an indu
 
 ``injections (with id*)?``
 
-    ``injections h1 h2 ... hn` iteratively applies `injection` to hypotheses using the names `h1 h2 ... hn``.
+    ``injections h₁ ... hₙ`` iteratively applies ``injection`` to hypotheses using the names ``h₁ ... hₙ``.
 
 .. _tactic_combinators:
 
@@ -379,11 +402,11 @@ Tactic Combinators
 
 ``solve1 { tactic }``
 
-    ``solve1 { t }`` applies the tactic ``t`` to the first goal and fails if it is not solved. 
+    ``solve1 { t }`` applies the tactic ``t`` to the main goal and fails if it is not solved. 
 
 ``abstract id? { tactic }``
 
-    ``abstract id { t }`` tries to use tactic ``t`` to solve the first goal. If it succeeds, it abstracts the goal as an independent definition or theorem with name ``id``. If ``id`` is omitted, a name is generated automatically.
+    ``abstract id { t }`` tries to use tactic ``t`` to solve the main goal. If it succeeds, it abstracts the goal as an independent definition or theorem with name ``id``. If ``id`` is omitted, a name is generated automatically.
 
 ``all_goals { tactic }``
 
@@ -397,41 +420,137 @@ Tactic Combinators
 
     Fail if there are unsolved goals.
 
+.. TODO(Jeremy): is there any difference between the next two?
+
+``fail_if_success { tactic }``
+
+    Fails if the given tactic succeeds.
+
+``success_if_fail { tactic }``
+
+    Succeeds if the given tactic succeeds.
+
+``guard_target expr``
+
+    ``guard_target t`` fails if the target of the main goal is not ``t``.
+
+``guard_hyp id := expr``
+
+    ``guard_hyp h := t`` fails if the hypothesis ``h`` does not have type ``t``.
+
 .. _the_rewriter:
 
 The Rewriter
 ============
 
+.. TODO(Jeremy): explain rewrite_cfg. What do symm and occs do?
+
+``rewrite ([ (←? expr), ... ] | ←? expr) (at (* | (⊢ | id)*))? tactic.rewrite_cfg?``
+
+    ``rewrite e`` applies identity ``e`` as a rewrite rule to the target of the main goal. If ``e`` is preceded by left arrow (``←`` or ``<-``), the rewrite is applied in the reverse direction. If ``e`` is a defined constant, then the equational lemmas associated with ``e`` are used. This provides a convenient way to unfold ``e``.
+
+    ``rewrite [e₁, ..., eₙ]`` applies the given rules sequentially.
+
+    ``rewrite e at l`` rewrites ``e`` at location(s) ``l``, where ``l`` is either ``*`` or a list of hypotheses in the local context. In the latter case, a turnstile ``⊢`` or ``|-`` can also be used, to signify the target of the goal. 
+
+``rw``
+
+    An abbreviation for ``rewrite``.
+
+``rwa``
+
+    ``rewrite`` followed by ``assumption``.
+
+``erewrite``
+
+    A variant of ``rewrite`` that uses the unifier more aggressively, unfolding semireducible definitions.
+
+``erw``
+
+    An abbreviation for ``erewrite``.
+
+``subst expr``
+
+   Given hypothesis ``h : x = t`` or ``h : t = x``, where ``x`` is a local constant, ``subst h`` substitutes ``x`` by ``t`` everywhere in the main goal and then clears ``h``. 
 
 .. _the_simplifier:
 
-The Simplifier
-==============
+The Simplifier and Congruence Closure
+=====================================
+
+.. TODO(Jeremy): explain various config options in all tactics
 
 ``simp only? (* | [(* | (- id | expr)), ...]?) (with id*)? (at (* | (⊢ | id)*))? tactic.simp_config_ext?``
 
-    This tactic uses lemmas and hypotheses to simplify the main goal target or non-dependent hypotheses. It has many variants.
+    The ``simp`` tactic uses lemmas and hypotheses to simplify the main goal target or non-dependent hypotheses. It has many variants.
 
     ``simp`` simplifies the main goal target using lemmas tagged with the attribute ``[simp]``.
 
-    ``simp [h_1, ..., h_n]`` simplifies the main goal target using the lemmas tagged with the attribute ``[simp]`` and the given ``h_i``s, where the ``h_i``'s are terms. If a ``h_i`` is a definition ``f``, then the equational lemmas associated with ``f`` are used. This is a convenient way to "unfold" ``f``.
+    ``simp [h₁ h₂ ... hₙ]`` simplifies the main goal target using the lemmas tagged with the attribute ``[simp]`` and the given ``hᵢ``'s, where the ``hᵢ``'s are expressions. These expressions may contain underscores, in which case they are replaced by metavariables that ``simp`` tries to instantiate. If a ``hᵢ`` is a defined constant ``f``, then the equational lemmas associated with ``f`` are used. This provides a convenient way to unfold ``f``.
 
     ``simp [*]`` simplifies the main goal target using the lemmas tagged with the attribute ``[simp]`` and all hypotheses.
   
     ``simp *`` is a shorthand for ``simp [*]``.
 
-    ``simp only [h_1, ..., h_n]`` is like ``simp [h_1, ..., h_n]`` but does not use ``[simp]`` lemmas
+    ``simp only [h₁ h₂ ... hₙ]`` is like ``simp [h₁ h₂ ... hₙ]`` but does not use ``[simp]`` lemmas
 
-    ``simp [-id_1, ... -id_n]`` simplifies the main goal target using the lemmas tagged with the attribute ``[simp]``, but removes the ones named ``id_i``.
+    ``simp [-id₁, ... -idₙ]`` simplifies the main goal target using the lemmas tagged with the attribute ``[simp]``, but removes the ones named ``idᵢ``.
 
-    ``simp at h_1 ... h_n`` simplifies the non dependent hypotheses ``h_1 : T_1`` ... ``h_n : T : n``. The tactic fails if the target or another hypothesis depends on one of them.
+    ``simp at h₁ h₂ ... hₙ`` simplifies the non-dependent hypotheses ``h₁ : T₁`` ... ``hₙ : Tₙ``. The tactic fails if the target or another hypothesis depends on one of them. The token ``⊢`` or ``|-`` can be added to the list to include the target.
 
     ``simp at *`` simplifies all the hypotheses and the target.
 
     ``simp * at *`` simplifies target and all (non-dependent propositional) hypotheses using the other hypotheses.
 
-    ``simp with attr_1 ... attr_n`` simplifies the main goal target using the lemmas tagged with any of the attributes ``[attr_1]``, ..., ``[attr_n]`` or ``[simp]``.
+    ``simp with attr₁ ... attrₙ`` simplifies the main goal target using the lemmas tagged with any of the attributes ``[attr₁]``, ..., ``[attrₙ]`` or ``[simp]``.
 
+``dsimp only? (* | [(* | (- id | expr)), ...]?) (with id*)? (at (* | (⊢ | id)*))? tactic.dsimp_config?``
+
+    ``dsimp`` is similar to ``simp``, except that it only uses definitional equalities.
+
+``simp_intros id* only? (* | [(* | (- id | expr)), ...]?) (with id*)? tactic.simp_intros_config?``
+
+    ``simp_intros h₁ h₂ ... hₙ`` is similar to ``intros h₁ h₂ ... hₙ`` except that each hypothesis is simplified as it is introduced, and each introduced hypothesis is used to simplify later ones and the final target. 
+
+    As with ``simp``, a list of simplification lemmas can be provided. The modifiers ``only`` and ``with`` behave as with ``simp``.
+
+``unfold id* (at (* | (⊢ | id)*))? tactic.unfold_config?``
+
+    Given defined constants ``e₁ ... eₙ``, ``unfold e₁ ... eₙ`` iteratively unfolds all occurrences in the target of the main goal, using equational lemmas associated with the definitions.
+
+    As with ``simp``, the ``at`` modifier can be used to specify locations for the unfolding.
+
+``unfold1 id* (at (* | (⊢ | id)*))? tactic.unfold_config?``
+
+    Similar to ``unfold``, but does not iterate the unfolding.
+
+``dunfold id* (at (* | (⊢ | id)*))? tactic.dunfold_config?``
+
+    Similar to ``unfold``, but only uses definitional equalities.
+
+``delta id* (at (* | (⊢ | id)*))?``
+
+    Similar to ``dunfold``, but performs a raw delta reduction, rather than using an equation associated with the defined constants.
+
+``unfold_projs``
+
+    This tactic unfolds all structure projections.
+
+``trace_simp_set``
+
+    Just construct the simp set and trace it. Used for debugging.
+
+``ac_reflexivity``
+
+    Proves a goal with target ``s = t`` when ``s`` and ``t`` are equal up to the associativity and commutativity of their binary operations.
+
+``ac_refl``
+
+    An abbreviation for ``ac_reflexivity``.
+
+``cc``
+
+    Tries to prove the main goal using congruence closure.
 
 Other Tactics
 =============
@@ -446,8 +565,24 @@ Other Tactics
 
 ``type_check expr``
 
-    Type check the given expression, and trace its type. 
+    Type check the given expression, and trace its type.
+
+``apply_opt_param``
+
+    If the target of the main goal is an `opt_param`, assigns the default value.
+
+``apply_auto_param``
+
+    If the target of the main goal is an `auto_param`, executes the associated tactic.
+
+``dedup``
+
+    Renames hypotheses with the same name.
+
+Conversions
+===========
 
 The SMT State
 =============
+
 
