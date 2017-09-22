@@ -10,6 +10,7 @@ The Lean Reference Manual
    :numbered:
    :maxdepth: 2
 
+   using_lean
    lexical_structure
    expressions
    declarations
