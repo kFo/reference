@@ -112,7 +112,7 @@ Basic Tactics
 
 ``fapply expr``
 
-    Similar to the ``apply`` tactic, but also creates subgoals for dependent premises that have not been fixed by type inference or type class resolution.
+    Similar to the ``apply`` tactic, but does not reorder goals.
 
 ``eapply expr``
 
@@ -375,11 +375,11 @@ The following tactics are designed specifically to work with elements on an indu
 
     If ``q`` is a proof of a statement of conclusion ``t₁ = t₂``, then injection applies injectivity to derive the equality of all arguments of ``t₁`` and ``t₂`` placed in the same positions. For example, from ``(a::b) = (c::d)`` we derive ``a=c`` and ``b=d``. To use this tactic ``t₁`` and ``t₂`` should be constructor applications of the same constructor.
 
-    Given ``h : a::b = c::d``, the tactic ``injection h`` adds to new hypothesis with types ``a = c`` and ``b = d`` to the main goal. The tactic ``injection h with h₁ h₂`` uses the names ``h₁`` an ``h₂`` to name the new hypotheses.
+    Given ``h : a::b = c::d``, the tactic ``injection h`` adds two new hypothesis with types ``a = c`` and ``b = d`` to the main goal. The tactic ``injection h with h₁ h₂`` uses the names ``h₁`` an ``h₂`` to name the new hypotheses.
 
 ``injections (with id*)?``
 
-    ``injections h₁ ... hₙ`` iteratively applies ``injection`` to hypotheses using the names ``h₁ ... hₙ``.
+    ``injections with h₁ ... hₙ`` iteratively applies ``injection`` to hypotheses using the names ``h₁ ... hₙ``.
 
 .. _tactic_combinators:
 
