@@ -175,9 +175,9 @@ The set of attributes is open-ended since users can declare additional attribute
 - ``[class]`` : a type class
 - ``[instance]`` : an instance of a type class
 - ``[priority n]`` : sets the class resolution priority to the natural number ``n``
-- ``[refl] : a reflexivity rule for the ``reflexivity`` tactic, for the ``calc`` environment, and for the simpilfier
-- ``[symm] : a symmetry rule for the ``symmetry`` tactic
-- ``[trans] : a transitivity rule for the ``transitivity`` tactic, for the ``calc`` environment, and for the simplieir
+- ``[refl]`` : a reflexivity rule for the ``reflexivity`` tactic, for the ``calc`` environment, and for the simplifier
+- ``[symm]`` : a symmetry rule for the ``symmetry`` tactic
+- ``[trans]`` : a transitivity rule for the ``transitivity`` tactic, for the ``calc`` environment, and for the simplifier
 - ``[congr]`` : a congruence rule for the simplifier
 - ``[simp]``: a simplifier rule
 - ``[recursor]`` : a user-defined elimination principle, used, for example, by the induction tactic

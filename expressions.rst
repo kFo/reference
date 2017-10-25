@@ -44,11 +44,11 @@ The set of expressions in Lean is defined inductively as follows:
 
 * ``Sort u`` : the universe of types at universe level ``u``
 * ``c`` : where ``c`` is an identifier denoting an axiomatically declared constant or a defined object
-* ``x`` : where ``x`` is a variable the local context in which the expression is interpreted
+* ``x`` : where ``x`` is a variable in the local context in which the expression is interpreted
 * ``Π x : α, β`` : the type of functions taking an element ``x`` of ``α`` to an element of ``β``, where ``β`` is an expression whose type is a ``Sort``
 * ``s t`` : the result of applying ``s`` to ``t``, where ``s`` and ``t`` are expressions
 * ``λ x : α, t`` : the function mapping any value ``x`` of type ``α`` to ``t``, where ``t`` is an expression
-* ``let x := t in s`` : a local definition, denote the value of ``s`` when ``x`` denotes ``t``
+* ``let x := t in s`` : a local definition, denotes the value of ``s`` when ``x`` is replaced by ``t``
 
 Every well formed term in Lean has a *type*, which itself is an expression of type ``Sort u`` for some ``u``. The fact that a term ``t`` has type ``α`` is written ``t : α``. 
 
@@ -60,7 +60,7 @@ For an expression to be well formed, its components have to satisfy certain typi
 * ``(Π x : α, β) : Sort (imax u v)`` where ``α : Sort u``, and ``β : Sort v`` assuming ``x : α`` 
 * ``s t : β[t/x]`` where ``s`` has type ``Π x : α, β`` and ``t`` has type ``α``
 * ``(λ x : α, t) : Π x : α, β`` if ``t`` has type ``β`` whenever ``x`` has type ``α``
-* ``(let x := t in s) : β[t/x]`` where ``t`` havs type ``α`` and ``s`` has type ``β`` assuming ``x : α`` 
+* ``(let x := t in s) : β[t/x]`` where ``t`` has type ``α`` and ``s`` has type ``β`` assuming ``x : α`` 
 
 ``Prop`` abbreviates ``Sort 0``, ``Type`` abbreviates ``Sort 1``, and ``Type u`` abbreviates ``Sort (u + 1)`` when ``u`` is a universe variable. We say "``α`` is a type" to express ``α : Type u`` for some ``u``, and we say "``p`` is a proposition" to express ``p : Prop``. Using the *propositions as types* correspondence, given ``p : Prop``, we refer to an expression ``t : p`` as a *proof* of ``p``. In contrast, given ``α : Type u`` for some ``u`` and ``t : α``, we sometimes refer to ``t`` as *data*.
 
@@ -68,7 +68,7 @@ When the expression ``β`` in ``Π x : α, β`` does not depend on ``x``, it can
 
 In addition to the elements above, expressions can also contain *metavariables*, that is, temporary placeholders, that are used in the process of constructing terms. They can also contain *macros*, which are used to annotate or abbreviate terms. Terms that are added to the environment contain neither metavariable nor variables, which is to say, they are fully elaborated and make sense in the empty context.
  
-Constants can be declared in various ways, such as by the ``constant(s)`` and ``axiom(s)`` keywords, or as the result of an ``inductive`` or ``structure`` declarations. Similarly, objects can be defined in various ways, such as using ``def``, ``theorem``, or the equation compiler. See :numref:`Chapter %s <declarations>` for more information.
+Constants can be declared in various ways, such as by the ``constant(s)`` and ``axiom(s)`` keywords, or as the result of an ``inductive`` or ``structure`` declaration. Similarly, objects can be defined in various ways, such as using ``def``, ``theorem``, or the equation compiler. See :numref:`Chapter %s <declarations>` for more information.
 
 Writing an expression ``(t : α)`` forces Lean to elaborate ``t`` so that it has type ``α`` or report an error if it fails.
 
@@ -128,7 +128,7 @@ When declaring arguments to defined objects in Lean (for example, with ``def``, 
 * ``(x : α := t)`` : an optional argument, with default value ``t``
 * ``(x : α . t)`` : an implicit argument, to be synthesized by tactic ``t``
 
-The name of the variable can be ommitted from a class resolution argument, in which case an internal name is generated.
+The name of the variable can be omitted from a class resolution argument, in which case an internal name is generated.
 
 When a function has an explicit argument, you can nonetheless ask Lean's elaborator to infer the argument automatically, by entering it as an underscore (``_``). Conversely, writing ``@foo`` indicates that all of the arguments to be ``foo`` are to be given explicitly, independent of how ``foo`` was declared.
 
@@ -307,7 +307,7 @@ Syntactic sugar is provided for writing structured proof terms:
 * ``suffices h : p, from s, t`` is sugar for ``(λ h : p, s) t`` 
 * ``show p, t`` is sugar for ``(t : p)``
 
-As with ``λ``, multiple variables can be bound with ``assume``, and types can be ommitted when they can be inferred by Lean. Lean also allows the syntax ``assume : p, t``, which gives the assumption the name ``this`` in the local context.  Similarly, Lean recognizes the variants ``have p, from s, t`` and ``suffices p, from s, t``, which use the name ``this`` for the new hypothesis.
+As with ``λ``, multiple variables can be bound with ``assume``, and types can be omitted when they can be inferred by Lean. Lean also allows the syntax ``assume : p, t``, which gives the assumption the name ``this`` in the local context.  Similarly, Lean recognizes the variants ``have p, from s, t`` and ``suffices p, from s, t``, which use the name ``this`` for the new hypothesis.
 
 The notation ``‹p›`` is notation for ``(by assumption : p)``, and can therefore be used to apply hypotheses in the local context.
 
@@ -379,7 +379,7 @@ Every expression in Lean has a natural computational interpretation, unless it i
 * *δ-reduction* : If ``c`` is a defined constant with definition ``t``, then ``c`` δ-reduces to to ``t``.
 * *ι-reduction* : When a function defined by recursion on an inductive type is applied to an element given by an explicit constructor, the result ι-reduces to the specified function value, as described in :numref:`inductive_types`.
 
-The reduction relation is transitive, which is to say, is ``s`` reduces to ``s'`` and ``t`` reduces to ``t'``, then ``s t`` reduces to ``s' t'``, ``λ x, s`` reduces to ``λ x, s'``, and so on. If ``s`` and ``t`` reduce to a common term, they are said to be *definitionally equal*. Definitional equality is defined to be the smallest equivalence relation that satisfies all these properties and also includes α-equivalenece and the following two relations:
+The reduction relation is transitive, which is to say, is ``s`` reduces to ``s'`` and ``t`` reduces to ``t'``, then ``s t`` reduces to ``s' t'``, ``λ x, s`` reduces to ``λ x, s'``, and so on. If ``s`` and ``t`` reduce to a common term, they are said to be *definitionally equal*. Definitional equality is defined to be the smallest equivalence relation that satisfies all these properties and also includes α-equivalence and the following two relations:
 
 * *η-equivalence* : An expression ``(λx, t x)`` is η-equivalent to ``t``, assuming ``x`` does not occur in ``t``. 
 * *proof irrelevance* : If ``p : Prop``, ``s : p``, and ``t : p``, then ``s`` and ``t`` are  considered to be equivalent.
@@ -388,12 +388,12 @@ This last fact reflects the intuition that once we have proved a proposition ``p
 
 Definitional equality is a strong notion of equalty of values. Lean's logical foundations sanction treating definitionally equal terms as being the same when checking that a term is well-typed and/or that it has a given type.
 
-The reduction relation is believed to be strongly normalizing, which is to say, every sequence of reductions applied to a term will eventually terminate. The property guarantees that Lean's type-checking algorithm terminates, at least in principle. The consistency of Lean and its soundness with respect to a set-theoretic semantics do not depend on either of these properties.
+The reduction relation is believed to be strongly normalizing, which is to say, every sequence of reductions applied to a term will eventually terminate. The property guarantees that Lean's type-checking algorithm terminates, at least in principle. The consistency of Lean and its soundness with respect to set-theoretic semantics do not depend on either of these properties.
 
 Lean provides two commands to compute with expressions:
 
 * ``#reduce t`` : use the kernel type-checking procedures to carry out reductions on ``t`` until no more reductions are possible, and show the result
-* ``#eval t`` : evaluate ``t`` using a fast bytecode evalator, and show the result
+* ``#eval t`` : evaluate ``t`` using a fast bytecode evaluator, and show the result
 
 Every computable definition in Lean is compiled to bytecode at definition time. Bytecode evaluation is more liberal than kernel evaluation: types and all propositional information are erased, and functions are evaluated using a stack-based virtual machine. As a result, ``#eval`` is more efficient than ``#reduce,`` and can be used to execute complex programs. In contrast, ``#reduce`` is designed to be small and reliable, and to produce type-correct terms at each step. Bytecode is never used in type checking, so as far as soundness and consistency are concerned, only kernel reduction is part of the trusted computing base.
 

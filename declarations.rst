@@ -30,7 +30,7 @@ Declaration names starting with an underscore are reserved for internal use. Nam
    namespace a
      constant a : ℤ
      #print _root_.a -- constant a : ℕ
-     #print a.a  --
+     #print a.a      -- constant a.a : ℤ
    end a
 
 Contexts and Telescopes
@@ -103,7 +103,7 @@ Any of ``def``, ``theorem``, ``lemma``, or ``example`` can take a list of argume
 Inductive Types
 ===============
 
-Lean's axiomatic foundation allows users to declare arbitrary inductive families, following the pattern described by [Dybjer]_. To make the presentation more manageable, we first describe inductives *types*, and then describe the generalization to inductive *families* in the next section. The declaration of an inductive type has the following form:
+Lean's axiomatic foundation allows users to declare arbitrary inductive families, following the pattern described by [Dybjer]_. To make the presentation more manageable, we first describe inductive *types*, and then describe the generalization to inductive *families* in the next section. The declaration of an inductive type has the following form:
 
 .. code-block:: text
 
@@ -259,7 +259,7 @@ The type former, constructors, and eliminator are all part of Lean's axiomatic f
 - ``foo.rec_on`` : a variant of the eliminator, in which the major premise comes first
 - ``foo.cases_on`` : a restricted version of the eliminator which omits any recursive calls
 - ``foo.no_confusion_type``, ``foo.no_confusion`` : functions which witness the fact that the inductive type is freely generated, i.e. that the constructors are injective and that distinct constructors produce distinct objects
-- ``foo.below``, ``foo.ibelow``, ``foo.ibelow`` : functions used by the equation compiler to implement structural recursion
+- ``foo.below``, ``foo.ibelow`` : functions used by the equation compiler to implement structural recursion
 - ``foo.sizeof`` : a measure which can be used for well-founded recursion
 
 Note that it is common to put definitions and theorems related to a datatype ``foo`` in a namespace of the same name. This makes it possible to use projection notation described in :numref:`structures_and_records` and :numref:`namespaces`.
