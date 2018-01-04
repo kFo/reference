@@ -96,45 +96,40 @@ Using the Package Manager
 
 ``leanpkg`` is the package manager for the Lean theorem prover. It downloads dependencies and manages what modules you can import in your Lean files.
 
-There are two important files for ``leanpkg`` in each package:
+This section explains the general concepts of ``leanpkg``. For more information on a specific ``leanpkg`` command, execute ``leanpkg help <command>`` as a command line.
 
-* ``leanpkg.toml``: a manifest describing the package name, version, and dependencies
-* ``leanpkg.path``: this file is created by ``leanpkg configure`` and should not be added to git.  It contains the paths to the dependencies on the current machine.
+Directory Layout
+----------------
 
-Dependencies can be fetched from git repositories; in this case ``leanpkg`` will remember the current revision.  You need to change the revision in the ``[dependencies]`` section manually if you want to update the dependency.
+A Lean package is a directory containing the following items:
 
-General guidelines
-------------------
+* ``src``: a directory in which the package's Lean files are stored.  Imports from other packages are resolved relative to this directory.
+* ``leanpkg.toml``: a manifest describing the package name, version, and dependencies.  Dependencies can be either local paths or git URLs.  Git dependencies are pinned to a specific commit and can be upgraded with `leanpkg upgrade`.
+* ``leanpkg.path`` and ``_target/deps``: these items are created by ``leanpkg configure`` and should not be added to git.  They contain the paths to the dependencies on the current machine, and their git checkouts, respectively.
 
-* Run the ``lean`` command-line tool from a directory inside your package.
-* In VSCode, open the package as a folder.
-
-Working on existing packages
+Using Lean in a Lean package
 ----------------------------
 
-You need to run ``leanpkg configure`` first, in order to download dependencies and generate the ``leanpkg.path`` file.
-
-.. code-block:: text
-
-   git clone https://github.com/leanprover/library_dev
-   cd library_dev
-   leanpkg configure
+* Running the ``lean`` command-line tool from a directory inside your package will automatically use the ``leanpkg.path`` file for import resolution.
+* In Emacs, ``lean-mode`` will automatically start a new Lean server process for each visited package.
+* In VSCode, open the package as a folder.
 
 Creating new packages
 ---------------------
 
-The ``leanpkg new`` command creates a new package.  You can use ``leanpkg add`` to add dependencies, or add them manually if you prefer:
+The ``leanpkg new`` command creates a new package.  You can use ``leanpkg add`` to add dependencies (or add them manually if you prefer):
 
 .. code-block:: text
 
    leanpkg new my_awesome_pkg
    cd my_awesome_pkg
-   leanpkg add https://github.com/leanprover/library_dev
+   leanpkg add leanprover/mathlib
+   # shorthand for `leanpkg add https://github.com/leanprover/mathlib`
 
 You can now add new ``.lean`` files inside the ``my_awesome_pkg`` directory.
 
-Files that are not in packages
-------------------------------
+Scratch files
+-------------
 
 It is reasonably common to have thousands of "scratch" files lying around that are not part of a package.  Files that are not inside a package themselves can still use dependencies fetched via ``leanpkg``.  These dependencies are stored in ``~/.lean/leanpkg.toml`` and can be modified with ``leanpkg install``:
 
@@ -144,22 +139,7 @@ It is reasonably common to have thousands of "scratch" files lying around that a
 
 After this, you can use the ``smt2_interface`` package in all files that do not belong to a package themselves.
 
-Format of leanpkg.toml
-----------------------
-
-.. code-block:: text
-
-   [package]
-   name = "my_awesome_pkg"
-   version = "0.1"
-
-   [dependencies]
-   demopkg = { path = "relative/path/to/demopkg" }
-   library_dev =
-     { git = "https://github.com/leanprover/library_dev",
-       rev = "62f7883d937861b618ae8bd645ee16ec137dd0bd" }
-
-By default source files are assumed to be directly in the root directory of the package.  You can optionally add a `path = "src"` attribute to the ``[package]`` section that selects a different directory.
+For experimenting inside a Lean package, you can use a directory separate from ``src``, say ``scratch``.  Files in this folder will still be able to import the package's Lean modules, but will not interfere with ``leanpkg build`` etc.
 
 Import resolution
 -----------------
@@ -173,4 +153,24 @@ Lean supports two kinds of imports:
 
 Relative imports are always relative to the current file name.
 
-Absolute imports are resolved according to the entries in the ``leanpkg.path`` file.  That is, when executing ``import theory.set_theory``, Lean looks for a file called ``theory/set_theory.lean`` in all (transitive) dependencies as well as the current package.
+Absolute imports are resolved according to the entries in the ``leanpkg.path`` file.  That is, when executing ``import theory.set_theory``, Lean looks for a file called ``theory/set_theory.lean`` in the `src` directories of all (transitive) dependencies as well as the current package.
+
+Format of leanpkg.toml
+----------------------
+
+.. code-block:: text
+
+   [package]
+   name = "my_awesome_pkg"
+   version = "0.1"         # no semantic significance currently
+   lean_version = "3.3.0"  # optional, prints a warning on mismatch with Lean executable
+   path = "src"            # hard-coded, will be removed in the future
+   timeout = 100           # optional, passed to `lean` as `-T` parameter
+
+   [dependencies]
+   # local dependency
+   demopkg = { path = "relative/path/to/demopkg" }
+   # git dependency
+   mathlib =
+     { git = "https://github.com/leanprover/mathlib",
+       rev = "62f7883d937861b618ae8bd645ee16ec137dd0bd" }
