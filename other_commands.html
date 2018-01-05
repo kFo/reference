@@ -1,0 +1,425 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ascii" />
+    <title>5. Other Commands &#8212; The Lean Reference Manual 3.3.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="6. Tactics" href="tactics.html" />
+    <link rel="prev" title="4. Declarations" href="declarations.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="other-commands">
+<span id="id1"></span><h1>5. Other Commands<a class="headerlink" href="#other-commands" title="Permalink to this headline">&#182;</a></h1>
+<div class="section" id="universes-and-variables">
+<span id="id2"></span><h2>5.1. Universes and Variables<a class="headerlink" href="#universes-and-variables" title="Permalink to this headline">&#182;</a></h2>
+<p>The <code class="docutils literal"><span class="pre">universe</span></code> command introduces a special variable ranging over a type universe level. After the command <code class="docutils literal"><span class="pre">universe</span> <span class="pre">u</span></code>, a definition or theorem that is declared with a variable ranging over <code class="docutils literal"><span class="pre">Sort</span> <span class="pre">u</span></code> is polymorphic over that universe variable. More generally, universe level variables can appear in any <a class="reference internal" href="expressions.html#universes"><span class="std std-ref">universe level expression</span></a>. The <code class="docutils literal"><span class="pre">universes</span></code> command can be used to introduce a list of universe level variables.</p>
+<p>The <code class="docutils literal"><span class="pre">variable</span></code> command introduces a single variable declaration, and the <code class="docutils literal"><span class="pre">variables</span></code> command introduces one more more variable declarations. These have no effect until a subsequent definition or theorem declaration, though variables can also be used in a <code class="docutils literal"><span class="pre">#check</span></code> command. When Lean detects a variable name occuring in a definition or theorem, either in the type or the body, it inserts that variable and all the variables it depends on into the local context, as though they have all been declared before the colon. In other words, the declaration is abstracted over those variables. Only the variables that appear and their dependences are added, and are inserted in the order that they were declared.</p>
+<p>Variables may be annotated as implicit as described in <a class="reference internal" href="expressions.html#implicit-arguments"><span class="std std-numref">Section 3.3</span></a>. You can change the annotation of a variable that has previously been declared using another <code class="docutils literal"><span class="pre">variable</span></code> or <code class="docutils literal"><span class="pre">variables</span></code> command, listing the variables with the desired annotation, but omitting their types.</p>
+<p>Variables that are only used within a tactic block are not automatically included, since the meaning of a name in the context of a tactic block cannot be predicted at parse time. You can force the inclusion of a variable or list of variables in every declaration using the <code class="docutils literal"><span class="pre">include</span></code> command. To undo the effect of an <code class="docutils literal"><span class="pre">include</span></code> command, use <code class="docutils literal"><span class="pre">omit</span></code>.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=universe%20u%0Avariables%20%7B%CE%B1%20%CE%B2%20:%20Type%20u%7D%0Avariable%20%20y%20:%20%CE%B1%0Avariable%20%20z%20:%20%CE%B1%0A%0Adef%20ident%20(x%20:%20%CE%B1)%20:=%20x%0A%0Atheorem%20ident_eq%20:%20%E2%88%80%20x%20:%20%CE%B1,%20ident%20x%20=%20x%20:=%20%CE%BB%20x,%20rfl%0A%0Atheorem%20ident_eq'%20:%20ident%20y%20=%20y%20:=%20rfl%0A%0Avariables%20%7By%20z%7D%0A%0Avariable%20h%20:%20y%20=%20z%0A%0Aexample%20:%20ident%20z%20=%20y%20:=%20eq.symm%20h%0A%0Ainclude%20h%0Aexample%20:%20ident%20z%20=%20y%20:=%0Abegin%0Asymmetry,%0Aexact%20h%0Aend%0A%0Aomit%20h%0A%0Avariable%20(y)%0A%0Adef%20ident2%20:=%20y" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">universe</span> <span class="n">u</span>
+<span class="kd">variables</span> <span class="o">{</span><span class="n">&#945;</span> <span class="n">&#946;</span> <span class="o">:</span> <span class="kt">Type</span> <span class="n">u</span><span class="o">}</span>
+<span class="kd">variable</span>  <span class="n">y</span> <span class="o">:</span> <span class="n">&#945;</span>
+<span class="kd">variable</span>  <span class="n">z</span> <span class="o">:</span> <span class="n">&#945;</span>
+
+<span class="kd">def</span> <span class="n">ident</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#945;</span><span class="o">)</span> <span class="o">:=</span> <span class="n">x</span>
+
+<span class="kd">theorem</span> <span class="n">ident_eq</span> <span class="o">:</span> <span class="bp">&#8704;</span> <span class="n">x</span> <span class="o">:</span> <span class="n">&#945;</span><span class="o">,</span> <span class="n">ident</span> <span class="n">x</span> <span class="bp">=</span> <span class="n">x</span> <span class="o">:=</span> <span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">rfl</span>
+
+<span class="kd">theorem</span> <span class="n">ident_eq&#39;</span> <span class="o">:</span> <span class="n">ident</span> <span class="n">y</span> <span class="bp">=</span> <span class="n">y</span> <span class="o">:=</span> <span class="n">rfl</span>
+
+<span class="kd">variables</span> <span class="o">{</span><span class="n">y</span> <span class="n">z</span><span class="o">}</span>
+
+<span class="kd">variable</span> <span class="n">h</span> <span class="o">:</span> <span class="n">y</span> <span class="bp">=</span> <span class="n">z</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="n">ident</span> <span class="n">z</span> <span class="bp">=</span> <span class="n">y</span> <span class="o">:=</span> <span class="n">eq.symm</span> <span class="n">h</span>
+
+<span class="kn">include</span> <span class="n">h</span>
+<span class="kd">example</span> <span class="o">:</span> <span class="n">ident</span> <span class="n">z</span> <span class="bp">=</span> <span class="n">y</span> <span class="o">:=</span>
+<span class="kd">begin</span>
+<span class="n">symmetry</span><span class="o">,</span>
+<span class="n">exact</span> <span class="n">h</span>
+<span class="kd">end</span>
+
+<span class="kn">omit</span> <span class="n">h</span>
+
+<span class="kd">variable</span> <span class="o">(</span><span class="n">y</span><span class="o">)</span>
+
+<span class="kd">def</span> <span class="n">ident2</span> <span class="o">:=</span> <span class="n">y</span>
+</pre></div>
+</div>
+</div></div>
+<div class="section" id="sections">
+<h2>5.2. Sections<a class="headerlink" href="#sections" title="Permalink to this headline">&#182;</a></h2>
+<p>The scope of a <code class="docutils literal"><span class="pre">universe</span></code> or <code class="docutils literal"><span class="pre">variable</span></code> declaration can be scoped in a <em>section</em>. A section begins with a command <code class="docutils literal"><span class="pre">section</span> <span class="pre">foo</span></code> and ends with a command <code class="docutils literal"><span class="pre">end</span> <span class="pre">foo</span></code>, where <code class="docutils literal"><span class="pre">foo</span></code> is an arbitrary name. Alternatively, you can begin a section with the command <code class="docutils literal"><span class="pre">section</span></code> along, and close it with <code class="docutils literal"><span class="pre">end</span></code>. The name only serves to help match <code class="docutils literal"><span class="pre">section</span></code>/<code class="docutils literal"><span class="pre">end</span></code> pairs, and otherwise does not play any role.</p>
+<p>Sections also support the commands <code class="docutils literal"><span class="pre">parameter</span></code> and <code class="docutils literal"><span class="pre">parameters</span></code>. These are similar to <code class="docutils literal"><span class="pre">variable</span></code> and <code class="docutils literal"><span class="pre">variables</span></code> respectively, except that within the section, later invocations of definitions and theorems that depend on the parameters introduced by these commands do not mention those parameters explicitly. In other words, the parameters are thought of as being fixed throughout the section, whereas definitions and theorems defined in terms of them maintain that fixed dependence. Outside the section, the definitions and theorems are generalized over those variables, just as with the <code class="docutils literal"><span class="pre">variables</span></code> command.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=section%0Avariables%20(x%20y%20:%20%E2%84%95)%0A%0Adef%20foo%20:=%20x%20+%20y%0A%0A#check%20(foo%20:%20%E2%84%95%20%E2%86%92%20%E2%84%95%20%E2%86%92%20%E2%84%95)%0Aend%0A%0Asection%0Aparameters%20(x%20y%20:%20%E2%84%95)%0A%0Adef%20bar%20:=%20x%20+%20y%0A%0A#check%20(bar%20:%20%E2%84%95)%0A#check%20(bar%20+%207%20:%20%E2%84%95)%0Aend" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kn">section</span>
+<span class="kd">variables</span> <span class="o">(</span><span class="n">x</span> <span class="n">y</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+
+<span class="kd">def</span> <span class="n">foo</span> <span class="o">:=</span> <span class="n">x</span> <span class="bp">+</span> <span class="n">y</span>
+
+<span class="k">#check</span> <span class="o">(</span><span class="n">foo</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="bp">&#8594;</span> <span class="n">&#8469;</span> <span class="bp">&#8594;</span> <span class="n">&#8469;</span><span class="o">)</span>
+<span class="kd">end</span>
+
+<span class="kn">section</span>
+<span class="kd">parameters</span> <span class="o">(</span><span class="n">x</span> <span class="n">y</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+
+<span class="kd">def</span> <span class="n">bar</span> <span class="o">:=</span> <span class="n">x</span> <span class="bp">+</span> <span class="n">y</span>
+
+<span class="k">#check</span> <span class="o">(</span><span class="n">bar</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+<span class="k">#check</span> <span class="o">(</span><span class="n">bar</span> <span class="bp">+</span> <span class="mi">7</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+<span class="kd">end</span>
+</pre></div>
+</div>
+</div><p>As with the <code class="docutils literal"><span class="pre">variable</span></code> and <code class="docutils literal"><span class="pre">variables</span></code> commands, variables introduced with <code class="docutils literal"><span class="pre">parameter</span></code> and <code class="docutils literal"><span class="pre">parameters</span></code> can be annotated as implicit, and the annotations can be changed after the fact with subsequent declarations that omit the type. The <code class="docutils literal"><span class="pre">include</span></code> and <code class="docutils literal"><span class="pre">omit</span></code> commands can be used with these variables as well.</p>
+<p>Sections also delimit the scope of local <a class="reference internal" href="#attributes"><span class="std std-ref">attributes</span></a> and <a class="reference internal" href="#notation-declarations"><span class="std std-ref">notation declarations</span></a>.</p>
+</div>
+<div class="section" id="namespaces">
+<span id="id3"></span><h2>5.3. Namespaces<a class="headerlink" href="#namespaces" title="Permalink to this headline">&#182;</a></h2>
+<p>The commands <code class="docutils literal"><span class="pre">namespace</span> <span class="pre">foo</span> <span class="pre">...</span> <span class="pre">end</span> <span class="pre">foo</span></code>, where <code class="docutils literal"><span class="pre">foo</span></code> is a <a class="reference internal" href="declarations.html#declaration-names"><span class="std std-ref">declaration name</span></a>, open and close a namespace named <code class="docutils literal"><span class="pre">foo</span></code>. Within the namespace, <code class="docutils literal"><span class="pre">foo</span></code> is added as a prefix to all declarations. So, for exampe, <code class="docutils literal"><span class="pre">def</span> <span class="pre">bar</span></code> adds an object named <code class="docutils literal"><span class="pre">foo.bar</span></code> to the environment, and declares <code class="docutils literal"><span class="pre">bar</span></code> to be an alias for <code class="docutils literal"><span class="pre">foo.bar</span></code> while the namespace is opened. If there is already an object or alias <code class="docutils literal"><span class="pre">bar</span></code> in the environment, the name is overloaded. Within the namespace, <code class="docutils literal"><span class="pre">foo.bar</span></code> is preferred when an ambiguity needs to be resolved. The prefix <code class="docutils literal"><span class="pre">_root_</span></code> can always be used to specify a full name starting at the top level, so that <code class="docutils literal"><span class="pre">_root_.bar</span></code> refers to the object whose full name is <code class="docutils literal"><span class="pre">bar</span></code>.</p>
+<p>Namespaces can be nested. In terms of scoping, namespaces behave like sections. For example, variables declared in a namespace stay in scope until the <code class="docutils literal"><span class="pre">end</span></code> command.</p>
+<p>The command <code class="docutils literal"><span class="pre">open</span> <span class="pre">foo</span></code> opens the namespace, so that <code class="docutils literal"><span class="pre">foo.bar</span></code> is aliased to <code class="docutils literal"><span class="pre">bar</span></code>. Once again, if there is already an object or alias <code class="docutils literal"><span class="pre">bar</span></code> in the environment, the name is overloaded (with none of them preferred). The <code class="docutils literal"><span class="pre">open</span></code> command admits these variations:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">open</span> <span class="pre">foo</span> <span class="pre">(bar</span> <span class="pre">baz)</span></code> : create aliases <em>only</em> for <code class="docutils literal"><span class="pre">bar</span></code> and <code class="docutils literal"><span class="pre">baz</span></code></li>
+<li><code class="docutils literal"><span class="pre">open</span> <span class="pre">foo</span> <span class="pre">(renaming</span> <span class="pre">bar</span> <span class="pre">-&gt;</span> <span class="pre">baz)</span></code> : renames <code class="docutils literal"><span class="pre">bar</span></code> to <code class="docutils literal"><span class="pre">baz</span></code> when opening <code class="docutils literal"><span class="pre">foo</span></code></li>
+<li><code class="docutils literal"><span class="pre">open</span> <span class="pre">foo</span> <span class="pre">(hiding</span> <span class="pre">bar)</span></code> : omits creating an alias for <code class="docutils literal"><span class="pre">bar</span></code> when opening <code class="docutils literal"><span class="pre">baz</span></code></li>
+</ul>
+<p>Multiple instances of <code class="docutils literal"><span class="pre">hiding</span></code> and <code class="docutils literal"><span class="pre">renaming</span></code> can be combined in a single <code class="docutils literal"><span class="pre">`open</span></code> command.</p>
+<p>The <code class="docutils literal"><span class="pre">export</span></code> command is similar to <code class="docutils literal"><span class="pre">open</span></code>, except that it serves to copy aliases from one namespace to another, or to the top level. For example, if a file exports <code class="docutils literal"><span class="pre">bar</span></code> from namespace <code class="docutils literal"><span class="pre">foo</span></code> to the top level, then any file that imports it will have the alias for <code class="docutils literal"><span class="pre">foo</span></code>.</p>
+<p>Declarations within a namespace can bear the <code class="docutils literal"><span class="pre">protected</span></code> modifier. This means that a shortened alias is not generated when the namespace is open. For example, <code class="docutils literal"><span class="pre">nat.rec</span></code> is protected, meaning that opening <code class="docutils literal"><span class="pre">nat</span></code> does <em>not</em> generate an alias <code class="docutils literal"><span class="pre">rec</span></code>.</p>
+<p>Declarations in a namespace or at the top level can also bear the <code class="docutils literal"><span class="pre">private</span></code> modifier, which means that they are added to the environment with an internally generated name and hidden from view outside the file. An alias is generated at the point where the declaration is made and it survives until the namespace is closed, or to the end of the file if the declaration is at the top level. Thus if we declare <code class="docutils literal"><span class="pre">private</span> <span class="pre">def</span> <span class="pre">bar</span> <span class="pre">:=</span> <span class="pre">...</span></code> in namespace <code class="docutils literal"><span class="pre">foo</span></code>, we can only refer to the object <code class="docutils literal"><span class="pre">bar</span></code> until the namespace is closed.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=def%20baz%20:=%207%0A%0Anamespace%20foo%0Anamespace%20bar%0A%20%20%20%20def%20baz%20:=%205%0A%20%20%20%20def%20fzz%20:=%209%0A%20%20%20%20protected%20def%20bloo%20:=%2011%0A%20%20%20%20private%20def%20floo%20:=%2013%0A%0A%20%20%20%20example%20:%20foo.bar.baz%20=%205%20:=%20rfl%0A%20%20%20%20example%20:%20bar.baz%20=%205%20:=%20rfl%0A%20%20%20%20example%20:%20baz%20=%205%20:=%20rfl%0A%20%20%20%20example%20:%20_root_.baz%20=%207%20:=%20rfl%0Aend%20bar%0A%0Aexample%20:%20bar.baz%20=%205%20:=%20rfl%0Aend%20foo%0A%0Asection%0Aopen%20foo.bar%0A%0Aexample%20:%20fzz%20=%209%20:=%20rfl%0A--%20baz%20is%20overloaded%20and%20hence%20ambiguous%0Aexample%20:%20foo.bar.baz%20=%205%20:=%20rfl%0Aend%0A%0Asection%0Aopen%20foo.bar%20(renaming%20fzz%20-%3E%20bzz)%0A%0Aexample%20:%20bzz%20=%209%20:=%20rfl%0Aexample%20:%20foo.bar.bloo%20=%2011%20:=%20rfl%0Aend%0A%0Aexport%20foo%20(bar.baz)%0A%0Aexample%20:%20bar.baz%20=%205%20:=%20rfl%0A%0Aexport%20foo.bar%0A%0Aexample%20:%20fzz%20=%209%20:=%20rfl" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">def</span> <span class="n">baz</span> <span class="o">:=</span> <span class="mi">7</span>
+
+<span class="kn">namespace</span> <span class="n">foo</span>
+<span class="kn">namespace</span> <span class="n">bar</span>
+    <span class="kd">def</span> <span class="n">baz</span> <span class="o">:=</span> <span class="mi">5</span>
+    <span class="kd">def</span> <span class="n">fzz</span> <span class="o">:=</span> <span class="mi">9</span>
+    <span class="kn">protected</span> <span class="kd">def</span> <span class="n">bloo</span> <span class="o">:=</span> <span class="mi">11</span>
+    <span class="kn">private</span> <span class="kd">def</span> <span class="n">floo</span> <span class="o">:=</span> <span class="mi">13</span>
+
+    <span class="kd">example</span> <span class="o">:</span> <span class="n">foo.bar.baz</span> <span class="bp">=</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+    <span class="kd">example</span> <span class="o">:</span> <span class="n">bar.baz</span> <span class="bp">=</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+    <span class="kd">example</span> <span class="o">:</span> <span class="n">baz</span> <span class="bp">=</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+    <span class="kd">example</span> <span class="o">:</span> <span class="n">_root_.baz</span> <span class="bp">=</span> <span class="mi">7</span> <span class="o">:=</span> <span class="n">rfl</span>
+<span class="kd">end</span> <span class="n">bar</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="n">bar.baz</span> <span class="bp">=</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+<span class="kd">end</span> <span class="n">foo</span>
+
+<span class="kn">section</span>
+<span class="kn">open</span> <span class="n">foo.bar</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="n">fzz</span> <span class="bp">=</span> <span class="mi">9</span> <span class="o">:=</span> <span class="n">rfl</span>
+<span class="c1">-- baz is overloaded and hence ambiguous</span>
+<span class="kd">example</span> <span class="o">:</span> <span class="n">foo.bar.baz</span> <span class="bp">=</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+<span class="kd">end</span>
+
+<span class="kn">section</span>
+<span class="kn">open</span> <span class="n">foo.bar</span> <span class="o">(</span><span class="kn">renaming</span> <span class="n">fzz</span> <span class="bp">-&gt;</span> <span class="n">bzz</span><span class="o">)</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="n">bzz</span> <span class="bp">=</span> <span class="mi">9</span> <span class="o">:=</span> <span class="n">rfl</span>
+<span class="kd">example</span> <span class="o">:</span> <span class="n">foo.bar.bloo</span> <span class="bp">=</span> <span class="mi">11</span> <span class="o">:=</span> <span class="n">rfl</span>
+<span class="kd">end</span>
+
+<span class="kn">export</span> <span class="n">foo</span> <span class="o">(</span><span class="n">bar.baz</span><span class="o">)</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="n">bar.baz</span> <span class="bp">=</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+
+<span class="kn">export</span> <span class="n">foo.bar</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="n">fzz</span> <span class="bp">=</span> <span class="mi">9</span> <span class="o">:=</span> <span class="n">rfl</span>
+</pre></div>
+</div>
+</div><p>If <code class="docutils literal"><span class="pre">t</span></code> is an element of an inductive type or family <code class="docutils literal"><span class="pre">foo</span></code>, then any function <code class="docutils literal"><span class="pre">bar</span></code> defined in the namespace <code class="docutils literal"><span class="pre">foo</span></code> can be treated as a &#8220;projection&#8221; using the anonymous projector notation described in <a class="reference internal" href="declarations.html#structures-and-records"><span class="std std-numref">Section 4.9</span></a>. Specifically, if the first argument to <code class="docutils literal"><span class="pre">foo.bar</span></code> is of type <code class="docutils literal"><span class="pre">foo</span></code>, then <code class="docutils literal"><span class="pre">t.bar</span> <span class="pre">x</span> <span class="pre">y</span> <span class="pre">z</span></code> abbreviates <code class="docutils literal"><span class="pre">foo.bar</span> <span class="pre">t</span> <span class="pre">x</span> <span class="pre">y</span> <span class="pre">z</span></code>. More generally, as long as <code class="docutils literal"><span class="pre">foo.bar</span></code> has any argument of type <code class="docutils literal"><span class="pre">foo</span></code>, then <code class="docutils literal"><span class="pre">t.bar</span> <span class="pre">x</span> <span class="pre">y</span> <span class="pre">z</span></code> is interpreted as the result of applying <code class="docutils literal"><span class="pre">foo.bar</span></code> to <code class="docutils literal"><span class="pre">x</span></code>, <code class="docutils literal"><span class="pre">y</span></code>, and <code class="docutils literal"><span class="pre">z</span></code>, inserting <code class="docutils literal"><span class="pre">t</span></code> at the position of the first argument of type <code class="docutils literal"><span class="pre">foo</span></code>.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=variables%20(xs%20ys%20:%20list%20%E2%84%95)%20(f%20:%20%E2%84%95%20%E2%86%92%20%E2%84%95)%0A%0A#check%20xs.length%0A#check%20xs.append%20ys%0A#check%20(xs.append%20ys).length%0A#check%20xs.map%20f%0A#check%20xs.reverse.reverse%0A%0Aexample%20:%20%5B1,%202,%203%5D.reverse.map%20(%CE%BB%20x,%20x%20+%202)%20=%20%5B5,%204,%203%5D%20:=%20rfl" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">variables</span> <span class="o">(</span><span class="n">xs</span> <span class="n">ys</span> <span class="o">:</span> <span class="n">list</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">(</span><span class="n">f</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="bp">&#8594;</span> <span class="n">&#8469;</span><span class="o">)</span>
+
+<span class="k">#check</span> <span class="n">xs.length</span>
+<span class="k">#check</span> <span class="n">xs.append</span> <span class="n">ys</span>
+<span class="k">#check</span> <span class="o">(</span><span class="n">xs.append</span> <span class="n">ys</span><span class="o">)</span><span class="bp">.</span><span class="n">length</span>
+<span class="k">#check</span> <span class="n">xs.map</span> <span class="n">f</span>
+<span class="k">#check</span> <span class="n">xs.reverse.reverse</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span><span class="bp">.</span><span class="n">reverse.map</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">2</span><span class="o">)</span> <span class="bp">=</span> <span class="o">[</span><span class="mi">5</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span> <span class="o">:=</span> <span class="n">rfl</span>
+</pre></div>
+</div>
+</div></div>
+<div class="section" id="attributes">
+<span id="id4"></span><h2>5.4. Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">&#182;</a></h2>
+<p>Objects in Lean can bear <em>attributes</em>, which are tags that are associated to them, sometimes with additional data. You can assign an attribute <code class="docutils literal"><span class="pre">foo</span></code> to a object by preceding its declaration with the annotation <code class="docutils literal"><span class="pre">attribute</span> <span class="pre">[foo]</span></code> or, more concisely, <code class="docutils literal"><span class="pre">&#64;[foo]</span></code>.</p>
+<p>You can also assign the attribute <code class="docutils literal"><span class="pre">foo</span></code> to a object <code class="docutils literal"><span class="pre">bar</span></code> after it is declared by writing <code class="docutils literal"><span class="pre">attribute</span> <span class="pre">[foo]</span> <span class="pre">bar</span></code>. You can list more than one attribute and more than one name, in which case all the attributes are assigned to all the objects at once.</p>
+<p>Finally, you can assign attributes locally by using <code class="docutils literal"><span class="pre">local</span> <span class="pre">attribute</span></code> instead of <code class="docutils literal"><span class="pre">attribute</span></code>. In that case, the attribute remains associated with the object until the end of the current section or namespace, or until the end of the current file if the command occurs outside any section or namespace.</p>
+<p>The set of attributes is open-ended since users can declare additional attributes in Lean (see <a class="reference internal" href="programming.html#programming"><span class="std std-numref">Chapter 7</span></a>. You can ask Lean to give you a list of all the attributes present in the current environment with the command <code class="docutils literal"><span class="pre">#print</span> <span class="pre">attributes</span></code>. Below are some that are commonly used:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">[class]</span></code> : a type class</li>
+<li><code class="docutils literal"><span class="pre">[instance]</span></code> : an instance of a type class</li>
+<li><code class="docutils literal"><span class="pre">[priority</span> <span class="pre">n]</span></code> : sets the class resolution priority to the natural number <code class="docutils literal"><span class="pre">n</span></code></li>
+<li><code class="docutils literal"><span class="pre">[refl]</span></code> : a reflexivity rule for the <code class="docutils literal"><span class="pre">reflexivity</span></code> tactic, for the <code class="docutils literal"><span class="pre">calc</span></code> environment, and for the simplifier</li>
+<li><code class="docutils literal"><span class="pre">[symm]</span></code> : a symmetry rule for the <code class="docutils literal"><span class="pre">symmetry</span></code> tactic</li>
+<li><code class="docutils literal"><span class="pre">[trans]</span></code> : a transitivity rule for the <code class="docutils literal"><span class="pre">transitivity</span></code> tactic, for the <code class="docutils literal"><span class="pre">calc</span></code> environment, and for the simplifier</li>
+<li><code class="docutils literal"><span class="pre">[congr]</span></code> : a congruence rule for the simplifier</li>
+<li><code class="docutils literal"><span class="pre">[simp]</span></code>: a simplifier rule</li>
+<li><code class="docutils literal"><span class="pre">[recursor]</span></code> : a user-defined elimination principle, used, for example, by the induction tactic</li>
+</ul>
+<p>Note that the <code class="docutils literal"><span class="pre">class</span></code> command, as discussed in <a class="reference internal" href="declarations.html#type-classes"><span class="std std-numref">Section 4.10</span></a>, does more than simply assign the attribute.</p>
+<p>There are attributes that control how eagerly definitions are unfolded during elaboration:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">[reducible]</span></code> : unfold freely</li>
+<li><code class="docutils literal"><span class="pre">[semireducible]</span></code> : unfold when inexpensive (the default)</li>
+<li><code class="docutils literal"><span class="pre">[irreducible]</span></code> : do not unfold</li>
+</ul>
+<p>There are also attributes used to specify strategies for elaboration:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">[elab_with_expected_type]</span></code> : elaborate the arguments using their expected type (the default)</li>
+<li><code class="docutils literal"><span class="pre">[elab_simple]</span></code> : elaborate arguments from left to right without propagating information about their types.</li>
+<li><code class="docutils literal"><span class="pre">[elab_as_eliminator]</span></code> : uses a separate heuristic to infer higher-order parameters; commonly used for eliminators like recursors and induction principles</li>
+</ul>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=def%20foo%20(x%20:%20%E2%84%95)%20:=%20x%20+%205%0A%0Aattribute%20%5Bsimp%5D%0Atheorem%20bar%E2%82%81%20(x%20:%20%E2%84%95)%20:%20foo%20x%20=%20x%20+%205%20:=%20rfl%0A%0A&#64;%5Bsimp%5D%20theorem%20bar%E2%82%82%20(x%20:%20%E2%84%95)%20:%20foo%20x%20=%20x%20+%205%20:=%20rfl%0A%0Atheorem%20bar%E2%82%83%20(x%20:%20%E2%84%95)%20:%20foo%20x%20=%20x%20+%205%20:=%20rfl%0A%0Atheorem%20bar%E2%82%84%20(x%20:%20%E2%84%95)%20:%20foo%20x%20=%20x%20+%205%20:=%20rfl%0A%0Aattribute%20%5Bsimp%5D%20bar%E2%82%83%20bar%E2%82%84%0A%0A#print%20attributes" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">def</span> <span class="n">foo</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">:=</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">5</span>
+
+<span class="kn">attribute</span> <span class="o">[</span><span class="n">simp</span><span class="o">]</span>
+<span class="kd">theorem</span> <span class="n">bar&#8321;</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">:</span> <span class="n">foo</span> <span class="n">x</span> <span class="bp">=</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+
+<span class="kd">@[simp]</span> <span class="kd">theorem</span> <span class="n">bar&#8322;</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">:</span> <span class="n">foo</span> <span class="n">x</span> <span class="bp">=</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+
+<span class="kd">theorem</span> <span class="n">bar&#8323;</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">:</span> <span class="n">foo</span> <span class="n">x</span> <span class="bp">=</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+
+<span class="kd">theorem</span> <span class="n">bar&#8324;</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">:</span> <span class="n">foo</span> <span class="n">x</span> <span class="bp">=</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+
+<span class="kn">attribute</span> <span class="o">[</span><span class="n">simp</span><span class="o">]</span> <span class="n">bar&#8323;</span> <span class="n">bar&#8324;</span>
+
+<span class="k">#print</span> <span class="n">attributes</span>
+</pre></div>
+</div>
+</div></div>
+<div class="section" id="options">
+<span id="id5"></span><h2>5.5. Options<a class="headerlink" href="#options" title="Permalink to this headline">&#182;</a></h2>
+<p>Lean maintains a number of internal variables that can be set by users to control its behavior. You can set such an option by writing <cite>set_option &lt;name&gt; &lt;value&gt;</cite>.</p>
+<p>One very useful family of options controls the way Lean&#8217;s pretty-printer displays terms. The following options take a value of <code class="docutils literal"><span class="pre">true</span></code> or <code class="docutils literal"><span class="pre">false</span></code>:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">pp.implicit</span></code> : display implicit arguments</li>
+<li><code class="docutils literal"><span class="pre">pp.universes</span></code> : display hidden universe parameters</li>
+<li><code class="docutils literal"><span class="pre">pp.coercions</span></code> : show coercions</li>
+<li><code class="docutils literal"><span class="pre">pp.notation</span></code> : display output using defined notations</li>
+<li><code class="docutils literal"><span class="pre">pp.beta</span></code> : beta reduce terms before displaying them</li>
+</ul>
+<p>As an example, the following settings yield much longer output:</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=set_option%20pp.implicit%20true%0Aset_option%20pp.universes%20true%0Aset_option%20pp.notation%20false%0Aset_option%20pp.numerals%20false%0A%0A#check%202%20+%202%20=%204%0A#reduce%20(%CE%BB%20x,%20x%20+%202)%20=%20(%CE%BB%20x,%20x%20+%203)%0A#check%20(%CE%BB%20x,%20x%20+%201)%201" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">set_option</span> <span class="n">pp.implicit</span> <span class="n">true</span>
+<span class="kd">set_option</span> <span class="n">pp.universes</span> <span class="n">true</span>
+<span class="kd">set_option</span> <span class="n">pp.notation</span> <span class="n">false</span>
+<span class="kd">set_option</span> <span class="n">pp.numerals</span> <span class="n">false</span>
+
+<span class="k">#check</span> <span class="mi">2</span> <span class="bp">+</span> <span class="mi">2</span> <span class="bp">=</span> <span class="mi">4</span>
+<span class="k">#reduce</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">2</span><span class="o">)</span> <span class="bp">=</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">3</span><span class="o">)</span>
+<span class="k">#check</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">1</span><span class="o">)</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div></div>
+<div class="section" id="instructions">
+<span id="id6"></span><h2>5.6. Instructions<a class="headerlink" href="#instructions" title="Permalink to this headline">&#182;</a></h2>
+<p>Commands that query Lean for information are generally intended to be transient, rather than remain permanently in a theory file. Such commands are typically preceded by a hash symbol.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#check</span> <span class="pre">t</span></code> : check that <code class="docutils literal"><span class="pre">t</span></code> is well-formed and show its type</li>
+<li><code class="docutils literal"><span class="pre">#print</span> <span class="pre">t</span></code> : print information about <code class="docutils literal"><span class="pre">t</span></code></li>
+<li><code class="docutils literal"><span class="pre">#reduce</span> <span class="pre">t</span></code> : use the kernel reduction to reduce <code class="docutils literal"><span class="pre">t</span></code> to normal form</li>
+<li><code class="docutils literal"><span class="pre">#eval</span> <span class="pre">t</span></code> : use the bytecode evaluator to evaluate <code class="docutils literal"><span class="pre">t</span></code></li>
+</ul>
+<p>The form of the output of the <code class="docutils literal"><span class="pre">#print</span></code> command varies depending on its argument. Here are some more specific variations:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#print</span> <span class="pre">definition</span></code> : display definition</li>
+<li><code class="docutils literal"><span class="pre">#print</span> <span class="pre">inductive</span></code> : display an inductive type and its constructors</li>
+<li><code class="docutils literal"><span class="pre">#print</span> <span class="pre">notation</span></code> : display all notation</li>
+<li><code class="docutils literal"><span class="pre">#print</span> <span class="pre">notation</span> <span class="pre">&lt;tokens&gt;</span></code> : display notation using any of the tokens</li>
+<li><code class="docutils literal"><span class="pre">#print</span> <span class="pre">axioms</span></code> : display assumed axioms</li>
+<li><code class="docutils literal"><span class="pre">#print</span> <span class="pre">options</span></code> : display options set by user</li>
+<li><code class="docutils literal"><span class="pre">#print</span> <span class="pre">prefix</span> <span class="pre">&lt;namespace&gt;</span></code> : display all declarations in the namespace</li>
+<li><code class="docutils literal"><span class="pre">#print</span> <span class="pre">classes</span></code> : display all classes</li>
+<li><code class="docutils literal"><span class="pre">#print</span> <span class="pre">instances</span> <span class="pre">&lt;class</span> <span class="pre">name&gt;</span></code> : display all instances of the given class</li>
+<li><code class="docutils literal"><span class="pre">#print</span> <span class="pre">fields</span> <span class="pre">&lt;structure&gt;</span></code> : display all fields of a structure</li>
+</ul>
+<p>Here are examples of how these commands are used:</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=def%20foo%20(x%20:%20%E2%84%95)%20:=%20x%20+%202%0A%0A#check%20foo%0A#print%20foo%0A#reduce%20foo%0A#reduce%20foo%202%0A#eval%20foo%202%0A%0A#print%20notation%0A#print%20notation%20+%20*%20-%0A#print%20axioms%0A#print%20options%0A#print%20prefix%20nat%0A#print%20prefix%20nat.le%0A#print%20classes%0A#print%20instances%20ring%0A#print%20fields%20ring" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">def</span> <span class="n">foo</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">:=</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">2</span>
+
+<span class="k">#check</span> <span class="n">foo</span>
+<span class="k">#print</span> <span class="n">foo</span>
+<span class="k">#reduce</span> <span class="n">foo</span>
+<span class="k">#reduce</span> <span class="n">foo</span> <span class="mi">2</span>
+<span class="k">#eval</span> <span class="n">foo</span> <span class="mi">2</span>
+
+<span class="k">#print</span> <span class="kd">notation</span>
+<span class="k">#print</span> <span class="kd">notation</span> <span class="bp">+</span> <span class="bp">*</span> <span class="bp">-</span>
+<span class="k">#print</span> <span class="kd">axioms</span>
+<span class="k">#print</span> <span class="n">options</span>
+<span class="k">#print</span> <span class="kd">prefix</span> <span class="n">nat</span>
+<span class="k">#print</span> <span class="kd">prefix</span> <span class="n">nat.le</span>
+<span class="k">#print</span> <span class="n">classes</span>
+<span class="k">#print</span> <span class="n">instances</span> <span class="n">ring</span>
+<span class="k">#print</span> <span class="n">fields</span> <span class="n">ring</span>
+</pre></div>
+</div>
+</div><p>In addition, Lean provides the command <code class="docutils literal"><span class="pre">run_cmd</span></code> to execute an expression of type <code class="docutils literal"><span class="pre">tactic</span> <span class="pre">unit</span></code> on an empty goal. (See <a class="reference internal" href="programming.html#programming"><span class="std std-numref">Chapter 7</span></a>.)</p>
+</div>
+<div class="section" id="notation-declarations">
+<span id="id7"></span><h2>5.7. Notation Declarations<a class="headerlink" href="#notation-declarations" title="Permalink to this headline">&#182;</a></h2>
+<p>Lean&#8217;s parser is a Pratt-style parser, which means that tokens can serve separate functions at the beginning of an expression and in the middle of an expression, and every expression has a &#8220;left-binding power.&#8221; Roughly, tokens with a higher left-binding power bind more tightly as an expression is parsed from left to right.</p>
+<p>The following commands can be used in Lean to declare tokens and assign a left-binding power:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">reserve</span> <span class="pre">infix</span> <span class="pre">`tok`:n</span></code></li>
+<li><code class="docutils literal"><span class="pre">reserve</span> <span class="pre">infixl</span> <span class="pre">`tok`:n</span></code></li>
+<li><code class="docutils literal"><span class="pre">reserve</span> <span class="pre">infixr</span> <span class="pre">`tok`:n</span></code></li>
+<li><code class="docutils literal"><span class="pre">reserve</span> <span class="pre">prefix</span> <span class="pre">`tok`:n</span></code></li>
+<li><code class="docutils literal"><span class="pre">reserve</span> <span class="pre">postfix</span> <span class="pre">`tok`:n</span></code></li>
+</ul>
+<p>In each case, <code class="docutils literal"><span class="pre">tok</span></code> is a string of characters that will become a new token, <code class="docutils literal"><span class="pre">n</span></code> is a natural number. The annotations <code class="docutils literal"><span class="pre">infix</span></code> and <code class="docutils literal"><span class="pre">infixl</span></code> mean the same thing, and specify that the infix notation should associate to the left. The keywords <code class="docutils literal"><span class="pre">prefix</span></code> and <code class="docutils literal"><span class="pre">postfix</span></code> are used to declare prefix and postfix notation, respectively.</p>
+<p>Instance of the notation can later be assigned as follows:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">infix</span> <span class="pre">tok</span> <span class="pre">:=</span> <span class="pre">t</span></code></li>
+</ul>
+<p>where <code class="docutils literal"><span class="pre">t</span></code> is the desired interpretation, and similarly for the others. Notation can be overloaded.</p>
+<p>It is not necessary to <code class="docutils literal"><span class="pre">reserve</span></code> a token before using it in notation. You can combine the two steps by writing</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">infix</span> <span class="pre">`tok`:n</span> <span class="pre">:=</span> <span class="pre">t</span></code></li>
+</ul>
+<p>Note that in this case, backticks are needed to delimit the token. If a left binding power has already been assigned using the <code class="docutils literal"><span class="pre">reserve</span></code> keyword, it cannot be reassigned by an ordinary notation declaration. A later <code class="docutils literal"><span class="pre">reserve</span></code> command can, however, change the left binding power.</p>
+<p>Surrounding the token by spaces in an infix declaration (that is, writing <code class="docutils literal"><span class="pre">`</span> <span class="pre">tok</span> <span class="pre">`</span></code>) instructs Lean&#8217;s pretty printer to use extra space when displaying the notation. The spaces are not, however, part of the token. For example, all the following declarations are taken from the core library:</p>
+<div class="highlight-text"><div class="highlight"><pre>notation `Prop` := Sort 0
+notation f ` $ `:1 a:0 := f a
+notation `&#8709;` := has_emptyc.emptyc _
+notation h1 &#9656; h2 := eq.subst h1 h2
+notation h :: t  := list.cons h t
+notation `[` l:(foldr `, ` (h t, list.cons h t) list.nil `]`) := l
+notation `&#8707;!` binders `, ` r:(scoped P, exists_unique P) := r
+</pre></div>
+</div>
+<p>Note that, here, too, left-binding powers can be assigned on the fly, and backticks need to be used to enclose a token if it has not been declared before.</p>
+<p>More examples can be found in the core library, for example in this <a class="reference external" href="https://github.com/leanprover/lean/blob/master/library/init/core.lean">file</a>, which shows the binding strength of common symbols. The implication arrow binds with strength 25, denoted by <code class="docutils literal"><span class="pre">std.prec.arrow</span></code> in that file. Application has a high binding power, denoted <code class="docutils literal"><span class="pre">std.prec.max</span></code>. For postfix notation, you may wish to use the higher value, <code class="docutils literal"><span class="pre">std.prec.max_plus</span></code>. For example, according to the definition of the <code class="docutils literal"><span class="pre">inv</span></code> notation there, <code class="docutils literal"><span class="pre">f</span> <span class="pre">x&#8315;&#185;</span></code> is parsed as <code class="docutils literal"><span class="pre">f</span> <span class="pre">(x&#8315;&#185;)</span></code>.</p>
+<p>The last two examples make possible list notation like <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></code> and the exists-unique binder, respectively. In the first, <code class="docutils literal"><span class="pre">foldr</span></code> specifies that the iterated operation is a right-associative fold, and binds the result to <code class="docutils literal"><span class="pre">l</span></code>. The four arguments then specify the separation token (in this case a comma, to be followed by a space when pretty printing), the fold operation, the start value, and the terminating token. You can use <code class="docutils literal"><span class="pre">foldl</span></code> instead for a left-associative fold.</p>
+<p>In the last example, <code class="docutils literal"><span class="pre">binders</span></code> specifies that any number of binders can occur in that position, and the annotation after the comma indicates that these binders are to be iteratively abstracted using <code class="docutils literal"><span class="pre">exists_unique</span></code>.</p>
+<p>Notation declarations can be preceded by the word &#8220;local,&#8221; in which case the notation only remains in use in the current section or namespace, or in the current file if it is declared outside of any namespace.</p>
+<p>Remember that you can use the <code class="docutils literal"><span class="pre">#print</span> <span class="pre">notation</span></code> command to show the notation that has been declared in the current environment. Given a token, it shows the notation associated with the token. Without arguments, it displays all notation currently in use. You can also use <code class="docutils literal"><span class="pre">set_option</span> <span class="pre">pp.notation</span> <span class="pre">false</span></code> to turn off the pretty-printing of notation.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">The Lean Reference Manual</a></h1>
+
+
+
+
+
+
+
+
+<!-- <h3>Navigation</h3> -->
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="using_lean.html">1. Using Lean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lexical_structure.html">2. Lexical Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expressions.html">3. Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="declarations.html">4. Declarations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Other Commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#universes-and-variables">5.1. Universes and Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sections">5.2. Sections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#namespaces">5.3. Namespaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#attributes">5.4. Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#options">5.5. Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instructions">5.6. Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notation-declarations">5.7. Notation Declarations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tactics.html">6. Tactics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">7. Programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metaprogramming.html">8. Metaprogramming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libraries.html">9. Libraries</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="lean_reference.pdf">PDF version</a></li>
+    
+    <li class="toctree-l1"><a href="https://leanprover.github.io/">Lean Home</a></li>
+    
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Jeremy Avigad, Gabriel Ebner, Sebastian Ullrich.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/other_commands.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

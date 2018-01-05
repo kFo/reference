@@ -1,0 +1,277 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ascii" />
+    <title>1. Using Lean &#8212; The Lean Reference Manual 3.3.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="2. Lexical Structure" href="lexical_structure.html" />
+    <link rel="prev" title="The Lean Reference Manual" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="using-lean">
+<span id="id1"></span><h1>1. Using Lean<a class="headerlink" href="#using-lean" title="Permalink to this headline">&#182;</a></h1>
+<div class="section" id="using-lean-online">
+<h2>1.1. Using Lean Online<a class="headerlink" href="#using-lean-online" title="Permalink to this headline">&#182;</a></h2>
+<p>You can run a Javascript version of Lean <a class="reference external" href="https://leanprover.github.io/live/master">online</a> in your browser. It is much slower than running a version of Lean installed on your computer, but it provides a convenient way to experiment with the system.</p>
+<p>The online version of Lean checks your input continuously. Error messages, warnings, and output appear in the window on the right-hand side. The editor shares a number of features with Visual Studio Code; for example, you can type unicode characters with a backslash, so <code class="docutils literal"><span class="pre">\and</span></code> yields the unicode symbol for conjunction, and <code class="docutils literal"><span class="pre">\a</span></code>, <code class="docutils literal"><span class="pre">\b</span></code>, and <code class="docutils literal"><span class="pre">\g</span></code> yield the unicode <code class="docutils literal"><span class="pre">&#945;</span></code>, <code class="docutils literal"><span class="pre">&#946;</span></code>, and <code class="docutils literal"><span class="pre">&#947;</span></code> respectively.</p>
+</div>
+<div class="section" id="using-lean-with-vscode">
+<h2>1.2. Using Lean with VSCode<a class="headerlink" href="#using-lean-with-vscode" title="Permalink to this headline">&#182;</a></h2>
+<p>Assuming you have installed Lean and <a class="reference external" href="https://code.visualstudio.com">Visual Studio Code</a>, you can add the Lean extension to VSCode by clicking the extension icon in the view bar at left and searching for <code class="docutils literal"><span class="pre">lean</span></code>. Once you have installed the extension, clicking on <code class="docutils literal"><span class="pre">lean</span></code> in the extensions panel provides additional information.</p>
+<p>With the extension installed, if you create a file with the extension <code class="docutils literal"><span class="pre">.lean</span></code> and edit it, Lean will check the file continuously as you type. For example, if you type the words <code class="docutils literal"><span class="pre">#check</span> <span class="pre">id</span></code>, the word <code class="docutils literal"><span class="pre">#check</span></code> is underlined in green to indicate a response from the Lean server. Hovering over the word <code class="docutils literal"><span class="pre">#check</span></code> displays the response, in this case, the type of the identity function.</p>
+<div class="section" id="features">
+<h3>1.2.1. Features<a class="headerlink" href="#features" title="Permalink to this headline">&#182;</a></h3>
+<p>VSCode Intellisense suggests completions as you type. These are context sensitive: if you are typing an identifier, it suggests suitable completions for identifiers, after <code class="docutils literal"><span class="pre">import</span></code>, it suggests modules to import, after <code class="docutils literal"><span class="pre">set_option</span></code>, it suggests suitable options, and so on.</p>
+<p>You can enter Unicode characters with a backslash. For example, <code class="docutils literal"><span class="pre">\a</span></code> inserts an <code class="docutils literal"><span class="pre">&#945;</span></code>. You can see the commands provided by the Lean extension by typing <code class="docutils literal"><span class="pre">ctrl-shift-P</span></code> on Windows/Linux or <code class="docutils literal"><span class="pre">cmd-shift-P</span></code> on a Mac, and then typing <code class="docutils literal"><span class="pre">lean</span></code> into the search bar to filter the list. Typing <code class="docutils literal"><span class="pre">ctrl-shift-enter</span></code> opens up a message window which shows you error messages, warnings, output, and goal information when in tactic mode.</p>
+<p>Typing an underscore in an expression asks Lean to infer a suitable value for the expression and fill it in automatically. In cases where Lean is unable to determine a value for the argument, the underscore is highlighted, and the error message indicates the type of the &#8220;hole&#8221; that needs to be filled. This can be extremely useful when constructing proofs incrementally. You can start typing a proof sketch, using either <code class="docutils literal"><span class="pre">sorry</span></code> or an underscore for details you intend to fill in later. Assuming the proof is correct modulo these missing pieces of information, the error message at an unfilled underscore tells you the type of the term you need to construct, typically an assertion you need to justify.</p>
+</div>
+<div class="section" id="multi-file-projects">
+<h3>1.2.2. Multi-file Projects<a class="headerlink" href="#multi-file-projects" title="Permalink to this headline">&#182;</a></h3>
+<p>If you want to work on a project with multiple files, use the <a class="reference internal" href="#package-manager">package_manager</a> to set up a project folder, and then use <code class="docutils literal"><span class="pre">Open</span> <span class="pre">Folder</span></code> in the VSCode <code class="docutils literal"><span class="pre">File</span></code> menu to open the root directory for the project.</p>
+</div>
+</div>
+<div class="section" id="using-lean-with-emacs">
+<h2>1.3. Using Lean with Emacs<a class="headerlink" href="#using-lean-with-emacs" title="Permalink to this headline">&#182;</a></h2>
+<p>Assuming you have installed Lean, Emacs, and the Lean Emacs mode according to the instructions on the Lean <a class="reference external" href="https://leanprover.github.io/download/">Download</a> page, you simply need to create a file with the extension <code class="docutils literal"><span class="pre">.lean</span></code> and edit it in Emacs. The file will be checked continuously as you type. For example, if you type the words <code class="docutils literal"><span class="pre">#check</span> <span class="pre">id</span></code>, the word <code class="docutils literal"><span class="pre">#check</span></code> is underlined in green to indicate a response from the Lean server. Hovering over the word <code class="docutils literal"><span class="pre">#check</span></code> displays the response, in this case, the type of the identity function.</p>
+<div class="section" id="id2">
+<h3>1.3.1. Features<a class="headerlink" href="#id2" title="Permalink to this headline">&#182;</a></h3>
+<p>Lean mode uses an Emacs package named <em>Flycheck</em>, as evidenced by the letters <code class="docutils literal"><span class="pre">FlyC</span></code> that appear in the information line.  Flycheck offers a number of commands that begin with <code class="docutils literal"><span class="pre">C-c</span> <span class="pre">!</span></code>. For example, <code class="docutils literal"><span class="pre">C-c</span> <span class="pre">!</span> <span class="pre">n</span></code> moves the cursor to the next error, and <code class="docutils literal"><span class="pre">C-c</span> <span class="pre">!</span> <span class="pre">p</span></code> moves the cursor to the previous error. You can get to a help menu that lists these key bindings by clicking on the <code class="docutils literal"><span class="pre">FlyC</span></code> tag.</p>
+<p>It is often inconvenient to have to put the cursor on a highlighted identifier to see an error message or the outcome of a <code class="docutils literal"><span class="pre">#print</span></code> or <code class="docutils literal"><span class="pre">#check</span></code> command. The keystrokes <code class="docutils literal"><span class="pre">C-c</span> <span class="pre">C-n</span></code> toggle <code class="docutils literal"><span class="pre">Lean-Next-Error</span></code> mode, in which the next message (or all the messages that occur on the line that the cursor is on, if there are any) appears in a buffer named <code class="docutils literal"><span class="pre">lean-info</span></code>. You can position this window anywhere you want using Emacs commands for splitting windows and loading buffers. Pressing <code class="docutils literal"><span class="pre">C-c</span> <span class="pre">C-n</span></code> again toggles the mode off.</p>
+<p>As with VSCode, the Emacs mode provides context-sensitive tab completion. Typing an underscore in an expression asks Lean to infer a suitable value for the expression and fill it in automatically. As described in the previous section, this provides a convenient way to construct terms and proof interactively.</p>
+<p>If you put your cursor on an identifier and hit <code class="docutils literal"><span class="pre">M-.</span></code>, Emacs will take you to the identifier&#8217;s definition, whether it is in the same file, in another file in your project , or in the library. This works even in an autocompletion popup window: if you start typing an identifier, press the tab key, choose a completion from the list of options, and press <code class="docutils literal"><span class="pre">M-.</span></code>, you are taken to the symbol&#8217;s definition.  If you have Emacs 25 or later, you can then press <code class="docutils literal"><span class="pre">M-,</span></code> to go back to the original location.</p>
+<p>In tactic mode, if you put your cursor on a tactic (or the keyword <code class="docutils literal"><span class="pre">begin</span></code> or <code class="docutils literal"><span class="pre">end</span></code>) and type <code class="docutils literal"><span class="pre">C-c</span> <span class="pre">C-g</span></code>, Emacs will show you the goal in the <code class="docutils literal"><span class="pre">lean-info</span></code> buffer. Here is another useful trick: if you see some notation in a Lean file and you want to know how to enter it from the keyboard, put the cursor on the symbol and type <code class="docutils literal"><span class="pre">C-c</span> <span class="pre">C-k</span></code>.</p>
+<p>If for some reason the Lean background process does not seem to be responding (for example, the information line no longer shows you type information), type <code class="docutils literal"><span class="pre">C-c</span> <span class="pre">C-r</span></code> or <code class="docutils literal"><span class="pre">M-x</span> <span class="pre">lean-server-restart-process</span></code>, or choose &#8220;restart lean process&#8221; from the Lean menu, and with luck that will set things right again.</p>
+<p>In Lean, the <code class="docutils literal"><span class="pre">#exit</span></code> command halts processing of a file abruptly. Inserting an <code class="docutils literal"><span class="pre">#exit</span></code> therefore prevents Lean from checking the file beyond that point.</p>
+<p>Some of the main key bindings are summarized in the table below.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="86%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Key</td>
+<td>Function</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">M-.</span></code></td>
+<td>jump to definition in source file (<code class="docutils literal"><span class="pre">lean-find-definition</span></code>)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">M-,</span></code></td>
+<td>return to original position (requires Emacs 25)</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">TAB</span></code></td>
+<td>tab complete identifier, option, filename, etc. (<code class="docutils literal"><span class="pre">lean-tab-indent-or-complete</span></code>)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">C-c</span> <span class="pre">C-k</span></code></td>
+<td>shows the keystroke needed to input the symbol under the cursor</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">C-c</span> <span class="pre">C-g</span></code></td>
+<td>show goal in tactic proof (<code class="docutils literal"><span class="pre">lean-show-goal-at-pos</span></code>)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">C-c</span> <span class="pre">C-x</span></code></td>
+<td>execute lean in stand-alone mode (<code class="docutils literal"><span class="pre">lean-std-exe</span></code>)</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">C-c</span> <span class="pre">C-n</span></code></td>
+<td>toggle next-error-mode: shows next error in dedicated lean-info buffer</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">C-c</span> <span class="pre">C-r</span></code></td>
+<td>restart the lean server</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">C-c</span> <span class="pre">!</span> <span class="pre">n</span></code></td>
+<td>flycheck: go to next error</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">C-c</span> <span class="pre">!</span> <span class="pre">p</span></code></td>
+<td>flycheck: go to previous error</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">C-c</span> <span class="pre">!</span> <span class="pre">l</span></code></td>
+<td>flycheck: show list of errors</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id3">
+<h3>1.3.2. Multi-file Projects<a class="headerlink" href="#id3" title="Permalink to this headline">&#182;</a></h3>
+<p>If you want to work on a project with multiple files, use the <a class="reference internal" href="#package-manager">package_manager</a> to set up a project folder, and use <code class="docutils literal"><span class="pre">Open</span> <span class="pre">Folder</span></code> in the VSCode <code class="docutils literal"><span class="pre">File</span></code> menu to open the root directory for the project.</p>
+</div>
+</div>
+<div class="section" id="using-the-package-manager">
+<span id="package-manager"></span><h2>1.4. Using the Package Manager<a class="headerlink" href="#using-the-package-manager" title="Permalink to this headline">&#182;</a></h2>
+<p><code class="docutils literal"><span class="pre">leanpkg</span></code> is the package manager for the Lean theorem prover. It downloads dependencies and manages what modules you can import in your Lean files.</p>
+<p>This section explains the general concepts of <code class="docutils literal"><span class="pre">leanpkg</span></code>. For more information on a specific <code class="docutils literal"><span class="pre">leanpkg</span></code> command, execute <code class="docutils literal"><span class="pre">leanpkg</span> <span class="pre">help</span> <span class="pre">&lt;command&gt;</span></code> as a command line.</p>
+<div class="section" id="directory-layout">
+<h3>1.4.1. Directory Layout<a class="headerlink" href="#directory-layout" title="Permalink to this headline">&#182;</a></h3>
+<p>A Lean package is a directory containing the following items:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">src</span></code>: a directory in which the package&#8217;s Lean files are stored.  Imports from other packages are resolved relative to this directory.</li>
+<li><code class="docutils literal"><span class="pre">leanpkg.toml</span></code>: a manifest describing the package name, version, and dependencies.  Dependencies can be either local paths or git URLs.  Git dependencies are pinned to a specific commit and can be upgraded with <cite>leanpkg upgrade</cite>.</li>
+<li><code class="docutils literal"><span class="pre">leanpkg.path</span></code> and <code class="docutils literal"><span class="pre">_target/deps</span></code>: these items are created by <code class="docutils literal"><span class="pre">leanpkg</span> <span class="pre">configure</span></code> and should not be added to git.  They contain the paths to the dependencies on the current machine, and their git checkouts, respectively.</li>
+</ul>
+</div>
+<div class="section" id="using-lean-in-a-lean-package">
+<h3>1.4.2. Using Lean in a Lean package<a class="headerlink" href="#using-lean-in-a-lean-package" title="Permalink to this headline">&#182;</a></h3>
+<ul class="simple">
+<li>Running the <code class="docutils literal"><span class="pre">lean</span></code> command-line tool from a directory inside your package will automatically use the <code class="docutils literal"><span class="pre">leanpkg.path</span></code> file for import resolution.</li>
+<li>In Emacs, <code class="docutils literal"><span class="pre">lean-mode</span></code> will automatically start a new Lean server process for each visited package.</li>
+<li>In VSCode, open the package as a folder.</li>
+</ul>
+</div>
+<div class="section" id="creating-new-packages">
+<h3>1.4.3. Creating new packages<a class="headerlink" href="#creating-new-packages" title="Permalink to this headline">&#182;</a></h3>
+<p>The <code class="docutils literal"><span class="pre">leanpkg</span> <span class="pre">new</span></code> command creates a new package.  You can use <code class="docutils literal"><span class="pre">leanpkg</span> <span class="pre">add</span></code> to add dependencies (or add them manually if you prefer):</p>
+<div class="highlight-text"><div class="highlight"><pre>leanpkg new my_awesome_pkg
+cd my_awesome_pkg
+leanpkg add leanprover/mathlib
+# shorthand for `leanpkg add https://github.com/leanprover/mathlib`
+</pre></div>
+</div>
+<p>You can now add new <code class="docutils literal"><span class="pre">.lean</span></code> files inside the <code class="docutils literal"><span class="pre">my_awesome_pkg</span></code> directory.</p>
+</div>
+<div class="section" id="scratch-files">
+<h3>1.4.4. Scratch files<a class="headerlink" href="#scratch-files" title="Permalink to this headline">&#182;</a></h3>
+<p>It is reasonably common to have thousands of &#8220;scratch&#8221; files lying around that are not part of a package.  Files that are not inside a package themselves can still use dependencies fetched via <code class="docutils literal"><span class="pre">leanpkg</span></code>.  These dependencies are stored in <code class="docutils literal"><span class="pre">~/.lean/leanpkg.toml</span></code> and can be modified with <code class="docutils literal"><span class="pre">leanpkg</span> <span class="pre">install</span></code>:</p>
+<div class="highlight-text"><div class="highlight"><pre>leanpkg install https://github.com/leanprover/smt2_interface
+</pre></div>
+</div>
+<p>After this, you can use the <code class="docutils literal"><span class="pre">smt2_interface</span></code> package in all files that do not belong to a package themselves.</p>
+<p>For experimenting inside a Lean package, you can use a directory separate from <code class="docutils literal"><span class="pre">src</span></code>, say <code class="docutils literal"><span class="pre">scratch</span></code>.  Files in this folder will still be able to import the package&#8217;s Lean modules, but will not interfere with <code class="docutils literal"><span class="pre">leanpkg</span> <span class="pre">build</span></code> etc.</p>
+</div>
+<div class="section" id="import-resolution">
+<h3>1.4.5. Import resolution<a class="headerlink" href="#import-resolution" title="Permalink to this headline">&#182;</a></h3>
+<p>Lean supports two kinds of imports:</p>
+<div class="highlight-text"><div class="highlight"><pre>import theory.set_theory   -- absolute
+import .basic              -- relative
+</pre></div>
+</div>
+<p>Relative imports are always relative to the current file name.</p>
+<p>Absolute imports are resolved according to the entries in the <code class="docutils literal"><span class="pre">leanpkg.path</span></code> file.  That is, when executing <code class="docutils literal"><span class="pre">import</span> <span class="pre">theory.set_theory</span></code>, Lean looks for a file called <code class="docutils literal"><span class="pre">theory/set_theory.lean</span></code> in the <cite>src</cite> directories of all (transitive) dependencies as well as the current package.</p>
+</div>
+<div class="section" id="format-of-leanpkg-toml">
+<h3>1.4.6. Format of leanpkg.toml<a class="headerlink" href="#format-of-leanpkg-toml" title="Permalink to this headline">&#182;</a></h3>
+<div class="highlight-text"><div class="highlight"><pre>[package]
+name = &quot;my_awesome_pkg&quot;
+version = &quot;0.1&quot;         # no semantic significance currently
+lean_version = &quot;3.3.0&quot;  # optional, prints a warning on mismatch with Lean executable
+path = &quot;src&quot;            # hard-coded, will be removed in the future
+timeout = 100           # optional, passed to `lean` as `-T` parameter
+
+[dependencies]
+# local dependency
+demopkg = { path = &quot;relative/path/to/demopkg&quot; }
+# git dependency
+mathlib =
+  { git = &quot;https://github.com/leanprover/mathlib&quot;,
+    rev = &quot;62f7883d937861b618ae8bd645ee16ec137dd0bd&quot; }
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">The Lean Reference Manual</a></h1>
+
+
+
+
+
+
+
+
+<!-- <h3>Navigation</h3> -->
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. Using Lean</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-lean-online">1.1. Using Lean Online</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-lean-with-vscode">1.2. Using Lean with VSCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-lean-with-emacs">1.3. Using Lean with Emacs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-package-manager">1.4. Using the Package Manager</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lexical_structure.html">2. Lexical Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expressions.html">3. Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="declarations.html">4. Declarations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="other_commands.html">5. Other Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tactics.html">6. Tactics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">7. Programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metaprogramming.html">8. Metaprogramming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libraries.html">9. Libraries</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="lean_reference.pdf">PDF version</a></li>
+    
+    <li class="toctree-l1"><a href="https://leanprover.github.io/">Lean Home</a></li>
+    
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Jeremy Avigad, Gabriel Ebner, Sebastian Ullrich.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/using_lean.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

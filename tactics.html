@@ -1,0 +1,577 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ascii" />
+    <title>6. Tactics &#8212; The Lean Reference Manual 3.3.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="7. Programming" href="programming.html" />
+    <link rel="prev" title="5. Other Commands" href="other_commands.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tactics">
+<h1>6. Tactics<a class="headerlink" href="#tactics" title="Permalink to this headline">&#182;</a></h1>
+<div class="section" id="tactic-mode">
+<h2>6.1. Tactic Mode<a class="headerlink" href="#tactic-mode" title="Permalink to this headline">&#182;</a></h2>
+<p>Anywhere an expression is expected, Lean will accept a sequence of instructions bracketed by the keywords <code class="docutils literal"><span class="pre">begin</span></code> and <code class="docutils literal"><span class="pre">end</span></code>. The input between these keywords represents a <em>tactic</em>, typically a compound sequence of basic tactics, each possibly applied to suitable arguments, separated by commas. When processing such a tactic block, Lean&#8217;s elaborator executes the compound tactic with the expectation that it will produce an expression of the required type.</p>
+<p>Individual tactics act on one or more <em>goals</em>, each of the form <code class="docutils literal"><span class="pre">a</span> <span class="pre">:</span> <span class="pre">&#945;</span> <span class="pre">&#8866;</span> <span class="pre">p</span></code>, where <code class="docutils literal"><span class="pre">a</span> <span class="pre">:</span> <span class="pre">&#945;</span></code> is a context and <code class="docutils literal"><span class="pre">p</span></code> is the target type. Tactics are typically used to prove a theorem, in which case <code class="docutils literal"><span class="pre">p</span></code> is a <code class="docutils literal"><span class="pre">Prop</span></code>, but they can be used to construct an element of an arbitrary <code class="docutils literal"><span class="pre">Type</span></code> as well.</p>
+<p>At the outset, the elaborator presents the tactic block with a goal that consists of the local context in which the expression is being elaborated together with its expected type. Individual tactics can change goals and introduce new subgoals. A sequence of tactics is done when no subgoals remain, that is, when the compound tactic has succeeded in constructing an expression of the requisite type.</p>
+<p>Tactics can fail. For example, a tactic may fail to make progress, or may not be appropriate to the goal. Other tactics can catch or handle those failures (see <a class="reference internal" href="#tactic-combinators"><span class="std std-numref">Section 6.6</span></a>), but otherwise an error message is presented to the user.</p>
+<p>Results produced by tactics are checked by the kernel for correctness. This provides another possible point of failure: a tactic block can, in principle, claim success but produce a term that fails to type check.</p>
+<p>Tactics are themselves Lean expressions of a special <code class="docutils literal"><span class="pre">tactic</span></code> type. This makes it possible to implement Lean tactics in Lean itself; see <a class="reference internal" href="metaprogramming.html#metaprogramming"><span class="std std-numref">Chapter 8</span></a>. Tactics in a <code class="docutils literal"><span class="pre">begin</span> <span class="pre">...</span> <span class="pre">end</span></code> block, however, are parsed in a special <em>interactive mode</em> that provides a more convenient manner of expression. In this section, we will focus exclusively on this interactive syntax.</p>
+<p>You can use the keyword <code class="docutils literal"><span class="pre">by</span></code> instead of <code class="docutils literal"><span class="pre">begin</span> <span class="pre">...</span> <span class="pre">end</span></code> to invoke a single tactic rather than a comma-separated sequence.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=example%20(p%20q%20:%20Prop)%20:%20p%20%E2%88%A7%20q%20%E2%86%92%20q%20%E2%88%A7%20p%20:=%0Abegin%0A%20%20intro%20h,%0A%20%20cases%20h,%0A%20%20split,%0A%20%20repeat%20%7B%20assumption%20%7D%0Aend%0A%0Aexample%20(p%20q%20:%20Prop)%20:%20p%20%E2%88%A7%20q%20%E2%86%92%20q%20%E2%88%A7%20p%20:=%0Aassume%20%E2%9F%A8h%E2%82%81,%20h%E2%82%82%E2%9F%A9,%0Aand.intro%20(by%20assumption)%20(by%20assumption)" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">example</span> <span class="o">(</span><span class="n">p</span> <span class="n">q</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">)</span> <span class="o">:</span> <span class="n">p</span> <span class="bp">&#8743;</span> <span class="n">q</span> <span class="bp">&#8594;</span> <span class="n">q</span> <span class="bp">&#8743;</span> <span class="n">p</span> <span class="o">:=</span>
+<span class="kd">begin</span>
+  <span class="n">intro</span> <span class="n">h</span><span class="o">,</span>
+  <span class="n">cases</span> <span class="n">h</span><span class="o">,</span>
+  <span class="n">split</span><span class="o">,</span>
+  <span class="n">repeat</span> <span class="o">{</span> <span class="n">assumption</span> <span class="o">}</span>
+<span class="kd">end</span>
+
+<span class="kd">example</span> <span class="o">(</span><span class="n">p</span> <span class="n">q</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">)</span> <span class="o">:</span> <span class="n">p</span> <span class="bp">&#8743;</span> <span class="n">q</span> <span class="bp">&#8594;</span> <span class="n">q</span> <span class="bp">&#8743;</span> <span class="n">p</span> <span class="o">:=</span>
+<span class="k">assume</span> <span class="o">&#10216;</span><span class="n">h&#8321;</span><span class="o">,</span> <span class="n">h&#8322;</span><span class="o">&#10217;,</span>
+<span class="n">and.intro</span> <span class="o">(</span><span class="kd">by</span> <span class="n">assumption</span><span class="o">)</span> <span class="o">(</span><span class="kd">by</span> <span class="n">assumption</span><span class="o">)</span>
+</pre></div>
+</div>
+</div><p>The documentation below coincides with documentation strings that are stored in the Lean source files and displayed by editors. The argument types are as follows:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">id</span></code> : an <a class="reference internal" href="lexical_structure.html#identifiers"><span class="std std-ref">identifier</span></a></li>
+<li><code class="docutils literal"><span class="pre">expr</span></code> : an <a class="reference internal" href="expressions.html#expression-syntax"><span class="std std-ref">expression</span></a></li>
+<li><code class="docutils literal"><span class="pre">&lt;binders&gt;</span></code> : a sequence of identifiers and expressions <code class="docutils literal"><span class="pre">(a</span> <span class="pre">:</span> <span class="pre">&#945;)</span></code> where <code class="docutils literal"><span class="pre">a</span></code> is an identifier and <code class="docutils literal"><span class="pre">&#945;</span></code> is a <code class="docutils literal"><span class="pre">Type</span></code> or a <code class="docutils literal"><span class="pre">Prop</span></code>.</li>
+</ul>
+<p>An annotation <code class="docutils literal"><span class="pre">t?</span></code> means that the argument <code class="docutils literal"><span class="pre">t</span></code> is optional, and an annotation <code class="docutils literal"><span class="pre">t*</span></code> means any number of instances, possibly none. Many tactics parse arguments with additional tokens like <code class="docutils literal"><span class="pre">with</span></code>, <code class="docutils literal"><span class="pre">at</span></code>, <code class="docutils literal"><span class="pre">only</span></code>, <code class="docutils literal"><span class="pre">*</span></code>, or <code class="docutils literal"><span class="pre">&#8866;</span></code>, as indicated below. The token <code class="docutils literal"><span class="pre">*</span></code> is typically used to denote all the hypotheses, and <code class="docutils literal"><span class="pre">&#8866;</span></code> is typically used to denote the goal, with ascii equivalent <code class="docutils literal"><span class="pre">|-</span></code>.</p>
+</div>
+<div class="section" id="basic-tactics">
+<span id="id1"></span><h2>6.2. Basic Tactics<a class="headerlink" href="#basic-tactics" title="Permalink to this headline">&#182;</a></h2>
+<p><code class="docutils literal"><span class="pre">intro</span> <span class="pre">id?</span></code></p>
+<blockquote>
+<div><p>If the current goal is a Pi / forall <code class="docutils literal"><span class="pre">&#8704;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">t,</span> <span class="pre">u</span></code> (resp. <code class="docutils literal"><span class="pre">let</span> <span class="pre">x</span> <span class="pre">:=</span> <span class="pre">t</span> <span class="pre">in</span> <span class="pre">u</span></code>) then <code class="docutils literal"><span class="pre">intro</span></code> puts <code class="docutils literal"><span class="pre">x</span> <span class="pre">:</span> <span class="pre">t</span></code> (resp. <code class="docutils literal"><span class="pre">x</span> <span class="pre">:=</span> <span class="pre">t</span></code>) in the local context. The new subgoal target is <code class="docutils literal"><span class="pre">u</span></code>.</p>
+<p>If the goal is an arrow <code class="docutils literal"><span class="pre">t</span> <span class="pre">&#8594;</span> <span class="pre">u</span></code>, then it puts <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span></code> in the local context and the new goal target is <code class="docutils literal"><span class="pre">u</span></code>.</p>
+<p>If the goal is neither a Pi/forall nor begins with a let binder, the tactic <code class="docutils literal"><span class="pre">intro</span></code> applies the tactic <code class="docutils literal"><span class="pre">whnf</span></code> until the tactic <code class="docutils literal"><span class="pre">intro</span></code> can be applied or the goal is not head reducible. In the latter case, the tactic fails.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">intros</span> <span class="pre">id*</span></code></p>
+<blockquote>
+<div><p>Similar to <code class="docutils literal"><span class="pre">intro</span></code> tactic. The tactic <code class="docutils literal"><span class="pre">intros</span></code> will keep introducing new hypotheses until the goal target is not a Pi/forall or let binder.</p>
+<p>The variant <code class="docutils literal"><span class="pre">intros</span> <span class="pre">h&#8321;</span> <span class="pre">...</span> <span class="pre">h&#8345;</span></code> introduces <code class="docutils literal"><span class="pre">n</span></code> new hypotheses using the given identifiers to name them.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">introv</span> <span class="pre">id*</span></code></p>
+<blockquote>
+<div><p>The tactic <code class="docutils literal"><span class="pre">introv</span></code> allows the user to automatically introduce the variables of a theorem and explicitly name the hypotheses involved. The given names are used to name non-dependent hypotheses.</p>
+<p>Examples:</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=example%20:%20%E2%88%80%20a%20b%20:%20nat,%20a%20=%20b%20%E2%86%92%20b%20=%20a%20:=%0Abegin%0Aintrov%20h,%0Aexact%20h.symm%0Aend" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">example</span> <span class="o">:</span> <span class="bp">&#8704;</span> <span class="n">a</span> <span class="n">b</span> <span class="o">:</span> <span class="n">nat</span><span class="o">,</span> <span class="n">a</span> <span class="bp">=</span> <span class="n">b</span> <span class="bp">&#8594;</span> <span class="n">b</span> <span class="bp">=</span> <span class="n">a</span> <span class="o">:=</span>
+<span class="kd">begin</span>
+<span class="n">introv</span> <span class="n">h</span><span class="o">,</span>
+<span class="n">exact</span> <span class="n">h.symm</span>
+<span class="kd">end</span>
+</pre></div>
+</div>
+</div><p>The state after <code class="docutils literal"><span class="pre">introv</span> <span class="pre">h</span></code> is</p>
+<div class="highlight-text"><div class="highlight"><pre>a b : &#8469;,
+h : a = b
+&#8866; b = a
+</pre></div>
+</div>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=example%20:%20%E2%88%80%20a%20b%20:%20nat,%20a%20=%20b%20%E2%86%92%20%E2%88%80%20c,%20b%20=%20c%20%E2%86%92%20a%20=%20c%20:=%0Abegin%0Aintrov%20h%E2%82%81%20h%E2%82%82,%0Aexact%20h%E2%82%81.trans%20h%E2%82%82%0Aend" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">example</span> <span class="o">:</span> <span class="bp">&#8704;</span> <span class="n">a</span> <span class="n">b</span> <span class="o">:</span> <span class="n">nat</span><span class="o">,</span> <span class="n">a</span> <span class="bp">=</span> <span class="n">b</span> <span class="bp">&#8594;</span> <span class="bp">&#8704;</span> <span class="n">c</span><span class="o">,</span> <span class="n">b</span> <span class="bp">=</span> <span class="n">c</span> <span class="bp">&#8594;</span> <span class="n">a</span> <span class="bp">=</span> <span class="n">c</span> <span class="o">:=</span>
+<span class="kd">begin</span>
+<span class="n">introv</span> <span class="n">h&#8321;</span> <span class="n">h&#8322;</span><span class="o">,</span>
+<span class="n">exact</span> <span class="n">h&#8321;.trans</span> <span class="n">h&#8322;</span>
+<span class="kd">end</span>
+</pre></div>
+</div>
+</div><p>The state after <code class="docutils literal"><span class="pre">introv</span> <span class="pre">h&#8321;</span> <span class="pre">h&#8322;</span></code> is</p>
+<div class="highlight-text"><div class="highlight"><pre>a b : &#8469;,
+h&#8321; : a = b,
+c : &#8469;,
+h&#8322; : b = c
+&#8866; a = c
+</pre></div>
+</div>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">rename</span> <span class="pre">id</span> <span class="pre">id</span></code></p>
+<blockquote>
+<div>The tactic <code class="docutils literal"><span class="pre">rename</span> <span class="pre">h&#8321;</span> <span class="pre">h&#8322;</span></code> renames hypothesis <code class="docutils literal"><span class="pre">h&#8321;</span></code> to <code class="docutils literal"><span class="pre">h&#8322;</span></code> in the current local context.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">apply</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div><p>The <code class="docutils literal"><span class="pre">apply</span></code> tactic tries to match the current goal against the conclusion of the type of term. The argument term should be a term well-formed in the local context of the main goal. If it succeeds, then the tactic returns as many subgoals as the number of premises that have not been fixed by type inference or type class resolution. Non-dependent premises are added before dependent ones.</p>
+<p>The <code class="docutils literal"><span class="pre">apply</span></code> tactic uses higher-order pattern matching, type class resolution, and first-order unification with dependent types.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">fapply</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div>Similar to the <code class="docutils literal"><span class="pre">apply</span></code> tactic, but does not reorder goals.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">eapply</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div>Similar to the <code class="docutils literal"><span class="pre">apply</span></code> tactic, but only creates subgoals for non-dependent premises that have not been fixed by type inference or type class resolution.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">apply_with</span> <span class="pre">expr</span> <span class="pre">(tactic.apply_cfg)</span></code></p>
+<blockquote>
+<div>Similar to the <code class="docutils literal"><span class="pre">apply</span></code> tactic, but allows the user to provide a <code class="docutils literal"><span class="pre">apply_cfg</span></code> configuration object.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">apply_instance</span></code></p>
+<blockquote>
+<div>This tactic tries to close the main goal <code class="docutils literal"><span class="pre">...</span> <span class="pre">&#8866;</span> <span class="pre">t</span></code> by generating a term of type <code class="docutils literal"><span class="pre">t</span></code> using type class resolution.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">refine</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div><p>This tactic behaves like <code class="docutils literal"><span class="pre">exact</span></code>, but with a big difference: the user can put underscores <code class="docutils literal"><span class="pre">_</span></code> in the expression as placeholders for holes that need to be filled, and <code class="docutils literal"><span class="pre">refine</span></code> will generate as many subgoals as there are holes.</p>
+<p>Note that some holes may be implicit. The type of each hole must either be synthesized by the system or declared by an explicit type ascription like <code class="docutils literal"><span class="pre">(_</span> <span class="pre">:</span> <span class="pre">nat</span> <span class="pre">&#8594;</span> <span class="pre">Prop)</span></code>.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">assumption</span></code></p>
+<blockquote>
+<div>This tactic looks in the local context for a hypothesis whose type is equal to the goal target. If it finds one, it uses it to prove the goal, and otherwise it fails.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">change</span> <span class="pre">expr</span> <span class="pre">(with</span> <span class="pre">expr)?</span> <span class="pre">(at</span> <span class="pre">(*</span> <span class="pre">|</span> <span class="pre">(&#8866;</span> <span class="pre">|</span> <span class="pre">id)*))?</span></code></p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">change</span> <span class="pre">u</span></code> replaces the target <code class="docutils literal"><span class="pre">t</span></code> of the main goal to <code class="docutils literal"><span class="pre">u</span></code> provided that <code class="docutils literal"><span class="pre">t</span></code> is well formed with respect to the local context of the main goal and <code class="docutils literal"><span class="pre">t</span></code> and <code class="docutils literal"><span class="pre">u</span></code> are definitionally equal.</p>
+<p><code class="docutils literal"><span class="pre">change</span> <span class="pre">u</span> <span class="pre">at</span> <span class="pre">h</span></code> will change a local hypothesis to <code class="docutils literal"><span class="pre">u</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">change</span> <span class="pre">t</span> <span class="pre">with</span> <span class="pre">u</span> <span class="pre">at</span> <span class="pre">h1</span> <span class="pre">h2</span> <span class="pre">...</span></code> will replace <code class="docutils literal"><span class="pre">t</span></code> with <code class="docutils literal"><span class="pre">u</span></code> in all the supplied hypotheses (or <code class="docutils literal"><span class="pre">*</span></code>), or in the goal if no <code class="docutils literal"><span class="pre">at</span></code> clause is specified, provided that <code class="docutils literal"><span class="pre">t</span></code> and <code class="docutils literal"><span class="pre">u</span></code> are definitionally equal.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">exact</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div>This tactic provides an exact proof term to solve the main goal. If <code class="docutils literal"><span class="pre">t</span></code> is the goal and <code class="docutils literal"><span class="pre">p</span></code> is a term of type <code class="docutils literal"><span class="pre">u</span></code> then <code class="docutils literal"><span class="pre">exact</span> <span class="pre">p</span></code> succeeds if and only if <code class="docutils literal"><span class="pre">t</span></code> and <code class="docutils literal"><span class="pre">u</span></code> can be unified.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">exacts</span> <span class="pre">([expr,</span> <span class="pre">...]</span> <span class="pre">|</span> <span class="pre">expr)</span></code></p>
+<blockquote>
+<div>Like <code class="docutils literal"><span class="pre">exact</span></code>, but takes a list of terms and checks that all goals are discharged after the tactic.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">revert</span> <span class="pre">id*</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">revert</span> <span class="pre">h&#8321;</span> <span class="pre">...</span> <span class="pre">h&#8345;</span></code> applies to any goal with hypotheses <code class="docutils literal"><span class="pre">h&#8321;</span> <span class="pre">...</span> <span class="pre">h&#8345;</span></code>. It moves the hypotheses and their dependencies to the target of the goal. This tactic is the inverse of <cite>intro</cite>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">generalize</span> <span class="pre">id?</span> <span class="pre">:</span> <span class="pre">expr</span> <span class="pre">=</span> <span class="pre">id</span></code></p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">generalize</span> <span class="pre">:</span> <span class="pre">e</span> <span class="pre">=</span> <span class="pre">x</span></code> replaces all occurrences of <code class="docutils literal"><span class="pre">e</span></code> in the target with a new hypothesis <code class="docutils literal"><span class="pre">x</span></code> of the same type.</p>
+<p><code class="docutils literal"><span class="pre">generalize</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">e</span> <span class="pre">=</span> <span class="pre">x</span></code> in addition registers the hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">e</span> <span class="pre">=</span> <span class="pre">x</span></code>.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">admit</span></code></p>
+<blockquote>
+<div>Closes the main goal using <code class="docutils literal"><span class="pre">sorry</span></code>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">contradiction</span></code></p>
+<blockquote>
+<div>The contradiction tactic attempts to find in the current local context an hypothesis that is equivalent to an empty inductive type (e.g. <code class="docutils literal"><span class="pre">false</span></code>), a hypothesis of the form <code class="docutils literal"><span class="pre">c_1</span> <span class="pre">...</span> <span class="pre">=</span> <span class="pre">c_2</span> <span class="pre">...</span></code> where <code class="docutils literal"><span class="pre">c_1</span></code> and <code class="docutils literal"><span class="pre">c_2</span></code> are distinct constructors, or two contradictory hypotheses.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">trivial</span></code></p>
+<blockquote>
+<div>Tries to solve the current goal using a canonical proof of <code class="docutils literal"><span class="pre">true</span></code>, or the <code class="docutils literal"><span class="pre">reflexivity</span></code> tactic, or the <cite>contradiction</cite> tactic.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">exfalso</span></code></p>
+<blockquote>
+<div>Replaces the target of the main goal by <code class="docutils literal"><span class="pre">false</span></code>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">clear</span> <span class="pre">id*</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">clear</span> <span class="pre">h&#8321;</span> <span class="pre">...</span> <span class="pre">h&#8345;</span></code> tries to clear each hypothesis <code class="docutils literal"><span class="pre">h&#7522;</span></code> from the local context.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">specialize</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div>The tactic <code class="docutils literal"><span class="pre">specialize</span> <span class="pre">h</span> <span class="pre">a&#8321;</span> <span class="pre">...</span> <span class="pre">a&#8345;</span></code> works on local hypothesis <code class="docutils literal"><span class="pre">h</span></code>. The premises of this hypothesis, either universal quantifications or non-dependent implications, are instantiated by concrete terms coming either from arguments <code class="docutils literal"><span class="pre">a&#8321;</span></code> &#8230; <code class="docutils literal"><span class="pre">a&#8345;</span></code>. The tactic adds a new hypothesis with the same name <code class="docutils literal"><span class="pre">h</span> <span class="pre">:=</span> <span class="pre">h</span> <span class="pre">a&#8321;</span> <span class="pre">...</span> <span class="pre">a&#8345;</span></code> and tries to clear the previous one.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">by_cases</span> <span class="pre">expr</span> <span class="pre">(with</span> <span class="pre">id)?</span></code></p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">by_cases</span> <span class="pre">p</span> <span class="pre">with</span> <span class="pre">h</span></code> splits the main goal into two cases, assuming <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">p</span></code> in the first branch, and <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">&#172;</span> <span class="pre">p</span></code> in the second branch.</p>
+<p>This tactic requires that <code class="docutils literal"><span class="pre">p</span></code> is decidable. To ensure that all propositions are decidable via classical reasoning, use  <code class="docutils literal"><span class="pre">local</span> <span class="pre">attribute</span> <span class="pre">classical.prop_decidable</span> <span class="pre">[instance]</span></code>.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">by_contradiction</span> <span class="pre">id?</span></code></p>
+<blockquote>
+<div><p>If the target of the main goal is a proposition <code class="docutils literal"><span class="pre">p</span></code>, <code class="docutils literal"><span class="pre">by_contradiction</span> <span class="pre">h</span></code> reduces to goal to proving <code class="docutils literal"><span class="pre">false</span></code> using the additional hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">&#172;</span> <span class="pre">p</span></code>. If <code class="docutils literal"><span class="pre">h</span></code> is omitted, a name is generated automatically.</p>
+<p>This tactic requires that <code class="docutils literal"><span class="pre">p</span></code> is decidable. To ensure that all propositions are decidable via classical reasoning, use  <code class="docutils literal"><span class="pre">local</span> <span class="pre">attribute</span> <span class="pre">classical.prop_decidable</span> <span class="pre">[instance]</span></code>.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">by_contra</span> <span class="pre">id?</span></code></p>
+<blockquote>
+<div>An abbreviation for <code class="docutils literal"><span class="pre">by_contradiction</span></code>.</div></blockquote>
+</div>
+<div class="section" id="equality-and-other-relations">
+<h2>6.3. Equality and Other Relations<a class="headerlink" href="#equality-and-other-relations" title="Permalink to this headline">&#182;</a></h2>
+<p><code class="docutils literal"><span class="pre">reflexivity</span></code></p>
+<blockquote>
+<div>This tactic applies to a goal whose goal has the form <code class="docutils literal"><span class="pre">t</span> <span class="pre">~</span> <span class="pre">u</span></code> where <code class="docutils literal"><span class="pre">~</span></code> is a reflexive relation, that is, a relation which has a reflexivity lemma tagged with the attribute <code class="docutils literal"><span class="pre">[refl]</span></code>. The tactic checks whether <code class="docutils literal"><span class="pre">t</span></code> and <code class="docutils literal"><span class="pre">u</span></code> are definitionally equal and then solves the goal.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">refl</span></code></p>
+<blockquote>
+<div>Shorter name for the tactic <code class="docutils literal"><span class="pre">reflexivity</span></code>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">symmetry</span></code></p>
+<blockquote>
+<div>This tactic applies to a goal whose target has the form <code class="docutils literal"><span class="pre">t</span> <span class="pre">~</span> <span class="pre">u</span></code> where <code class="docutils literal"><span class="pre">~</span></code> is a symmetric relation, that is, a relation which has a symmetry lemma tagged with the attribute <code class="docutils literal"><span class="pre">[symm]</span></code>. It replaces the goal with <code class="docutils literal"><span class="pre">u</span> <span class="pre">~</span> <span class="pre">t</span></code>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">transitivity</span> <span class="pre">?expr</span></code></p>
+<blockquote>
+<div><p>This tactic applies to a goal whose target has the form <code class="docutils literal"><span class="pre">t</span> <span class="pre">~</span> <span class="pre">u</span></code> where <code class="docutils literal"><span class="pre">~</span></code> is a transitive relation, that is, a relation which has a transitivity lemma tagged with the attribute <code class="docutils literal"><span class="pre">[trans]</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">transitivity</span> <span class="pre">s</span></code> replaces the goal with the two subgoals <code class="docutils literal"><span class="pre">t</span> <span class="pre">~</span> <span class="pre">s</span></code> and <code class="docutils literal"><span class="pre">s</span> <span class="pre">~</span> <span class="pre">u</span></code>. If <code class="docutils literal"><span class="pre">s</span></code> is omitted, then a metavariable is used instead.</p>
+</div></blockquote>
+</div>
+<div class="section" id="structured-tactic-proofs">
+<span id="id2"></span><h2>6.4. Structured Tactic Proofs<a class="headerlink" href="#structured-tactic-proofs" title="Permalink to this headline">&#182;</a></h2>
+<p>Tactic blocks can have nested <code class="docutils literal"><span class="pre">begin</span> <span class="pre">...</span> <span class="pre">end</span></code> blocks and, equivalently, blocks <code class="docutils literal"><span class="pre">{</span> <span class="pre">...</span> <span class="pre">}</span></code> enclosed with curly braces. Opening such a block focuses on the current goal, so that no other goals are visible within the nested block. Closing a block while any subgoals remain results in an error.</p>
+<p><code class="docutils literal"><span class="pre">assume</span> <span class="pre">(:</span> <span class="pre">expr</span> <span class="pre">|</span> <span class="pre">&lt;binders&gt;)</span></code></p>
+<blockquote>
+<div><p>Assuming the target of the goal is a Pi or a let, <code class="docutils literal"><span class="pre">assume</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span></code> unifies the type of the binder with <code class="docutils literal"><span class="pre">t</span></code> and introduces it with name <code class="docutils literal"><span class="pre">h</span></code>, just like <code class="docutils literal"><span class="pre">intro</span> <span class="pre">h</span></code>. If <code class="docutils literal"><span class="pre">h</span></code> is absent, the tactic uses the name <code class="docutils literal"><span class="pre">this</span></code>. If <code class="docutils literal"><span class="pre">T</span></code> is omitted, it will be inferred.</p>
+<p><code class="docutils literal"><span class="pre">assume</span> <span class="pre">(h&#8321;</span> <span class="pre">:</span> <span class="pre">t&#8321;)</span> <span class="pre">...</span> <span class="pre">(h&#8345;</span> <span class="pre">:</span> <span class="pre">t&#8345;)</span></code> introduces multiple hypotheses. Any of the types may be omitted, but the names must be present.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">have</span> <span class="pre">id?</span> <span class="pre">(:</span> <span class="pre">expr)?</span> <span class="pre">(:=</span> <span class="pre">expr)?</span></code></p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">have</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span> <span class="pre">:=</span> <span class="pre">p</span></code> adds the hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span></code> to the current goal if <code class="docutils literal"><span class="pre">p</span></code> a term of type <code class="docutils literal"><span class="pre">t</span></code>. If <code class="docutils literal"><span class="pre">t</span></code> is omitted, it will be inferred.</p>
+<p><code class="docutils literal"><span class="pre">have</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span></code> adds the hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span></code> to the current goal and opens a new subgoal with target <code class="docutils literal"><span class="pre">t</span></code>. The new subgoal becomes the main goal. If <code class="docutils literal"><span class="pre">t</span></code> is omitted, it will be replaced by a fresh metavariable.</p>
+<p>If <code class="docutils literal"><span class="pre">h</span></code> is omitted, the name <code class="docutils literal"><span class="pre">this</span></code> is used.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">let</span> <span class="pre">id?</span> <span class="pre">(:</span> <span class="pre">expr)?</span> <span class="pre">(:=</span> <span class="pre">expr)?</span></code></p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">let</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">T</span> <span class="pre">:=</span> <span class="pre">p</span></code> adds the hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span> <span class="pre">:=</span> <span class="pre">p</span></code> to the current goal if <code class="docutils literal"><span class="pre">p</span></code> a term of type <code class="docutils literal"><span class="pre">t</span></code>. If <cite>t</cite> is omitted, it will be inferred.</p>
+<p><code class="docutils literal"><span class="pre">let</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span></code> adds the hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span> <span class="pre">:=</span> <span class="pre">?M</span></code> to the current goal and opens a new subgoal <code class="docutils literal"><span class="pre">?M</span> <span class="pre">:</span> <span class="pre">t</span></code>. The new subgoal becomes the main goal. If <code class="docutils literal"><span class="pre">t</span></code> is omitted, it will be replaced by a fresh metavariable.</p>
+<p>If <code class="docutils literal"><span class="pre">h</span></code> is omitted, the name <code class="docutils literal"><span class="pre">this</span></code> is used.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">suffices</span> <span class="pre">id?</span> <span class="pre">(:</span> <span class="pre">expr)?</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">suffices</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span></code> is the same as <code class="docutils literal"><span class="pre">have</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">t,</span> <span class="pre">tactic.swap</span></code>. In other words, it adds the hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span></code> to the current goal and opens a new subgoal with target <code class="docutils literal"><span class="pre">t</span></code>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">show</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">show</span> <span class="pre">t</span></code> finds the first goal whose target unifies with <code class="docutils literal"><span class="pre">t</span></code>. It makes that the main goal, performs the unification, and replaces the target with the unified version of <code class="docutils literal"><span class="pre">t</span></code>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">from</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div>A synonym for <code class="docutils literal"><span class="pre">exact</span></code> that allows writing <code class="docutils literal"><span class="pre">have/suffices/show</span> <span class="pre">...,</span> <span class="pre">from</span> <span class="pre">...</span></code> in tactic mode.</div></blockquote>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=variables%20(p%20q%20:%20Prop)%0A%0Aexample%20:%20p%20%E2%88%A7%20(p%20%E2%86%92%20q)%20%E2%86%92%20q%20%E2%88%A7%20p%20:=%0Abegin%0A%20%20assume%20h%20:%20p%20%E2%88%A7%20(p%20%E2%86%92%20q),%0A%20%20have%20h%E2%82%81%20:%20p,%20from%20and.left%20h,%0A%20%20have%20:%20p%20%E2%86%92%20q%20:=%20and.right%20h,%0A%20%20suffices%20:%20q,%20from%20and.intro%20this%20h%E2%82%81,%0A%20%20show%20q,%20from%20%E2%80%B9p%20%E2%86%92%20q%E2%80%BA%20h%E2%82%81%0Aend%0A%0Aexample%20(p%20q%20:%20Prop)%20:%20p%20%E2%86%92%20p%20%E2%86%92%20p%20:=%0Abegin%0A%20%20assume%20h%20(h'%20:%20p),%0A%20%20from%20h%0Aend%0A%0Aexample%20:%20%E2%88%83%20x,%20x%20=%205%20:=%0Abegin%0A%20%20let%20u%20:=%203%20+%202,%0A%20%20existsi%20u,%20reflexivity%0Aend" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">variables</span> <span class="o">(</span><span class="n">p</span> <span class="n">q</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">)</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="n">p</span> <span class="bp">&#8743;</span> <span class="o">(</span><span class="n">p</span> <span class="bp">&#8594;</span> <span class="n">q</span><span class="o">)</span> <span class="bp">&#8594;</span> <span class="n">q</span> <span class="bp">&#8743;</span> <span class="n">p</span> <span class="o">:=</span>
+<span class="kd">begin</span>
+  <span class="k">assume</span> <span class="n">h</span> <span class="o">:</span> <span class="n">p</span> <span class="bp">&#8743;</span> <span class="o">(</span><span class="n">p</span> <span class="bp">&#8594;</span> <span class="n">q</span><span class="o">),</span>
+  <span class="k">have</span> <span class="n">h&#8321;</span> <span class="o">:</span> <span class="n">p</span><span class="o">,</span> <span class="k">from</span> <span class="n">and.left</span> <span class="n">h</span><span class="o">,</span>
+  <span class="k">have</span> <span class="o">:</span> <span class="n">p</span> <span class="bp">&#8594;</span> <span class="n">q</span> <span class="o">:=</span> <span class="n">and.right</span> <span class="n">h</span><span class="o">,</span>
+  <span class="k">suffices</span> <span class="o">:</span> <span class="n">q</span><span class="o">,</span> <span class="k">from</span> <span class="n">and.intro</span> <span class="n">this</span> <span class="n">h&#8321;</span><span class="o">,</span>
+  <span class="k">show</span> <span class="n">q</span><span class="o">,</span> <span class="k">from</span> <span class="o">&#8249;</span><span class="n">p</span> <span class="bp">&#8594;</span> <span class="n">q</span><span class="o">&#8250;</span> <span class="n">h&#8321;</span>
+<span class="kd">end</span>
+
+<span class="kd">example</span> <span class="o">(</span><span class="n">p</span> <span class="n">q</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">)</span> <span class="o">:</span> <span class="n">p</span> <span class="bp">&#8594;</span> <span class="n">p</span> <span class="bp">&#8594;</span> <span class="n">p</span> <span class="o">:=</span>
+<span class="kd">begin</span>
+  <span class="k">assume</span> <span class="n">h</span> <span class="o">(</span><span class="n">h&#39;</span> <span class="o">:</span> <span class="n">p</span><span class="o">),</span>
+  <span class="k">from</span> <span class="n">h</span>
+<span class="kd">end</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="bp">&#8707;</span> <span class="n">x</span><span class="o">,</span> <span class="n">x</span> <span class="bp">=</span> <span class="mi">5</span> <span class="o">:=</span>
+<span class="kd">begin</span>
+  <span class="k">let</span> <span class="n">u</span> <span class="o">:=</span> <span class="mi">3</span> <span class="bp">+</span> <span class="mi">2</span><span class="o">,</span>
+  <span class="n">existsi</span> <span class="n">u</span><span class="o">,</span> <span class="n">reflexivity</span>
+<span class="kd">end</span>
+</pre></div>
+</div>
+</div></div>
+<div class="section" id="inductive-types">
+<span id="tactics-for-inductive-types"></span><h2>6.5. Inductive Types<a class="headerlink" href="#inductive-types" title="Permalink to this headline">&#182;</a></h2>
+<p>The following tactics are designed specifically to work with elements on an inductive type.</p>
+<p><code class="docutils literal"><span class="pre">induction</span> <span class="pre">expr</span> <span class="pre">(using</span> <span class="pre">id)?</span> <span class="pre">(with</span> <span class="pre">id*)?</span> <span class="pre">(generalizing</span> <span class="pre">id*)?</span></code></p>
+<blockquote>
+<div><p>Assuming <code class="docutils literal"><span class="pre">x</span></code> is a variable in the local context with an inductive type, <code class="docutils literal"><span class="pre">induction</span> <span class="pre">x</span></code> applies induction on <code class="docutils literal"><span class="pre">x</span></code> to the main goal, producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor and an inductive hypothesis is added for each recursive argument to the constructor. If the type of an element in the local context depends on <code class="docutils literal"><span class="pre">x</span></code>, that element is reverted and reintroduced afterward, so that the inductive hypothesis incorporates that hypothesis as well.</p>
+<p>For example, given <code class="docutils literal"><span class="pre">n</span> <span class="pre">:</span> <span class="pre">nat</span></code> and a goal with a hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">P</span> <span class="pre">n</span></code> and target <code class="docutils literal"><span class="pre">Q</span> <span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">induction</span> <span class="pre">n</span></code> produces one goal with hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">P</span> <span class="pre">0</span></code> and target <code class="docutils literal"><span class="pre">Q</span> <span class="pre">0</span></code>, and one goal with hypotheses <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">P</span> <span class="pre">(nat.succ</span> <span class="pre">a)</span></code> and <code class="docutils literal"><span class="pre">ih&#8321;</span> <span class="pre">:</span> <span class="pre">P</span> <span class="pre">a</span> <span class="pre">&#8594;</span> <span class="pre">Q</span> <span class="pre">a</span></code> and target <code class="docutils literal"><span class="pre">Q</span> <span class="pre">(nat.succ</span> <span class="pre">a)</span></code>. Here the names <code class="docutils literal"><span class="pre">a</span></code> and <code class="docutils literal"><span class="pre">ih&#8321;</span></code> ire chosen automatically.</p>
+<p><code class="docutils literal"><span class="pre">induction</span> <span class="pre">e</span></code>, where <code class="docutils literal"><span class="pre">e</span></code> is an expression instead of a variable, generalizes <code class="docutils literal"><span class="pre">e</span></code> in the goal, and then performs induction on the resulting variable.</p>
+<p><code class="docutils literal"><span class="pre">induction</span> <span class="pre">e</span> <span class="pre">with</span> <span class="pre">y&#8321;</span> <span class="pre">...</span> <span class="pre">y&#8345;</span></code>, where <code class="docutils literal"><span class="pre">e</span></code> is a variable or an expression, specifies that the sequence of names <code class="docutils literal"><span class="pre">y&#8321;</span> <span class="pre">...</span> <span class="pre">y&#8345;</span></code> should be used for the arguments to the constructors and inductive hypotheses, including implicit arguments. If the list does not include enough names for all of the arguments, additional names are generated automatically. If too many names are given, the extra ones are ignored. Underscores can be used in the list, in which case the corresponding names are generated automatically.</p>
+<p><code class="docutils literal"><span class="pre">induction</span> <span class="pre">e</span> <span class="pre">using</span> <span class="pre">r</span></code> allows the user to specify the principle of induction that should be used. Here <code class="docutils literal"><span class="pre">r</span></code> should be a theorem whose result type must be of the form <code class="docutils literal"><span class="pre">C</span> <span class="pre">t</span></code>, where <code class="docutils literal"><span class="pre">C</span></code> is a bound variable and <code class="docutils literal"><span class="pre">t</span></code> is a (possibly empty) sequence of bound variables</p>
+<p><code class="docutils literal"><span class="pre">induction</span> <span class="pre">e</span> <span class="pre">generalizing</span> <span class="pre">z&#8321;</span> <span class="pre">...</span> <span class="pre">z&#8345;</span></code>, where <code class="docutils literal"><span class="pre">z&#8321;</span> <span class="pre">...</span> <span class="pre">z&#8345;</span></code> are variables in the local context, generalizes over <code class="docutils literal"><span class="pre">z&#8321;</span> <span class="pre">...</span> <span class="pre">z&#8345;</span></code> before applying the induction but then introduces them in each goal. In other words, the net effect is that each inductive hypothesis is generalized.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">cases</span> <span class="pre">(id</span> <span class="pre">:)?</span> <span class="pre">expr</span> <span class="pre">(with</span> <span class="pre">id*)?</span></code></p>
+<blockquote>
+<div><p>Assuming <code class="docutils literal"><span class="pre">x</span></code> is a variable in the local context with an inductive type, <code class="docutils literal"><span class="pre">cases</span> <span class="pre">x</span></code> splits the main goal, producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor. If the type of an element in the local context depends on <code class="docutils literal"><span class="pre">x</span></code>, that element is reverted and reintroduced afterward, so that the case split affects that hypothesis as well.</p>
+<p>For example, given <code class="docutils literal"><span class="pre">n</span> <span class="pre">:</span> <span class="pre">nat</span></code> and a goal with a hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">P</span> <span class="pre">n</span></code> and target <code class="docutils literal"><span class="pre">Q</span> <span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">cases</span> <span class="pre">n</span></code> produces one goal with hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">P</span> <span class="pre">0</span></code> and target <code class="docutils literal"><span class="pre">Q</span> <span class="pre">0</span></code>, and one goal with hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">P</span> <span class="pre">(nat.succ</span> <span class="pre">a)</span></code> and target <code class="docutils literal"><span class="pre">Q</span> <span class="pre">(nat.succ</span> <span class="pre">a)</span></code>. Here the name <code class="docutils literal"><span class="pre">a</span></code> is chosen automatically.</p>
+<p><code class="docutils literal"><span class="pre">cases</span> <span class="pre">e</span></code>, where <code class="docutils literal"><span class="pre">e</span></code> is an expression instead of a variable, generalizes <code class="docutils literal"><span class="pre">e</span></code> in the goal, and then cases on the resulting variable.</p>
+<p><code class="docutils literal"><span class="pre">cases</span> <span class="pre">e</span> <span class="pre">with</span> <span class="pre">y&#8321;</span> <span class="pre">...</span> <span class="pre">y&#8345;</span></code>, where <code class="docutils literal"><span class="pre">e</span></code> is a variable or an expression, specifies that the sequence of names <code class="docutils literal"><span class="pre">y&#8321;</span> <span class="pre">...</span> <span class="pre">y&#8345;</span></code> should be used for the arguments to the constructors, including implicit arguments. If the list does not include enough names for all of the arguments, additional names are generated automatically. If too many names are given, the extra ones are ignored. Underscores can be used in the list, in which case the corresponding names are generated automatically.</p>
+<p><code class="docutils literal"><span class="pre">cases</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">e</span></code>, where <code class="docutils literal"><span class="pre">e</span></code> is a variable or an expression, performs cases on <code class="docutils literal"><span class="pre">e</span></code> as above, but also adds a hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">e</span> <span class="pre">=</span> <span class="pre">...</span></code> to each hypothesis, where <code class="docutils literal"><span class="pre">...</span></code> is the constructor instance for that particular case.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">case</span> <span class="pre">id</span> <span class="pre">id*</span> <span class="pre">{</span> <span class="pre">tactic</span> <span class="pre">}</span></code></p>
+<blockquote>
+<div><p>Focuses on the <code class="docutils literal"><span class="pre">induction</span></code>/<code class="docutils literal"><span class="pre">cases</span></code> subgoal corresponding to the given introduction rule, optionally renaming introduced locals.</p>
+<div class="highlight-text"><div class="highlight"><pre>example (n : &#8469;) : n = n :=
+begin
+  induction n,
+  case nat.zero { reflexivity },
+  case nat.succ a ih { reflexivity }
+end
+</pre></div>
+</div>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">destruct</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div><p>Assuming <code class="docutils literal"><span class="pre">x</span></code> is a variable in the local context with an inductive type, <code class="docutils literal"><span class="pre">destruct</span> <span class="pre">x</span></code> splits the main goal, producing one goal for each constructor of the inductive type, in which <code class="docutils literal"><span class="pre">x</span></code> is assumed to be a general instance of that constructor. In contrast to <code class="docutils literal"><span class="pre">cases</span></code>, the local context is unchanged, i.e. no elements are reverted or introduced.</p>
+<p>For example, given <code class="docutils literal"><span class="pre">n</span> <span class="pre">:</span> <span class="pre">nat</span></code> and a goal with a hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">P</span> <span class="pre">n</span></code> and target <code class="docutils literal"><span class="pre">Q</span> <span class="pre">n</span></code>, <code class="docutils literal"><span class="pre">destruct</span> <span class="pre">n</span></code> produces one goal with target <code class="docutils literal"><span class="pre">n</span> <span class="pre">=</span> <span class="pre">0</span> <span class="pre">&#8594;</span> <span class="pre">Q</span> <span class="pre">n</span></code>, and one goal with target <code class="docutils literal"><span class="pre">&#8704;</span> <span class="pre">(a</span> <span class="pre">:</span> <span class="pre">&#8469;),</span> <span class="pre">(&#955;</span> <span class="pre">(w</span> <span class="pre">:</span> <span class="pre">&#8469;),</span> <span class="pre">n</span> <span class="pre">=</span> <span class="pre">w</span> <span class="pre">&#8594;</span> <span class="pre">Q</span> <span class="pre">n)</span> <span class="pre">(nat.succ</span> <span class="pre">a)</span></code>. Here the name <code class="docutils literal"><span class="pre">a</span></code> is chosen automatically.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">existsi</span></code></p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">existsi</span> <span class="pre">e</span></code> will instantiate an existential quantifier in the target with <code class="docutils literal"><span class="pre">e</span></code> and leave the instantiated body as the new target. More generally, it applies to any inductive type with one constructor and at least two arguments, applying the constructor with <code class="docutils literal"><span class="pre">e</span></code> as the first argument and leaving the remaining arguments as goals.</p>
+<p><code class="docutils literal"><span class="pre">existsi</span> <span class="pre">[e&#8321;,</span> <span class="pre">...,</span> <span class="pre">e&#8345;]</span></code> iteratively does the same for each expression in the list.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">constructor</span></code></p>
+<blockquote>
+<div>This tactic applies to a goal such that its conclusion is an inductive type (say <code class="docutils literal"><span class="pre">I</span></code>). It tries to apply each constructor of <code class="docutils literal"><span class="pre">I</span></code> until it succeeds.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">econstructor</span></code></p>
+<blockquote>
+<div>Similar to <code class="docutils literal"><span class="pre">constructor</span></code>, but only non-dependent premises are added as new goals.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">left</span></code></p>
+<blockquote>
+<div>Applies the first constructor when the type of the target is an inductive data type with two constructors.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">right</span></code></p>
+<blockquote>
+<div>Applies the second constructor when the type of the target is an inductive data type with two constructors.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">split</span></code></p>
+<blockquote>
+<div>Applies the constructor when the type of the target is an inductive data type with one constructor.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">injection</span> <span class="pre">expr</span> <span class="pre">(with</span> <span class="pre">id*)?</span></code></p>
+<blockquote>
+<div><p>The <code class="docutils literal"><span class="pre">injection</span></code> tactic is based on the fact that constructors of inductive data types are injections. That means that if <code class="docutils literal"><span class="pre">c</span></code> is a constructor of an inductive datatype, and if <code class="docutils literal"><span class="pre">(c</span> <span class="pre">t&#8321;)</span></code> and <code class="docutils literal"><span class="pre">(c</span> <span class="pre">t&#8322;)</span></code> are two terms that are equal then  <code class="docutils literal"><span class="pre">t&#8321;</span></code> and <code class="docutils literal"><span class="pre">t&#8322;</span></code> are equal too.</p>
+<p>If <code class="docutils literal"><span class="pre">q</span></code> is a proof of a statement of conclusion <code class="docutils literal"><span class="pre">t&#8321;</span> <span class="pre">=</span> <span class="pre">t&#8322;</span></code>, then injection applies injectivity to derive the equality of all arguments of <code class="docutils literal"><span class="pre">t&#8321;</span></code> and <code class="docutils literal"><span class="pre">t&#8322;</span></code> placed in the same positions. For example, from <code class="docutils literal"><span class="pre">(a::b)</span> <span class="pre">=</span> <span class="pre">(c::d)</span></code> we derive <code class="docutils literal"><span class="pre">a=c</span></code> and <code class="docutils literal"><span class="pre">b=d</span></code>. To use this tactic <code class="docutils literal"><span class="pre">t&#8321;</span></code> and <code class="docutils literal"><span class="pre">t&#8322;</span></code> should be constructor applications of the same constructor.</p>
+<p>Given <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">a::b</span> <span class="pre">=</span> <span class="pre">c::d</span></code>, the tactic <code class="docutils literal"><span class="pre">injection</span> <span class="pre">h</span></code> adds two new hypothesis with types <code class="docutils literal"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">c</span></code> and <code class="docutils literal"><span class="pre">b</span> <span class="pre">=</span> <span class="pre">d</span></code> to the main goal. The tactic <code class="docutils literal"><span class="pre">injection</span> <span class="pre">h</span> <span class="pre">with</span> <span class="pre">h&#8321;</span> <span class="pre">h&#8322;</span></code> uses the names <code class="docutils literal"><span class="pre">h&#8321;</span></code> an <code class="docutils literal"><span class="pre">h&#8322;</span></code> to name the new hypotheses.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">injections</span> <span class="pre">(with</span> <span class="pre">id*)?</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">injections</span> <span class="pre">with</span> <span class="pre">h&#8321;</span> <span class="pre">...</span> <span class="pre">h&#8345;</span></code> iteratively applies <code class="docutils literal"><span class="pre">injection</span></code> to hypotheses using the names <code class="docutils literal"><span class="pre">h&#8321;</span> <span class="pre">...</span> <span class="pre">h&#8345;</span></code>.</div></blockquote>
+</div>
+<div class="section" id="tactic-combinators">
+<span id="id3"></span><h2>6.6. Tactic Combinators<a class="headerlink" href="#tactic-combinators" title="Permalink to this headline">&#182;</a></h2>
+<p><em>Tactic combinators</em> build compound tactics from simpler ones.</p>
+<p><code class="docutils literal"><span class="pre">repeat</span> <span class="pre">{</span> <span class="pre">tactic</span> <span class="pre">}</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">repeat</span> <span class="pre">{</span> <span class="pre">t</span> <span class="pre">}</span></code> repeatedly applies <code class="docutils literal"><span class="pre">t</span></code> until <code class="docutils literal"><span class="pre">t</span></code> fails. The compound tactic always succeeds.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">try</span> <span class="pre">{</span> <span class="pre">tactic</span> <span class="pre">}</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">try</span> <span class="pre">{</span> <span class="pre">t</span> <span class="pre">}</span></code> tries to apply tactic <code class="docutils literal"><span class="pre">t</span></code>, but succeeds whether or not <code class="docutils literal"><span class="pre">t</span></code> succeeds.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">skip</span></code></p>
+<blockquote>
+<div>A do-nothing tactic that always succeeds.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">solve1</span> <span class="pre">{</span> <span class="pre">tactic</span> <span class="pre">}</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">solve1</span> <span class="pre">{</span> <span class="pre">t</span> <span class="pre">}</span></code> applies the tactic <code class="docutils literal"><span class="pre">t</span></code> to the main goal and fails if it is not solved.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">abstract</span> <span class="pre">id?</span> <span class="pre">{</span> <span class="pre">tactic</span> <span class="pre">}</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">abstract</span> <span class="pre">id</span> <span class="pre">{</span> <span class="pre">t</span> <span class="pre">}</span></code> tries to use tactic <code class="docutils literal"><span class="pre">t</span></code> to solve the main goal. If it succeeds, it abstracts the goal as an independent definition or theorem with name <code class="docutils literal"><span class="pre">id</span></code>. If <code class="docutils literal"><span class="pre">id</span></code> is omitted, a name is generated automatically.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">all_goals</span> <span class="pre">{</span> <span class="pre">tactic</span> <span class="pre">}</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">all_goals</span> <span class="pre">{</span> <span class="pre">t</span> <span class="pre">}</span></code> applies the tactic <code class="docutils literal"><span class="pre">t</span></code> to every goal, and succeeds if each application succeeds.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">any_goals</span> <span class="pre">{</span> <span class="pre">tactic</span> <span class="pre">}</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">any_goals</span> <span class="pre">{</span> <span class="pre">t</span> <span class="pre">}</span></code> applies the tactic <code class="docutils literal"><span class="pre">t</span></code> to every goal, and succeeds if at least one application succeeds.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">done</span></code></p>
+<blockquote>
+<div>Fail if there are unsolved goals.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">fail_if_success</span> <span class="pre">{</span> <span class="pre">tactic</span> <span class="pre">}</span></code></p>
+<blockquote>
+<div>Fails if the given tactic succeeds.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">success_if_fail</span> <span class="pre">{</span> <span class="pre">tactic</span> <span class="pre">}</span></code></p>
+<blockquote>
+<div>Succeeds if the given tactic succeeds.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">guard_target</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">guard_target</span> <span class="pre">t</span></code> fails if the target of the main goal is not <code class="docutils literal"><span class="pre">t</span></code>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">guard_hyp</span> <span class="pre">id</span> <span class="pre">:=</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">guard_hyp</span> <span class="pre">h</span> <span class="pre">:=</span> <span class="pre">t</span></code> fails if the hypothesis <code class="docutils literal"><span class="pre">h</span></code> does not have type <code class="docutils literal"><span class="pre">t</span></code>.</div></blockquote>
+</div>
+<div class="section" id="the-rewriter">
+<span id="id4"></span><h2>6.7. The Rewriter<a class="headerlink" href="#the-rewriter" title="Permalink to this headline">&#182;</a></h2>
+<p><code class="docutils literal"><span class="pre">rewrite</span> <span class="pre">([</span> <span class="pre">(&#8592;?</span> <span class="pre">expr),</span> <span class="pre">...</span> <span class="pre">]</span> <span class="pre">|</span> <span class="pre">&#8592;?</span> <span class="pre">expr)</span> <span class="pre">(at</span> <span class="pre">(*</span> <span class="pre">|</span> <span class="pre">(&#8866;</span> <span class="pre">|</span> <span class="pre">id)*))?</span> <span class="pre">tactic.rewrite_cfg?</span></code></p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">rewrite</span> <span class="pre">e</span></code> applies identity <code class="docutils literal"><span class="pre">e</span></code> as a rewrite rule to the target of the main goal. If <code class="docutils literal"><span class="pre">e</span></code> is preceded by left arrow (<code class="docutils literal"><span class="pre">&#8592;</span></code> or <code class="docutils literal"><span class="pre">&lt;-</span></code>), the rewrite is applied in the reverse direction. If <code class="docutils literal"><span class="pre">e</span></code> is a defined constant, then the equational lemmas associated with <code class="docutils literal"><span class="pre">e</span></code> are used. This provides a convenient way to unfold <code class="docutils literal"><span class="pre">e</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">rewrite</span> <span class="pre">[e&#8321;,</span> <span class="pre">...,</span> <span class="pre">e&#8345;]</span></code> applies the given rules sequentially.</p>
+<p><code class="docutils literal"><span class="pre">rewrite</span> <span class="pre">e</span> <span class="pre">at</span> <span class="pre">l</span></code> rewrites <code class="docutils literal"><span class="pre">e</span></code> at location(s) <code class="docutils literal"><span class="pre">l</span></code>, where <code class="docutils literal"><span class="pre">l</span></code> is either <code class="docutils literal"><span class="pre">*</span></code> or a list of hypotheses in the local context. In the latter case, a turnstile <code class="docutils literal"><span class="pre">&#8866;</span></code> or <code class="docutils literal"><span class="pre">|-</span></code> can also be used, to signify the target of the goal.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">rw</span></code></p>
+<blockquote>
+<div>An abbreviation for <code class="docutils literal"><span class="pre">rewrite</span></code>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">rwa</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">rewrite</span></code> followed by <code class="docutils literal"><span class="pre">assumption</span></code>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">erewrite</span></code></p>
+<blockquote>
+<div>A variant of <code class="docutils literal"><span class="pre">rewrite</span></code> that uses the unifier more aggressively, unfolding semireducible definitions.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">erw</span></code></p>
+<blockquote>
+<div>An abbreviation for <code class="docutils literal"><span class="pre">erewrite</span></code>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">subst</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div>Given hypothesis <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">t</span></code> or <code class="docutils literal"><span class="pre">h</span> <span class="pre">:</span> <span class="pre">t</span> <span class="pre">=</span> <span class="pre">x</span></code>, where <code class="docutils literal"><span class="pre">x</span></code> is a local constant, <code class="docutils literal"><span class="pre">subst</span> <span class="pre">h</span></code> substitutes <code class="docutils literal"><span class="pre">x</span></code> by <code class="docutils literal"><span class="pre">t</span></code> everywhere in the main goal and then clears <code class="docutils literal"><span class="pre">h</span></code>.</div></blockquote>
+</div>
+<div class="section" id="the-simplifier-and-congruence-closure">
+<span id="the-simplifier"></span><h2>6.8. The Simplifier and Congruence Closure<a class="headerlink" href="#the-simplifier-and-congruence-closure" title="Permalink to this headline">&#182;</a></h2>
+<p><code class="docutils literal"><span class="pre">simp</span> <span class="pre">only?</span> <span class="pre">(*</span> <span class="pre">|</span> <span class="pre">[(*</span> <span class="pre">|</span> <span class="pre">(-</span> <span class="pre">id</span> <span class="pre">|</span> <span class="pre">expr)),</span> <span class="pre">...]?)</span> <span class="pre">(with</span> <span class="pre">id*)?</span> <span class="pre">(at</span> <span class="pre">(*</span> <span class="pre">|</span> <span class="pre">(&#8866;</span> <span class="pre">|</span> <span class="pre">id)*))?</span> <span class="pre">tactic.simp_config_ext?</span></code></p>
+<blockquote>
+<div><p>The <code class="docutils literal"><span class="pre">simp</span></code> tactic uses lemmas and hypotheses to simplify the main goal target or non-dependent hypotheses. It has many variants.</p>
+<p><code class="docutils literal"><span class="pre">simp</span></code> simplifies the main goal target using lemmas tagged with the attribute <code class="docutils literal"><span class="pre">[simp]</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">simp</span> <span class="pre">[h&#8321;</span> <span class="pre">h&#8322;</span> <span class="pre">...</span> <span class="pre">h&#8345;]</span></code> simplifies the main goal target using the lemmas tagged with the attribute <code class="docutils literal"><span class="pre">[simp]</span></code> and the given <code class="docutils literal"><span class="pre">h&#7522;</span></code>&#8217;s, where the <code class="docutils literal"><span class="pre">h&#7522;</span></code>&#8217;s are expressions. These expressions may contain underscores, in which case they are replaced by metavariables that <code class="docutils literal"><span class="pre">simp</span></code> tries to instantiate. If a <code class="docutils literal"><span class="pre">h&#7522;</span></code> is a defined constant <code class="docutils literal"><span class="pre">f</span></code>, then the equational lemmas associated with <code class="docutils literal"><span class="pre">f</span></code> are used. This provides a convenient way to unfold <code class="docutils literal"><span class="pre">f</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">simp</span> <span class="pre">[*]</span></code> simplifies the main goal target using the lemmas tagged with the attribute <code class="docutils literal"><span class="pre">[simp]</span></code> and all hypotheses.</p>
+<p><code class="docutils literal"><span class="pre">simp</span> <span class="pre">*</span></code> is a shorthand for <code class="docutils literal"><span class="pre">simp</span> <span class="pre">[*]</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">simp</span> <span class="pre">only</span> <span class="pre">[h&#8321;</span> <span class="pre">h&#8322;</span> <span class="pre">...</span> <span class="pre">h&#8345;]</span></code> is like <code class="docutils literal"><span class="pre">simp</span> <span class="pre">[h&#8321;</span> <span class="pre">h&#8322;</span> <span class="pre">...</span> <span class="pre">h&#8345;]</span></code> but does not use <code class="docutils literal"><span class="pre">[simp]</span></code> lemmas</p>
+<p><code class="docutils literal"><span class="pre">simp</span> <span class="pre">[-id&#8321;,</span> <span class="pre">...</span> <span class="pre">-id&#8345;]</span></code> simplifies the main goal target using the lemmas tagged with the attribute <code class="docutils literal"><span class="pre">[simp]</span></code>, but removes the ones named <code class="docutils literal"><span class="pre">id&#7522;</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">simp</span> <span class="pre">at</span> <span class="pre">h&#8321;</span> <span class="pre">h&#8322;</span> <span class="pre">...</span> <span class="pre">h&#8345;</span></code> simplifies the non-dependent hypotheses <code class="docutils literal"><span class="pre">h&#8321;</span> <span class="pre">:</span> <span class="pre">T&#8321;</span></code> &#8230; <code class="docutils literal"><span class="pre">h&#8345;</span> <span class="pre">:</span> <span class="pre">T&#8345;</span></code>. The tactic fails if the target or another hypothesis depends on one of them. The token <code class="docutils literal"><span class="pre">&#8866;</span></code> or <code class="docutils literal"><span class="pre">|-</span></code> can be added to the list to include the target.</p>
+<p><code class="docutils literal"><span class="pre">simp</span> <span class="pre">at</span> <span class="pre">*</span></code> simplifies all the hypotheses and the target.</p>
+<p><code class="docutils literal"><span class="pre">simp</span> <span class="pre">*</span> <span class="pre">at</span> <span class="pre">*</span></code> simplifies target and all (non-dependent propositional) hypotheses using the other hypotheses.</p>
+<p><code class="docutils literal"><span class="pre">simp</span> <span class="pre">with</span> <span class="pre">attr&#8321;</span> <span class="pre">...</span> <span class="pre">attr&#8345;</span></code> simplifies the main goal target using the lemmas tagged with any of the attributes <code class="docutils literal"><span class="pre">[attr&#8321;]</span></code>, &#8230;, <code class="docutils literal"><span class="pre">[attr&#8345;]</span></code> or <code class="docutils literal"><span class="pre">[simp]</span></code>.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">dsimp</span> <span class="pre">only?</span> <span class="pre">(*</span> <span class="pre">|</span> <span class="pre">[(*</span> <span class="pre">|</span> <span class="pre">(-</span> <span class="pre">id</span> <span class="pre">|</span> <span class="pre">expr)),</span> <span class="pre">...]?)</span> <span class="pre">(with</span> <span class="pre">id*)?</span> <span class="pre">(at</span> <span class="pre">(*</span> <span class="pre">|</span> <span class="pre">(&#8866;</span> <span class="pre">|</span> <span class="pre">id)*))?</span> <span class="pre">tactic.dsimp_config?</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">dsimp</span></code> is similar to <code class="docutils literal"><span class="pre">simp</span></code>, except that it only uses definitional equalities.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">simp_intros</span> <span class="pre">id*</span> <span class="pre">only?</span> <span class="pre">(*</span> <span class="pre">|</span> <span class="pre">[(*</span> <span class="pre">|</span> <span class="pre">(-</span> <span class="pre">id</span> <span class="pre">|</span> <span class="pre">expr)),</span> <span class="pre">...]?)</span> <span class="pre">(with</span> <span class="pre">id*)?</span> <span class="pre">tactic.simp_intros_config?</span></code></p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">simp_intros</span> <span class="pre">h&#8321;</span> <span class="pre">h&#8322;</span> <span class="pre">...</span> <span class="pre">h&#8345;</span></code> is similar to <code class="docutils literal"><span class="pre">intros</span> <span class="pre">h&#8321;</span> <span class="pre">h&#8322;</span> <span class="pre">...</span> <span class="pre">h&#8345;</span></code> except that each hypothesis is simplified as it is introduced, and each introduced hypothesis is used to simplify later ones and the final target.</p>
+<p>As with <code class="docutils literal"><span class="pre">simp</span></code>, a list of simplification lemmas can be provided. The modifiers <code class="docutils literal"><span class="pre">only</span></code> and <code class="docutils literal"><span class="pre">with</span></code> behave as with <code class="docutils literal"><span class="pre">simp</span></code>.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">unfold</span> <span class="pre">id*</span> <span class="pre">(at</span> <span class="pre">(*</span> <span class="pre">|</span> <span class="pre">(&#8866;</span> <span class="pre">|</span> <span class="pre">id)*))?</span> <span class="pre">tactic.unfold_config?</span></code></p>
+<blockquote>
+<div><p>Given defined constants <code class="docutils literal"><span class="pre">e&#8321;</span> <span class="pre">...</span> <span class="pre">e&#8345;</span></code>, <code class="docutils literal"><span class="pre">unfold</span> <span class="pre">e&#8321;</span> <span class="pre">...</span> <span class="pre">e&#8345;</span></code> iteratively unfolds all occurrences in the target of the main goal, using equational lemmas associated with the definitions.</p>
+<p>As with <code class="docutils literal"><span class="pre">simp</span></code>, the <code class="docutils literal"><span class="pre">at</span></code> modifier can be used to specify locations for the unfolding.</p>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">unfold1</span> <span class="pre">id*</span> <span class="pre">(at</span> <span class="pre">(*</span> <span class="pre">|</span> <span class="pre">(&#8866;</span> <span class="pre">|</span> <span class="pre">id)*))?</span> <span class="pre">tactic.unfold_config?</span></code></p>
+<blockquote>
+<div>Similar to <code class="docutils literal"><span class="pre">unfold</span></code>, but does not iterate the unfolding.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">dunfold</span> <span class="pre">id*</span> <span class="pre">(at</span> <span class="pre">(*</span> <span class="pre">|</span> <span class="pre">(&#8866;</span> <span class="pre">|</span> <span class="pre">id)*))?</span> <span class="pre">tactic.dunfold_config?</span></code></p>
+<blockquote>
+<div>Similar to <code class="docutils literal"><span class="pre">unfold</span></code>, but only uses definitional equalities.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">delta</span> <span class="pre">id*</span> <span class="pre">(at</span> <span class="pre">(*</span> <span class="pre">|</span> <span class="pre">(&#8866;</span> <span class="pre">|</span> <span class="pre">id)*))?</span></code></p>
+<blockquote>
+<div>Similar to <code class="docutils literal"><span class="pre">dunfold</span></code>, but performs a raw delta reduction, rather than using an equation associated with the defined constants.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">unfold_projs</span></code></p>
+<blockquote>
+<div>This tactic unfolds all structure projections.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">trace_simp_set</span></code></p>
+<blockquote>
+<div>Just construct the simp set and trace it. Used for debugging.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">ac_reflexivity</span></code></p>
+<blockquote>
+<div>Proves a goal with target <code class="docutils literal"><span class="pre">s</span> <span class="pre">=</span> <span class="pre">t</span></code> when <code class="docutils literal"><span class="pre">s</span></code> and <code class="docutils literal"><span class="pre">t</span></code> are equal up to the associativity and commutativity of their binary operations.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">ac_refl</span></code></p>
+<blockquote>
+<div>An abbreviation for <code class="docutils literal"><span class="pre">ac_reflexivity</span></code>.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">cc</span></code></p>
+<blockquote>
+<div>Tries to prove the main goal using congruence closure.</div></blockquote>
+</div>
+<div class="section" id="other-tactics">
+<h2>6.9. Other Tactics<a class="headerlink" href="#other-tactics" title="Permalink to this headline">&#182;</a></h2>
+<p><code class="docutils literal"><span class="pre">trace_state</span></code></p>
+<blockquote>
+<div>This tactic displays the current state in the tracing buffer.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">trace</span> <span class="pre">a</span></code></p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">trace</span> <span class="pre">a</span></code> displays <code class="docutils literal"><span class="pre">a</span></code> in the tracing buffer.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">type_check</span> <span class="pre">expr</span></code></p>
+<blockquote>
+<div>Type check the given expression, and trace its type.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">apply_opt_param</span></code></p>
+<blockquote>
+<div>If the target of the main goal is an <cite>opt_param</cite>, assigns the default value.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">apply_auto_param</span></code></p>
+<blockquote>
+<div>If the target of the main goal is an <cite>auto_param</cite>, executes the associated tactic.</div></blockquote>
+<p><code class="docutils literal"><span class="pre">dedup</span></code></p>
+<blockquote>
+<div>Renames hypotheses with the same name.</div></blockquote>
+</div>
+<div class="section" id="conversions">
+<h2>6.10. Conversions<a class="headerlink" href="#conversions" title="Permalink to this headline">&#182;</a></h2>
+</div>
+<div class="section" id="the-smt-state">
+<h2>6.11. The SMT State<a class="headerlink" href="#the-smt-state" title="Permalink to this headline">&#182;</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">The Lean Reference Manual</a></h1>
+
+
+
+
+
+
+
+
+<!-- <h3>Navigation</h3> -->
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="using_lean.html">1. Using Lean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lexical_structure.html">2. Lexical Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expressions.html">3. Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="declarations.html">4. Declarations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="other_commands.html">5. Other Commands</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">6. Tactics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tactic-mode">6.1. Tactic Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-tactics">6.2. Basic Tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#equality-and-other-relations">6.3. Equality and Other Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#structured-tactic-proofs">6.4. Structured Tactic Proofs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inductive-types">6.5. Inductive Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tactic-combinators">6.6. Tactic Combinators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-rewriter">6.7. The Rewriter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-simplifier-and-congruence-closure">6.8. The Simplifier and Congruence Closure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-tactics">6.9. Other Tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conversions">6.10. Conversions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-smt-state">6.11. The SMT State</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">7. Programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metaprogramming.html">8. Metaprogramming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libraries.html">9. Libraries</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="lean_reference.pdf">PDF version</a></li>
+    
+    <li class="toctree-l1"><a href="https://leanprover.github.io/">Lean Home</a></li>
+    
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Jeremy Avigad, Gabriel Ebner, Sebastian Ullrich.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/tactics.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

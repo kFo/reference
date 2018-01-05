@@ -1,0 +1,591 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ascii" />
+    <title>3. Expressions &#8212; The Lean Reference Manual 3.3.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="4. Declarations" href="declarations.html" />
+    <link rel="prev" title="2. Lexical Structure" href="lexical_structure.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>3. Expressions<a class="headerlink" href="#id1" title="Permalink to this headline">&#182;</a></h1>
+<div class="section" id="universes">
+<span id="id2"></span><h2>3.1. Universes<a class="headerlink" href="#universes" title="Permalink to this headline">&#182;</a></h2>
+<p>Every type in Lean is, by definition, an expression of type <code class="docutils literal"><span class="pre">Sort</span> <span class="pre">u</span></code> for some universe level <code class="docutils literal"><span class="pre">u</span></code>. A universe level is one of the following:</p>
+<ul class="simple">
+<li>a natural number, <code class="docutils literal"><span class="pre">n</span></code></li>
+<li>a universe variable, <code class="docutils literal"><span class="pre">u</span></code> (declared with the command <code class="docutils literal"><span class="pre">universe</span></code> or <code class="docutils literal"><span class="pre">universes</span></code>)</li>
+<li>an expression <code class="docutils literal"><span class="pre">u</span> <span class="pre">+</span> <span class="pre">n</span></code>, where <code class="docutils literal"><span class="pre">u</span></code> is a universe level and <code class="docutils literal"><span class="pre">n</span></code> is a natural number</li>
+<li>an expression <code class="docutils literal"><span class="pre">max</span> <span class="pre">u</span> <span class="pre">v</span></code>, where <code class="docutils literal"><span class="pre">u</span></code> and <code class="docutils literal"><span class="pre">v</span></code> are universes</li>
+<li>an expression <code class="docutils literal"><span class="pre">imax</span> <span class="pre">u</span> <span class="pre">v</span></code>, where <code class="docutils literal"><span class="pre">u</span></code> and <code class="docutils literal"><span class="pre">v</span></code> are universe levels</li>
+</ul>
+<p>The last one denotes the universe level <code class="docutils literal"><span class="pre">0</span></code> if <code class="docutils literal"><span class="pre">v</span></code> is <code class="docutils literal"><span class="pre">0</span></code>, and <code class="docutils literal"><span class="pre">max</span> <span class="pre">u</span> <span class="pre">v</span></code> otherwise.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=universes%20u%20v%0A%0A#check%20Sort%20u%0A#check%20Sort%205%0A#check%20Sort%20(u%20+%201)%0A#check%20Sort%20(u%20+%203)%0A#check%20Sort%20(max%20u%20v)%0A#check%20Sort%20(max%20(u%20+%203)%20v)%0A#check%20Sort%20(imax%20(u%20+%203)%20v)%0A#check%20Prop%0A#check%20Type" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">universes</span> <span class="n">u</span> <span class="n">v</span>
+
+<span class="k">#check</span> <span class="kt">Sort</span> <span class="n">u</span>
+<span class="k">#check</span> <span class="kt">Sort</span> <span class="mi">5</span>
+<span class="k">#check</span> <span class="kt">Sort</span> <span class="o">(</span><span class="n">u</span> <span class="bp">+</span> <span class="mi">1</span><span class="o">)</span>
+<span class="k">#check</span> <span class="kt">Sort</span> <span class="o">(</span><span class="n">u</span> <span class="bp">+</span> <span class="mi">3</span><span class="o">)</span>
+<span class="k">#check</span> <span class="kt">Sort</span> <span class="o">(</span><span class="n">max</span> <span class="n">u</span> <span class="n">v</span><span class="o">)</span>
+<span class="k">#check</span> <span class="kt">Sort</span> <span class="o">(</span><span class="n">max</span> <span class="o">(</span><span class="n">u</span> <span class="bp">+</span> <span class="mi">3</span><span class="o">)</span> <span class="n">v</span><span class="o">)</span>
+<span class="k">#check</span> <span class="kt">Sort</span> <span class="o">(</span><span class="n">imax</span> <span class="o">(</span><span class="n">u</span> <span class="bp">+</span> <span class="mi">3</span><span class="o">)</span> <span class="n">v</span><span class="o">)</span>
+<span class="k">#check</span> <span class="kt">Prop</span>
+<span class="k">#check</span> <span class="kt">Type</span>
+</pre></div>
+</div>
+</div></div>
+<div class="section" id="expression-syntax">
+<span id="id3"></span><h2>3.2. Expression Syntax<a class="headerlink" href="#expression-syntax" title="Permalink to this headline">&#182;</a></h2>
+<p>The set of expressions in Lean is defined inductively as follows:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">Sort</span> <span class="pre">u</span></code> : the universe of types at universe level <code class="docutils literal"><span class="pre">u</span></code></li>
+<li><code class="docutils literal"><span class="pre">c</span></code> : where <code class="docutils literal"><span class="pre">c</span></code> is an identifier denoting an axiomatically declared constant or a defined object</li>
+<li><code class="docutils literal"><span class="pre">x</span></code> : where <code class="docutils literal"><span class="pre">x</span></code> is a variable in the local context in which the expression is interpreted</li>
+<li><code class="docutils literal"><span class="pre">&#928;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">&#946;</span></code> : the type of functions taking an element <code class="docutils literal"><span class="pre">x</span></code> of <code class="docutils literal"><span class="pre">&#945;</span></code> to an element of <code class="docutils literal"><span class="pre">&#946;</span></code>, where <code class="docutils literal"><span class="pre">&#946;</span></code> is an expression whose type is a <code class="docutils literal"><span class="pre">Sort</span></code></li>
+<li><code class="docutils literal"><span class="pre">s</span> <span class="pre">t</span></code> : the result of applying <code class="docutils literal"><span class="pre">s</span></code> to <code class="docutils literal"><span class="pre">t</span></code>, where <code class="docutils literal"><span class="pre">s</span></code> and <code class="docutils literal"><span class="pre">t</span></code> are expressions</li>
+<li><code class="docutils literal"><span class="pre">&#955;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">t</span></code> : the function mapping any value <code class="docutils literal"><span class="pre">x</span></code> of type <code class="docutils literal"><span class="pre">&#945;</span></code> to <code class="docutils literal"><span class="pre">t</span></code>, where <code class="docutils literal"><span class="pre">t</span></code> is an expression</li>
+<li><code class="docutils literal"><span class="pre">let</span> <span class="pre">x</span> <span class="pre">:=</span> <span class="pre">t</span> <span class="pre">in</span> <span class="pre">s</span></code> : a local definition, denotes the value of <code class="docutils literal"><span class="pre">s</span></code> when <code class="docutils literal"><span class="pre">x</span></code> is replaced by <code class="docutils literal"><span class="pre">t</span></code></li>
+</ul>
+<p>Every well formed term in Lean has a <em>type</em>, which itself is an expression of type <code class="docutils literal"><span class="pre">Sort</span> <span class="pre">u</span></code> for some <code class="docutils literal"><span class="pre">u</span></code>. The fact that a term <code class="docutils literal"><span class="pre">t</span></code> has type <code class="docutils literal"><span class="pre">&#945;</span></code> is written <code class="docutils literal"><span class="pre">t</span> <span class="pre">:</span> <span class="pre">&#945;</span></code>.</p>
+<p>For an expression to be well formed, its components have to satisfy certain typing constraints. These, in turn, determine the type of the resulting term, as follows:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">Sort</span> <span class="pre">u</span> <span class="pre">:</span> <span class="pre">Sort</span> <span class="pre">(u</span> <span class="pre">+</span> <span class="pre">1)</span></code></li>
+<li><code class="docutils literal"><span class="pre">c</span> <span class="pre">:</span> <span class="pre">&#945;</span></code>, where <code class="docutils literal"><span class="pre">&#945;</span></code> is the type that <code class="docutils literal"><span class="pre">c</span></code> has been declared or defined to have</li>
+<li><code class="docutils literal"><span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;</span></code>, where <code class="docutils literal"><span class="pre">&#945;</span></code> is the type that <code class="docutils literal"><span class="pre">x</span></code> has been assigned in the local context where it is interpreted</li>
+<li><code class="docutils literal"><span class="pre">(&#928;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">&#946;)</span> <span class="pre">:</span> <span class="pre">Sort</span> <span class="pre">(imax</span> <span class="pre">u</span> <span class="pre">v)</span></code> where <code class="docutils literal"><span class="pre">&#945;</span> <span class="pre">:</span> <span class="pre">Sort</span> <span class="pre">u</span></code>, and <code class="docutils literal"><span class="pre">&#946;</span> <span class="pre">:</span> <span class="pre">Sort</span> <span class="pre">v</span></code> assuming <code class="docutils literal"><span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;</span></code></li>
+<li><code class="docutils literal"><span class="pre">s</span> <span class="pre">t</span> <span class="pre">:</span> <span class="pre">&#946;[t/x]</span></code> where <code class="docutils literal"><span class="pre">s</span></code> has type <code class="docutils literal"><span class="pre">&#928;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">&#946;</span></code> and <code class="docutils literal"><span class="pre">t</span></code> has type <code class="docutils literal"><span class="pre">&#945;</span></code></li>
+<li><code class="docutils literal"><span class="pre">(&#955;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">t)</span> <span class="pre">:</span> <span class="pre">&#928;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">&#946;</span></code> if <code class="docutils literal"><span class="pre">t</span></code> has type <code class="docutils literal"><span class="pre">&#946;</span></code> whenever <code class="docutils literal"><span class="pre">x</span></code> has type <code class="docutils literal"><span class="pre">&#945;</span></code></li>
+<li><code class="docutils literal"><span class="pre">(let</span> <span class="pre">x</span> <span class="pre">:=</span> <span class="pre">t</span> <span class="pre">in</span> <span class="pre">s)</span> <span class="pre">:</span> <span class="pre">&#946;[t/x]</span></code> where <code class="docutils literal"><span class="pre">t</span></code> has type <code class="docutils literal"><span class="pre">&#945;</span></code> and <code class="docutils literal"><span class="pre">s</span></code> has type <code class="docutils literal"><span class="pre">&#946;</span></code> assuming <code class="docutils literal"><span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;</span></code></li>
+</ul>
+<p><code class="docutils literal"><span class="pre">Prop</span></code> abbreviates <code class="docutils literal"><span class="pre">Sort</span> <span class="pre">0</span></code>, <code class="docutils literal"><span class="pre">Type</span></code> abbreviates <code class="docutils literal"><span class="pre">Sort</span> <span class="pre">1</span></code>, and <code class="docutils literal"><span class="pre">Type</span> <span class="pre">u</span></code> abbreviates <code class="docutils literal"><span class="pre">Sort</span> <span class="pre">(u</span> <span class="pre">+</span> <span class="pre">1)</span></code> when <code class="docutils literal"><span class="pre">u</span></code> is a universe variable. We say &#8220;<code class="docutils literal"><span class="pre">&#945;</span></code> is a type&#8221; to express <code class="docutils literal"><span class="pre">&#945;</span> <span class="pre">:</span> <span class="pre">Type</span> <span class="pre">u</span></code> for some <code class="docutils literal"><span class="pre">u</span></code>, and we say &#8220;<code class="docutils literal"><span class="pre">p</span></code> is a proposition&#8221; to express <code class="docutils literal"><span class="pre">p</span> <span class="pre">:</span> <span class="pre">Prop</span></code>. Using the <em>propositions as types</em> correspondence, given <code class="docutils literal"><span class="pre">p</span> <span class="pre">:</span> <span class="pre">Prop</span></code>, we refer to an expression <code class="docutils literal"><span class="pre">t</span> <span class="pre">:</span> <span class="pre">p</span></code> as a <em>proof</em> of <code class="docutils literal"><span class="pre">p</span></code>. In contrast, given <code class="docutils literal"><span class="pre">&#945;</span> <span class="pre">:</span> <span class="pre">Type</span> <span class="pre">u</span></code> for some <code class="docutils literal"><span class="pre">u</span></code> and <code class="docutils literal"><span class="pre">t</span> <span class="pre">:</span> <span class="pre">&#945;</span></code>, we sometimes refer to <code class="docutils literal"><span class="pre">t</span></code> as <em>data</em>.</p>
+<p>When the expression <code class="docutils literal"><span class="pre">&#946;</span></code> in <code class="docutils literal"><span class="pre">&#928;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">&#946;</span></code> does not depend on <code class="docutils literal"><span class="pre">x</span></code>, it can be written <code class="docutils literal"><span class="pre">&#945;</span> <span class="pre">&#8594;</span> <span class="pre">&#946;</span></code>. As usual, the variable <code class="docutils literal"><span class="pre">x</span></code> is bound in <code class="docutils literal"><span class="pre">&#928;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">&#946;</span></code>, <code class="docutils literal"><span class="pre">&#955;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">t</span></code>, and <code class="docutils literal"><span class="pre">let</span> <span class="pre">x</span> <span class="pre">:=</span> <span class="pre">t</span> <span class="pre">in</span> <span class="pre">s</span></code>. The expression <code class="docutils literal"><span class="pre">&#8704;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">&#946;</span></code> is alternative syntax for <code class="docutils literal"><span class="pre">&#928;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">&#946;</span></code>, and is intended to be used when <code class="docutils literal"><span class="pre">&#946;</span></code> is a proposition. An underscore can be used to generate an internal variable in a binder, as in <code class="docutils literal"><span class="pre">&#955;</span> <span class="pre">_</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">t</span></code>.</p>
+<p>In addition to the elements above, expressions can also contain <em>metavariables</em>, that is, temporary placeholders, that are used in the process of constructing terms. They can also contain <em>macros</em>, which are used to annotate or abbreviate terms. Terms that are added to the environment contain neither metavariable nor variables, which is to say, they are fully elaborated and make sense in the empty context.</p>
+<p>Constants can be declared in various ways, such as by the <code class="docutils literal"><span class="pre">constant(s)</span></code> and <code class="docutils literal"><span class="pre">axiom(s)</span></code> keywords, or as the result of an <code class="docutils literal"><span class="pre">inductive</span></code> or <code class="docutils literal"><span class="pre">structure</span></code> declaration. Similarly, objects can be defined in various ways, such as using <code class="docutils literal"><span class="pre">def</span></code>, <code class="docutils literal"><span class="pre">theorem</span></code>, or the equation compiler. See <a class="reference internal" href="declarations.html#declarations"><span class="std std-numref">Chapter 4</span></a> for more information.</p>
+<p>Writing an expression <code class="docutils literal"><span class="pre">(t</span> <span class="pre">:</span> <span class="pre">&#945;)</span></code> forces Lean to elaborate <code class="docutils literal"><span class="pre">t</span></code> so that it has type <code class="docutils literal"><span class="pre">&#945;</span></code> or report an error if it fails.</p>
+<p>Lean supports anonymous constructor notation, anonymous projections, and various forms of match syntax, including destructuring <code class="docutils literal"><span class="pre">&#955;</span></code> and <code class="docutils literal"><span class="pre">let</span></code>. These, as well as notation for common data types (like pairs, lists, and so on) are discussed in <a class="reference internal" href="declarations.html#declarations"><span class="std std-numref">Chapter 4</span></a> in connection with inductive types.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=universes%20u%20v%20w%0A%0Avariables%20(p%20q%20:%20Prop)%0Avariable%20%20(%CE%B1%20:%20Type%20u)%0Avariable%20%20(%CE%B2%20:%20Type%20v)%0Avariable%20%20(%CE%B3%20:%20%CE%B1%20%E2%86%92%20Type%20w)%0Avariable%20%20(%CE%B7%20:%20%CE%B1%20%E2%86%92%20%CE%B2%20%E2%86%92%20Type%20w)%0A%0Aconstants%20%CE%B4%20%CE%B5%20:%20Type%20u%0Aconstants%20cnst%20:%20%CE%B4%0Aconstant%20%20f%20:%20%CE%B4%20%E2%86%92%20%CE%B5%0A%0Avariables%20(a%20:%20%CE%B1)%20(b%20:%20%CE%B2)%20(c%20:%20%CE%B3%20a)%20(d%20:%20%CE%B4)%0A%0Avariable%20%20g%20%20:%20%CE%B1%20%E2%86%92%20%CE%B2%0Avariable%20%20h%20%20:%20%CE%A0%20x%20:%20%CE%B1,%20%CE%B3%20x%0Avariable%20%20h'%20:%20%CE%A0%20x,%20%CE%B3%20x%20%E2%86%92%20%CE%B4%0A%0A#check%20Sort%20(u%20+%203)%0A#check%20Prop%0A#check%20%CE%A0%20x%20:%20%CE%B1,%20%CE%B3%20x%0A#check%20f%20cnst%0A#check%20%CE%BB%20x,%20h%20x%0A#check%20%CE%BB%20x,%20h'%20x%20(h%20x)%0A#check%20(%CE%BB%20x,%20h%20x)%20a%0A#check%20%CE%BB%20_%20:%20%E2%84%95,%205%0A#check%20let%20x%20:=%20a%20in%20h%20x%0A%0A#check%20%CE%A0%20x%20y,%20%CE%B7%20x%20y%0A#check%20%CE%A0%20(x%20:%20%CE%B1)%20(y%20:%20%CE%B2),%20%CE%B7%20x%20y%0A#check%20%CE%BB%20x%20y,%20%CE%B7%20x%20y%0A#check%20%CE%BB%20(x%20:%20%CE%B1)%20(y%20:%20%CE%B2),%20%CE%B7%20x%20y%0A#check%20let%20x%20:=%20a,%20y%20:=%20b%20in%20%CE%B7%20x%20y%0A%0A#check%20(5%20:%20%E2%84%95)%0A#check%20(5%20:%20(%CE%BB%20x,%20x)%20%E2%84%95)%0A#check%20(5%20:%20%E2%84%A4)" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">universes</span> <span class="n">u</span> <span class="n">v</span> <span class="n">w</span>
+
+<span class="kd">variables</span> <span class="o">(</span><span class="n">p</span> <span class="n">q</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">)</span>
+<span class="kd">variable</span>  <span class="o">(</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Type</span> <span class="n">u</span><span class="o">)</span>
+<span class="kd">variable</span>  <span class="o">(</span><span class="n">&#946;</span> <span class="o">:</span> <span class="kt">Type</span> <span class="n">v</span><span class="o">)</span>
+<span class="kd">variable</span>  <span class="o">(</span><span class="n">&#947;</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="kt">Type</span> <span class="n">w</span><span class="o">)</span>
+<span class="kd">variable</span>  <span class="o">(</span><span class="n">&#951;</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">&#946;</span> <span class="bp">&#8594;</span> <span class="kt">Type</span> <span class="n">w</span><span class="o">)</span>
+
+<span class="kd">constants</span> <span class="n">&#948;</span> <span class="n">&#949;</span> <span class="o">:</span> <span class="kt">Type</span> <span class="n">u</span>
+<span class="kd">constants</span> <span class="n">cnst</span> <span class="o">:</span> <span class="n">&#948;</span>
+<span class="kd">constant</span>  <span class="n">f</span> <span class="o">:</span> <span class="n">&#948;</span> <span class="bp">&#8594;</span> <span class="n">&#949;</span>
+
+<span class="kd">variables</span> <span class="o">(</span><span class="n">a</span> <span class="o">:</span> <span class="n">&#945;</span><span class="o">)</span> <span class="o">(</span><span class="n">b</span> <span class="o">:</span> <span class="n">&#946;</span><span class="o">)</span> <span class="o">(</span><span class="n">c</span> <span class="o">:</span> <span class="n">&#947;</span> <span class="n">a</span><span class="o">)</span> <span class="o">(</span><span class="n">d</span> <span class="o">:</span> <span class="n">&#948;</span><span class="o">)</span>
+
+<span class="kd">variable</span>  <span class="n">g</span>  <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">&#946;</span>
+<span class="kd">variable</span>  <span class="n">h</span>  <span class="o">:</span> <span class="bp">&#928;</span> <span class="n">x</span> <span class="o">:</span> <span class="n">&#945;</span><span class="o">,</span> <span class="n">&#947;</span> <span class="n">x</span>
+<span class="kd">variable</span>  <span class="n">h&#39;</span> <span class="o">:</span> <span class="bp">&#928;</span> <span class="n">x</span><span class="o">,</span> <span class="n">&#947;</span> <span class="n">x</span> <span class="bp">&#8594;</span> <span class="n">&#948;</span>
+
+<span class="k">#check</span> <span class="kt">Sort</span> <span class="o">(</span><span class="n">u</span> <span class="bp">+</span> <span class="mi">3</span><span class="o">)</span>
+<span class="k">#check</span> <span class="kt">Prop</span>
+<span class="k">#check</span> <span class="bp">&#928;</span> <span class="n">x</span> <span class="o">:</span> <span class="n">&#945;</span><span class="o">,</span> <span class="n">&#947;</span> <span class="n">x</span>
+<span class="k">#check</span> <span class="n">f</span> <span class="n">cnst</span>
+<span class="k">#check</span> <span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">h</span> <span class="n">x</span>
+<span class="k">#check</span> <span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">h&#39;</span> <span class="n">x</span> <span class="o">(</span><span class="n">h</span> <span class="n">x</span><span class="o">)</span>
+<span class="k">#check</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">h</span> <span class="n">x</span><span class="o">)</span> <span class="n">a</span>
+<span class="k">#check</span> <span class="bp">&#955;</span> <span class="n">_</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">,</span> <span class="mi">5</span>
+<span class="k">#check</span> <span class="k">let</span> <span class="n">x</span> <span class="o">:=</span> <span class="n">a</span> <span class="k">in</span> <span class="n">h</span> <span class="n">x</span>
+
+<span class="k">#check</span> <span class="bp">&#928;</span> <span class="n">x</span> <span class="n">y</span><span class="o">,</span> <span class="n">&#951;</span> <span class="n">x</span> <span class="n">y</span>
+<span class="k">#check</span> <span class="bp">&#928;</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#945;</span><span class="o">)</span> <span class="o">(</span><span class="n">y</span> <span class="o">:</span> <span class="n">&#946;</span><span class="o">),</span> <span class="n">&#951;</span> <span class="n">x</span> <span class="n">y</span>
+<span class="k">#check</span> <span class="bp">&#955;</span> <span class="n">x</span> <span class="n">y</span><span class="o">,</span> <span class="n">&#951;</span> <span class="n">x</span> <span class="n">y</span>
+<span class="k">#check</span> <span class="bp">&#955;</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#945;</span><span class="o">)</span> <span class="o">(</span><span class="n">y</span> <span class="o">:</span> <span class="n">&#946;</span><span class="o">),</span> <span class="n">&#951;</span> <span class="n">x</span> <span class="n">y</span>
+<span class="k">#check</span> <span class="k">let</span> <span class="n">x</span> <span class="o">:=</span> <span class="n">a</span><span class="o">,</span> <span class="n">y</span> <span class="o">:=</span> <span class="n">b</span> <span class="k">in</span> <span class="n">&#951;</span> <span class="n">x</span> <span class="n">y</span>
+
+<span class="k">#check</span> <span class="o">(</span><span class="mi">5</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+<span class="k">#check</span> <span class="o">(</span><span class="mi">5</span> <span class="o">:</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">x</span><span class="o">)</span> <span class="n">&#8469;</span><span class="o">)</span>
+<span class="k">#check</span> <span class="o">(</span><span class="mi">5</span> <span class="o">:</span> <span class="n">&#8484;</span><span class="o">)</span>
+</pre></div>
+</div>
+</div></div>
+<div class="section" id="implicit-arguments">
+<span id="id4"></span><h2>3.3. Implicit Arguments<a class="headerlink" href="#implicit-arguments" title="Permalink to this headline">&#182;</a></h2>
+<p>When declaring arguments to defined objects in Lean (for example, with <code class="docutils literal"><span class="pre">def</span></code>, <code class="docutils literal"><span class="pre">theorem</span></code>, <code class="docutils literal"><span class="pre">constant</span></code>, <code class="docutils literal"><span class="pre">inductive</span></code>, or <code class="docutils literal"><span class="pre">structure</span></code>; see <a class="reference internal" href="declarations.html#declarations"><span class="std std-numref">Chapter 4</span></a>) or when declaring variables and parameters in sections (see <a class="reference internal" href="other_commands.html#other-commands"><span class="std std-numref">Chapter 5</span></a>), arguments can be annotated as <em>explicit</em> or <em>implicit</em>. This determines how expressions containing the object are interpreted.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">(x</span> <span class="pre">:</span> <span class="pre">&#945;)</span></code> : an explicit argument of type <code class="docutils literal"><span class="pre">&#945;</span></code></li>
+<li><code class="docutils literal"><span class="pre">{x</span> <span class="pre">:</span> <span class="pre">&#945;}</span></code> : an implicit argument, eagerly inserted</li>
+<li><code class="docutils literal"><span class="pre">&#10627;x</span> <span class="pre">:</span> <span class="pre">&#945;&#10628;</span></code> or <code class="docutils literal"><span class="pre">{{x</span> <span class="pre">:</span> <span class="pre">&#945;}}</span></code> : an implicit argument, weakly inserted</li>
+<li><code class="docutils literal"><span class="pre">[x</span> <span class="pre">:</span> <span class="pre">&#945;]</span></code> : an implicit argument that should be inferred by type class resolution</li>
+<li><code class="docutils literal"><span class="pre">(x</span> <span class="pre">:</span> <span class="pre">&#945;</span> <span class="pre">:=</span> <span class="pre">t)</span></code> : an optional argument, with default value <code class="docutils literal"><span class="pre">t</span></code></li>
+<li><code class="docutils literal"><span class="pre">(x</span> <span class="pre">:</span> <span class="pre">&#945;</span> <span class="pre">.</span> <span class="pre">t)</span></code> : an implicit argument, to be synthesized by tactic <code class="docutils literal"><span class="pre">t</span></code></li>
+</ul>
+<p>The name of the variable can be omitted from a class resolution argument, in which case an internal name is generated.</p>
+<p>When a function has an explicit argument, you can nonetheless ask Lean&#8217;s elaborator to infer the argument automatically, by entering it as an underscore (<code class="docutils literal"><span class="pre">_</span></code>). Conversely, writing <code class="docutils literal"><span class="pre">&#64;foo</span></code> indicates that all of the arguments to be <code class="docutils literal"><span class="pre">foo</span></code> are to be given explicitly, independent of how <code class="docutils literal"><span class="pre">foo</span></code> was declared.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=universe%20u%0A%0Adef%20ex1%20(x%20y%20z%20:%20%E2%84%95)%20:%20%E2%84%95%20:=%20x%20+%20y%20+%20z%0A%0A#check%20ex1%201%202%203%0A%0Adef%20id1%20(%CE%B1%20:%20Type%20u)%20(x%20:%20%CE%B1)%20:%20%CE%B1%20:=%20x%0A%0A#check%20id1%20nat%203%0A#check%20id1%20_%203%0A%0Adef%20id2%20%7B%CE%B1%20:%20Type%20u%7D%20(x%20:%20%CE%B1)%20:%20%CE%B1%20:=%20x%0A%0A#check%20id2%203%0A#check%20&#64;id2%20%E2%84%95%203%0A#check%20(id2%20:%20%E2%84%95%20%E2%86%92%20%E2%84%95)%0A%0Adef%20id3%20%7B%7B%CE%B1%20:%20Type%20u%7D%7D%20(x%20:%20%CE%B1)%20:%20%CE%B1%20:=%20x%0A%0A#check%20id3%203%0A#check%20&#64;id3%20%E2%84%95%203%0A#check%20(id3%20:%20%CE%A0%20%CE%B1%20:%20Type,%20%CE%B1%20%E2%86%92%20%CE%B1)%0A%0Aclass%20cls%20:=%20(val%20:%20%E2%84%95)%0Ainstance%20cls_five%20:%20cls%20:=%20%E2%9F%A85%E2%9F%A9%0A%0Adef%20ex2%20%5Bc%20:%20cls%5D%20:%20%E2%84%95%20:=%20c.val%0A%0Aexample%20:%20ex2%20=%205%20:=%20rfl%0A%0Adef%20ex2a%20%5Bcls%5D%20:%20%E2%84%95%20:=%20ex2%0A%0Aexample%20:%20ex2a%20=%205%20:=%20rfl%0A%0Adef%20ex3%20(x%20:%20%E2%84%95%20:=%205)%20:=%20x%0A%0A#check%20ex3%202%0A#check%20ex3%0Aexample%20:%20ex3%20=%205%20:=%20rfl%0A%0Ameta%20def%20ex_tac%20:%20tactic%20unit%20:=%20tactic.refine%20%60%60(5)%0A%0Adef%20ex4%20(x%20:%20%E2%84%95%20.%20ex_tac)%20:=%20x%0A%0Aexample%20:%20ex4%20=%205%20:=%20rfl" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">universe</span> <span class="n">u</span>
+
+<span class="kd">def</span> <span class="n">ex1</span> <span class="o">(</span><span class="n">x</span> <span class="n">y</span> <span class="n">z</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="o">:=</span> <span class="n">x</span> <span class="bp">+</span> <span class="n">y</span> <span class="bp">+</span> <span class="n">z</span>
+
+<span class="k">#check</span> <span class="n">ex1</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>
+
+<span class="kd">def</span> <span class="n">id1</span> <span class="o">(</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Type</span> <span class="n">u</span><span class="o">)</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#945;</span><span class="o">)</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="o">:=</span> <span class="n">x</span>
+
+<span class="k">#check</span> <span class="n">id1</span> <span class="n">nat</span> <span class="mi">3</span>
+<span class="k">#check</span> <span class="n">id1</span> <span class="n">_</span> <span class="mi">3</span>
+
+<span class="kd">def</span> <span class="n">id2</span> <span class="o">{</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Type</span> <span class="n">u</span><span class="o">}</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#945;</span><span class="o">)</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="o">:=</span> <span class="n">x</span>
+
+<span class="k">#check</span> <span class="n">id2</span> <span class="mi">3</span>
+<span class="k">#check</span> <span class="bp">@</span><span class="n">id2</span> <span class="n">&#8469;</span> <span class="mi">3</span>
+<span class="k">#check</span> <span class="o">(</span><span class="n">id2</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="bp">&#8594;</span> <span class="n">&#8469;</span><span class="o">)</span>
+
+<span class="kd">def</span> <span class="n">id3</span> <span class="o">{{</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Type</span> <span class="n">u</span><span class="o">}}</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#945;</span><span class="o">)</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="o">:=</span> <span class="n">x</span>
+
+<span class="k">#check</span> <span class="n">id3</span> <span class="mi">3</span>
+<span class="k">#check</span> <span class="bp">@</span><span class="n">id3</span> <span class="n">&#8469;</span> <span class="mi">3</span>
+<span class="k">#check</span> <span class="o">(</span><span class="n">id3</span> <span class="o">:</span> <span class="bp">&#928;</span> <span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Type</span><span class="o">,</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">&#945;</span><span class="o">)</span>
+
+<span class="kd">class</span> <span class="n">cls</span> <span class="o">:=</span> <span class="o">(</span><span class="n">val</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+<span class="kd">instance</span> <span class="n">cls_five</span> <span class="o">:</span> <span class="n">cls</span> <span class="o">:=</span> <span class="o">&#10216;</span><span class="mi">5</span><span class="o">&#10217;</span>
+
+<span class="kd">def</span> <span class="n">ex2</span> <span class="o">[</span><span class="n">c</span> <span class="o">:</span> <span class="n">cls</span><span class="o">]</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="o">:=</span> <span class="n">c.val</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="n">ex2</span> <span class="bp">=</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+
+<span class="kd">def</span> <span class="n">ex2a</span> <span class="o">[</span><span class="n">cls</span><span class="o">]</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="o">:=</span> <span class="n">ex2</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="n">ex2a</span> <span class="bp">=</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+
+<span class="kd">def</span> <span class="n">ex3</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="o">:=</span> <span class="mi">5</span><span class="o">)</span> <span class="o">:=</span> <span class="n">x</span>
+
+<span class="k">#check</span> <span class="n">ex3</span> <span class="mi">2</span>
+<span class="k">#check</span> <span class="n">ex3</span>
+<span class="kd">example</span> <span class="o">:</span> <span class="n">ex3</span> <span class="bp">=</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+
+<span class="kd">meta</span> <span class="kd">def</span> <span class="n">ex_tac</span> <span class="o">:</span> <span class="n">tactic</span> <span class="n">unit</span> <span class="o">:=</span> <span class="n">tactic.refine</span> <span class="bp">``</span><span class="o">(</span><span class="mi">5</span><span class="o">)</span>
+
+<span class="kd">def</span> <span class="n">ex4</span> <span class="o">(</span><span class="n">x</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="bp">.</span> <span class="n">ex_tac</span><span class="o">)</span> <span class="o">:=</span> <span class="n">x</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="n">ex4</span> <span class="bp">=</span> <span class="mi">5</span> <span class="o">:=</span> <span class="n">rfl</span>
+</pre></div>
+</div>
+</div></div>
+<div class="section" id="basic-data-types-and-assertions">
+<h2>3.4. Basic Data Types and Assertions<a class="headerlink" href="#basic-data-types-and-assertions" title="Permalink to this headline">&#182;</a></h2>
+<p>The core library contains a number of basic data types, such as the natural numbers (<code class="docutils literal"><span class="pre">&#8469;</span></code>, or <code class="docutils literal"><span class="pre">nat</span></code>), the integers (<code class="docutils literal"><span class="pre">&#8484;</span></code>), the booleans (<code class="docutils literal"><span class="pre">bool</span></code>), and common operations on these, as well as the usual logical quantifiers and connectives. Some example are given below. A list of common notations and their precedences can be found in a <a class="reference external" href="https://github.com/leanprover/lean/blob/master/library/init/core.lean">file</a> in the core library. The core library also contains a number of basic data type constructors. Definitions can also be found the <a class="reference external" href="https://github.com/leanprover/lean/blob/master/library/init/data">data</a> directory of the core library. For more information, see also <a class="reference internal" href="libraries.html#libraries"><span class="std std-numref">Chapter 9</span></a>.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=/-%20numbers%20-/%0Asection%0Avariables%20a%20b%20c%20d%20:%20%E2%84%95%0Avariables%20i%20j%20k%20:%20%E2%84%A4%0A%0A#check%20a%5E2%20+%20b%5E2%20+%20c%5E2%0A#check%20(a%20+%20b)%5Ec%20%E2%89%A4%20d%0A#check%20i%20%E2%88%A3%20j%20*%20k%0Aend%0A%0A/-%20booleans%20-/%0Asection%0Avariables%20a%20b%20c%20:%20bool%0A%0A#check%20a%20&amp;&amp;%20(b%20%7C%7C%20c)%0Aend%0A%0A/-%20pairs%20-/%0Asection%0Avariables%20(a%20b%20c%20:%20%E2%84%95)%20(p%20:%20%E2%84%95%20%C3%97%20bool)%0A%0A#check%20(1,%202)%0A#check%20p.1%20*%202%0A#check%20p.2%20&amp;&amp;%20tt%0A#check%20((1,%202,%203)%20:%20%E2%84%95%20%C3%97%20%E2%84%95%20%C3%97%20%E2%84%95)%0Aend%0A%0A/-%20lists%20-/%0Asection%0Avariables%20x%20y%20z%20:%20%E2%84%95%0Avariables%20xs%20ys%20zs%20:%20list%20%E2%84%95%0Aopen%20list%0A%0A#check%20(1%20::%20xs)%20++%20(y%20::%20zs)%20++%20%5B1,2,3%5D%0A#check%20append%20(cons%201%20xs)%20(cons%20y%20zs)%0A#check%20map%20(%CE%BB%20x,%20x%5E2)%20%5B1,%202,%203%5D%0Aend%0A%0A/-%20sets%20-/%0Asection%0Avariables%20s%20t%20u%20:%20set%20%E2%84%95%0A%0A#check%20(%7B1,%202,%203%7D%20%E2%88%A9%20s)%20%E2%88%AA%20(%7Bx%20%7C%20x%20%3C%207%7D%20%E2%88%A9%20t)%0Aend%0A%0A/-%20strings%20and%20characters%20-/%0A#check%20%22hello%20world%22%0A#check%20'a'%0A%0A/-%20assertions%20-/%0A#check%20%E2%88%80%20a%20b%20c%20n%20:%20%E2%84%95,%0A%20%20a%20%E2%89%A0%200%20%E2%88%A7%20b%20%E2%89%A0%200%20%E2%88%A7%20c%20%E2%89%A0%200%20%E2%88%A7%20n%20%3E%202%20%E2%86%92%20a%5En%20+%20b%5En%20%E2%89%A0%20c%5En%0A%0Adef%20unbounded%20(f%20:%20%E2%84%95%20%E2%86%92%20%E2%84%95)%20:%20Prop%20:=%20%E2%88%80%20M,%20%E2%88%83%20n,%20f%20n%20%E2%89%A5%20M" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="c">/-</span><span class="cm"> numbers -/</span>
+<span class="kn">section</span>
+<span class="kd">variables</span> <span class="n">a</span> <span class="n">b</span> <span class="n">c</span> <span class="n">d</span> <span class="o">:</span> <span class="n">&#8469;</span>
+<span class="kd">variables</span> <span class="n">i</span> <span class="n">j</span> <span class="n">k</span> <span class="o">:</span> <span class="n">&#8484;</span>
+
+<span class="k">#check</span> <span class="n">a</span><span class="bp">^</span><span class="mi">2</span> <span class="bp">+</span> <span class="n">b</span><span class="bp">^</span><span class="mi">2</span> <span class="bp">+</span> <span class="n">c</span><span class="bp">^</span><span class="mi">2</span>
+<span class="k">#check</span> <span class="o">(</span><span class="n">a</span> <span class="bp">+</span> <span class="n">b</span><span class="o">)</span><span class="bp">^</span><span class="n">c</span> <span class="bp">&#8804;</span> <span class="n">d</span>
+<span class="k">#check</span> <span class="n">i</span> <span class="bp">&#8739;</span> <span class="n">j</span> <span class="bp">*</span> <span class="n">k</span>
+<span class="kd">end</span>
+
+<span class="c">/-</span><span class="cm"> booleans -/</span>
+<span class="kn">section</span>
+<span class="kd">variables</span> <span class="n">a</span> <span class="n">b</span> <span class="n">c</span> <span class="o">:</span> <span class="n">bool</span>
+
+<span class="k">#check</span> <span class="n">a</span> <span class="bp">&amp;&amp;</span> <span class="o">(</span><span class="n">b</span> <span class="bp">||</span> <span class="n">c</span><span class="o">)</span>
+<span class="kd">end</span>
+
+<span class="c">/-</span><span class="cm"> pairs -/</span>
+<span class="kn">section</span>
+<span class="kd">variables</span> <span class="o">(</span><span class="n">a</span> <span class="n">b</span> <span class="n">c</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">(</span><span class="n">p</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="bp">&#215;</span> <span class="n">bool</span><span class="o">)</span>
+
+<span class="k">#check</span> <span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span>
+<span class="k">#check</span> <span class="n">p.1</span> <span class="bp">*</span> <span class="mi">2</span>
+<span class="k">#check</span> <span class="n">p.2</span> <span class="bp">&amp;&amp;</span> <span class="n">tt</span>
+<span class="k">#check</span> <span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="bp">&#215;</span> <span class="n">&#8469;</span> <span class="bp">&#215;</span> <span class="n">&#8469;</span><span class="o">)</span>
+<span class="kd">end</span>
+
+<span class="c">/-</span><span class="cm"> lists -/</span>
+<span class="kn">section</span>
+<span class="kd">variables</span> <span class="n">x</span> <span class="n">y</span> <span class="n">z</span> <span class="o">:</span> <span class="n">&#8469;</span>
+<span class="kd">variables</span> <span class="n">xs</span> <span class="n">ys</span> <span class="n">zs</span> <span class="o">:</span> <span class="n">list</span> <span class="n">&#8469;</span>
+<span class="kn">open</span> <span class="n">list</span>
+
+<span class="k">#check</span> <span class="o">(</span><span class="mi">1</span> <span class="o">::</span> <span class="n">xs</span><span class="o">)</span> <span class="bp">++</span> <span class="o">(</span><span class="n">y</span> <span class="o">::</span> <span class="n">zs</span><span class="o">)</span> <span class="bp">++</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">]</span>
+<span class="k">#check</span> <span class="n">append</span> <span class="o">(</span><span class="n">cons</span> <span class="mi">1</span> <span class="n">xs</span><span class="o">)</span> <span class="o">(</span><span class="n">cons</span> <span class="n">y</span> <span class="n">zs</span><span class="o">)</span>
+<span class="k">#check</span> <span class="n">map</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">x</span><span class="bp">^</span><span class="mi">2</span><span class="o">)</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span>
+<span class="kd">end</span>
+
+<span class="c">/-</span><span class="cm"> sets -/</span>
+<span class="kn">section</span>
+<span class="kd">variables</span> <span class="n">s</span> <span class="n">t</span> <span class="n">u</span> <span class="o">:</span> <span class="n">set</span> <span class="n">&#8469;</span>
+
+<span class="k">#check</span> <span class="o">({</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">}</span> <span class="bp">&#8745;</span> <span class="n">s</span><span class="o">)</span> <span class="bp">&#8746;</span> <span class="o">({</span><span class="n">x</span> <span class="bp">|</span> <span class="n">x</span> <span class="bp">&lt;</span> <span class="mi">7</span><span class="o">}</span> <span class="bp">&#8745;</span> <span class="n">t</span><span class="o">)</span>
+<span class="kd">end</span>
+
+<span class="c">/-</span><span class="cm"> strings and characters -/</span>
+<span class="k">#check</span> <span class="s2">&quot;hello world&quot;</span>
+<span class="k">#check</span> <span class="sc">&#39;a&#39;</span>
+
+<span class="c">/-</span><span class="cm"> assertions -/</span>
+<span class="k">#check</span> <span class="bp">&#8704;</span> <span class="n">a</span> <span class="n">b</span> <span class="n">c</span> <span class="n">n</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">,</span>
+  <span class="n">a</span> <span class="bp">&#8800;</span> <span class="mi">0</span> <span class="bp">&#8743;</span> <span class="n">b</span> <span class="bp">&#8800;</span> <span class="mi">0</span> <span class="bp">&#8743;</span> <span class="n">c</span> <span class="bp">&#8800;</span> <span class="mi">0</span> <span class="bp">&#8743;</span> <span class="n">n</span> <span class="bp">&gt;</span> <span class="mi">2</span> <span class="bp">&#8594;</span> <span class="n">a</span><span class="bp">^</span><span class="n">n</span> <span class="bp">+</span> <span class="n">b</span><span class="bp">^</span><span class="n">n</span> <span class="bp">&#8800;</span> <span class="n">c</span><span class="bp">^</span><span class="n">n</span>
+
+<span class="kd">def</span> <span class="n">unbounded</span> <span class="o">(</span><span class="n">f</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="bp">&#8594;</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">:</span> <span class="kt">Prop</span> <span class="o">:=</span> <span class="bp">&#8704;</span> <span class="n">M</span><span class="o">,</span> <span class="bp">&#8707;</span> <span class="n">n</span><span class="o">,</span> <span class="n">f</span> <span class="n">n</span> <span class="bp">&#8805;</span> <span class="n">M</span>
+</pre></div>
+</div>
+</div></div>
+<div class="section" id="constructors-projections-and-matching">
+<span id="id5"></span><h2>3.5. Constructors, Projections, and Matching<a class="headerlink" href="#constructors-projections-and-matching" title="Permalink to this headline">&#182;</a></h2>
+<p>Lean&#8217;s foundation, the <em>Calculus of Inductive Constructions</em>, supports the declaration of <em>inductive types</em>. Such types can have any number of <em>constructors</em>, and an associated <em>eliminator</em> (or <em>recursor</em>). Inductive types with one constructor, known as <em>structures</em>, have <em>projections</em>. The full syntax of inductive types is described in <a class="reference internal" href="declarations.html#declarations"><span class="std std-numref">Chapter 4</span></a>, but here we describe some syntactic elements that facilitate their use in expressions.</p>
+<p>When Lean can infer the type of an expression and it is an inductive type with one constructor, then one can write <code class="docutils literal"><span class="pre">&#10216;a1,</span> <span class="pre">a2,</span> <span class="pre">...,</span> <span class="pre">an&#10217;</span></code> to apply the constructor without naming it. For example, <code class="docutils literal"><span class="pre">&#10216;a,</span> <span class="pre">b&#10217;</span></code> denotes <code class="docutils literal"><span class="pre">prod.mk</span> <span class="pre">a</span> <span class="pre">b</span></code> in a context where the expression can be inferred to be a pair, and <code class="docutils literal"><span class="pre">&#10216;h&#8321;,</span> <span class="pre">h&#8322;&#10217;</span></code> denotes <code class="docutils literal"><span class="pre">and.intro</span> <span class="pre">h&#8321;</span> <span class="pre">h&#8322;</span></code> in a context when the expression can be inferred to be a conjunction. The notation will nest constructions automatically, so <code class="docutils literal"><span class="pre">&#10216;a1,</span> <span class="pre">a2,</span> <span class="pre">a3&#10217;</span></code> is interpreted as <code class="docutils literal"><span class="pre">prod.mk</span> <span class="pre">a1</span> <span class="pre">(prod.mk</span> <span class="pre">a2</span> <span class="pre">a3)</span></code> when the expression is expected to have a type of the form <code class="docutils literal"><span class="pre">&#945;1</span> <span class="pre">&#215;</span> <span class="pre">&#945;2</span> <span class="pre">&#215;</span> <span class="pre">&#945;3</span></code>. (The latter is interpreted as <code class="docutils literal"><span class="pre">&#945;1</span> <span class="pre">&#215;</span> <span class="pre">(&#945;2</span> <span class="pre">&#215;</span> <span class="pre">&#945;3)</span></code>, since the product associates to the right.)</p>
+<p>Similarly, one can use &#8220;dot notation&#8221; for projections: one can write <code class="docutils literal"><span class="pre">p.fst</span></code> and <code class="docutils literal"><span class="pre">p.snd</span></code> for <code class="docutils literal"><span class="pre">prod.fst</span> <span class="pre">p</span></code> and <code class="docutils literal"><span class="pre">prod.snd</span> <span class="pre">p</span></code> when Lean can infer that <code class="docutils literal"><span class="pre">p</span></code> is an element of a product, and <code class="docutils literal"><span class="pre">h.left</span></code> and <code class="docutils literal"><span class="pre">h.right</span></code> for <code class="docutils literal"><span class="pre">and.left</span> <span class="pre">h</span></code> and <code class="docutils literal"><span class="pre">and.right</span> <span class="pre">h</span></code> when <code class="docutils literal"><span class="pre">h</span></code> is a conjunction.</p>
+<p>The anonymous projector notation can used more generally for any objects defined in a <em>namespace</em> (see <a class="reference internal" href="other_commands.html#other-commands"><span class="std std-numref">Chapter 5</span></a>). For example, if <code class="docutils literal"><span class="pre">l</span></code> has type <code class="docutils literal"><span class="pre">list</span> <span class="pre">&#945;</span></code> then <code class="docutils literal"><span class="pre">l.map</span> <span class="pre">f</span></code> abbreviates <code class="docutils literal"><span class="pre">list.map</span> <span class="pre">f</span> <span class="pre">l</span></code>, in which <code class="docutils literal"><span class="pre">l</span></code> has been placed at the first argument position where <code class="docutils literal"><span class="pre">list.map</span></code> expects a <code class="docutils literal"><span class="pre">list</span></code>.</p>
+<p>Finally, for data types with one constructor, one destruct an element by pattern matching using the <code class="docutils literal"><span class="pre">let</span></code> and <code class="docutils literal"><span class="pre">assume</span></code> constructs, as in the examples below. Internally, these are interpreted using the <code class="docutils literal"><span class="pre">match</span></code> construct, which is in turn compiled down for the eliminator for the inductive type, as described in <a class="reference internal" href="declarations.html#declarations"><span class="std std-numref">Chapter 4</span></a>.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=universes%20u%20v%0Avariables%20%7B%CE%B1%20:%20Type%20u%7D%20%7B%CE%B2%20:%20Type%20v%7D%0A%0Adef%20p%20:%20%E2%84%95%20%C3%97%20%E2%84%A4%20:=%20%E2%9F%A81,%202%E2%9F%A9%0A#check%20p.fst%0A#check%20p.snd%0A%0Adef%20p'%20:%20%E2%84%95%20%C3%97%20%E2%84%A4%20%C3%97%20bool%20:=%20%E2%9F%A81,%202,%20tt%E2%9F%A9%0A#check%20p'.fst%0A#check%20p'.snd.fst%0A#check%20p'.snd.snd%0A%0Adef%20swap_pair%20(p%20:%20%CE%B1%20%C3%97%20%CE%B2)%20:%20%CE%B2%20%C3%97%20%CE%B1%20:=%0A%E2%9F%A8p.snd,%20p.fst%E2%9F%A9%0A%0Atheorem%20swap_conj%20%7Ba%20b%20:%20Prop%7D%20(h%20:%20a%20%E2%88%A7%20b)%20:%20b%20%E2%88%A7%20a%20:=%0A%E2%9F%A8h.right,%20h.left%E2%9F%A9%0A%0A#check%20%5B1,%202,%203%5D.append%20%5B2,%203,%204%5D%0A#check%20%5B1,%202,%203%5D.map%20(%CE%BB%20x,%20x%5E2)%0A%0Aexample%20(p%20q%20:%20Prop)%20:%20p%20%E2%88%A7%20q%20%E2%86%92%20q%20%E2%88%A7%20p%20:=%0A%CE%BB%20h,%20%E2%9F%A8h.right,%20h.left%E2%9F%A9%0A%0Adef%20swap_pair'%20(p%20:%20%CE%B1%20%C3%97%20%CE%B2)%20:%20%CE%B2%20%C3%97%20%CE%B1%20:=%0Alet%20(x,%20y)%20:=%20p%20in%20(y,%20x)%0A%0Atheorem%20swap_conj'%20%7Ba%20b%20:%20Prop%7D%20(h%20:%20a%20%E2%88%A7%20b)%20:%20b%20%E2%88%A7%20a%20:=%0Alet%20%E2%9F%A8ha,%20hb%E2%9F%A9%20:=%20h%20in%20%E2%9F%A8hb,%20ha%E2%9F%A9%0A%0Adef%20swap_pair''%20:%20%CE%B1%20%C3%97%20%CE%B2%20%E2%86%92%20%CE%B2%20%C3%97%20%CE%B1%20:=%0A%CE%BB%20%E2%9F%A8x,%20y%E2%9F%A9,%20(y,%20x)%0A%0Atheorem%20swap_conj''%20%7Ba%20b%20:%20Prop%7D%20:%20a%20%E2%88%A7%20b%20%E2%86%92%20b%20%E2%88%A7%20a%20:=%0Aassume%20%E2%9F%A8ha,%20hb%E2%9F%A9,%20%E2%9F%A8hb,%20ha%E2%9F%A9" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">universes</span> <span class="n">u</span> <span class="n">v</span>
+<span class="kd">variables</span> <span class="o">{</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Type</span> <span class="n">u</span><span class="o">}</span> <span class="o">{</span><span class="n">&#946;</span> <span class="o">:</span> <span class="kt">Type</span> <span class="n">v</span><span class="o">}</span>
+
+<span class="kd">def</span> <span class="n">p</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="bp">&#215;</span> <span class="n">&#8484;</span> <span class="o">:=</span> <span class="o">&#10216;</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">&#10217;</span>
+<span class="k">#check</span> <span class="n">p.fst</span>
+<span class="k">#check</span> <span class="n">p.snd</span>
+
+<span class="kd">def</span> <span class="n">p&#39;</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="bp">&#215;</span> <span class="n">&#8484;</span> <span class="bp">&#215;</span> <span class="n">bool</span> <span class="o">:=</span> <span class="o">&#10216;</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="n">tt</span><span class="o">&#10217;</span>
+<span class="k">#check</span> <span class="n">p&#39;.fst</span>
+<span class="k">#check</span> <span class="n">p&#39;.snd.fst</span>
+<span class="k">#check</span> <span class="n">p&#39;.snd.snd</span>
+
+<span class="kd">def</span> <span class="n">swap_pair</span> <span class="o">(</span><span class="n">p</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#215;</span> <span class="n">&#946;</span><span class="o">)</span> <span class="o">:</span> <span class="n">&#946;</span> <span class="bp">&#215;</span> <span class="n">&#945;</span> <span class="o">:=</span>
+<span class="o">&#10216;</span><span class="n">p.snd</span><span class="o">,</span> <span class="n">p.fst</span><span class="o">&#10217;</span>
+
+<span class="kd">theorem</span> <span class="n">swap_conj</span> <span class="o">{</span><span class="n">a</span> <span class="n">b</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">}</span> <span class="o">(</span><span class="n">h</span> <span class="o">:</span> <span class="n">a</span> <span class="bp">&#8743;</span> <span class="n">b</span><span class="o">)</span> <span class="o">:</span> <span class="n">b</span> <span class="bp">&#8743;</span> <span class="n">a</span> <span class="o">:=</span>
+<span class="o">&#10216;</span><span class="n">h.right</span><span class="o">,</span> <span class="n">h.left</span><span class="o">&#10217;</span>
+
+<span class="k">#check</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span><span class="bp">.</span><span class="n">append</span> <span class="o">[</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">]</span>
+<span class="k">#check</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span><span class="bp">.</span><span class="n">map</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">x</span><span class="bp">^</span><span class="mi">2</span><span class="o">)</span>
+
+<span class="kd">example</span> <span class="o">(</span><span class="n">p</span> <span class="n">q</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">)</span> <span class="o">:</span> <span class="n">p</span> <span class="bp">&#8743;</span> <span class="n">q</span> <span class="bp">&#8594;</span> <span class="n">q</span> <span class="bp">&#8743;</span> <span class="n">p</span> <span class="o">:=</span>
+<span class="bp">&#955;</span> <span class="n">h</span><span class="o">,</span> <span class="o">&#10216;</span><span class="n">h.right</span><span class="o">,</span> <span class="n">h.left</span><span class="o">&#10217;</span>
+
+<span class="kd">def</span> <span class="n">swap_pair&#39;</span> <span class="o">(</span><span class="n">p</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#215;</span> <span class="n">&#946;</span><span class="o">)</span> <span class="o">:</span> <span class="n">&#946;</span> <span class="bp">&#215;</span> <span class="n">&#945;</span> <span class="o">:=</span>
+<span class="k">let</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="o">:=</span> <span class="n">p</span> <span class="k">in</span> <span class="o">(</span><span class="n">y</span><span class="o">,</span> <span class="n">x</span><span class="o">)</span>
+
+<span class="kd">theorem</span> <span class="n">swap_conj&#39;</span> <span class="o">{</span><span class="n">a</span> <span class="n">b</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">}</span> <span class="o">(</span><span class="n">h</span> <span class="o">:</span> <span class="n">a</span> <span class="bp">&#8743;</span> <span class="n">b</span><span class="o">)</span> <span class="o">:</span> <span class="n">b</span> <span class="bp">&#8743;</span> <span class="n">a</span> <span class="o">:=</span>
+<span class="k">let</span> <span class="o">&#10216;</span><span class="n">ha</span><span class="o">,</span> <span class="n">hb</span><span class="o">&#10217;</span> <span class="o">:=</span> <span class="n">h</span> <span class="k">in</span> <span class="o">&#10216;</span><span class="n">hb</span><span class="o">,</span> <span class="n">ha</span><span class="o">&#10217;</span>
+
+<span class="kd">def</span> <span class="n">swap_pair&#39;&#39;</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#215;</span> <span class="n">&#946;</span> <span class="bp">&#8594;</span> <span class="n">&#946;</span> <span class="bp">&#215;</span> <span class="n">&#945;</span> <span class="o">:=</span>
+<span class="bp">&#955;</span> <span class="o">&#10216;</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">&#10217;,</span> <span class="o">(</span><span class="n">y</span><span class="o">,</span> <span class="n">x</span><span class="o">)</span>
+
+<span class="kd">theorem</span> <span class="n">swap_conj&#39;&#39;</span> <span class="o">{</span><span class="n">a</span> <span class="n">b</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">}</span> <span class="o">:</span> <span class="n">a</span> <span class="bp">&#8743;</span> <span class="n">b</span> <span class="bp">&#8594;</span> <span class="n">b</span> <span class="bp">&#8743;</span> <span class="n">a</span> <span class="o">:=</span>
+<span class="k">assume</span> <span class="o">&#10216;</span><span class="n">ha</span><span class="o">,</span> <span class="n">hb</span><span class="o">&#10217;,</span> <span class="o">&#10216;</span><span class="n">hb</span><span class="o">,</span> <span class="n">ha</span><span class="o">&#10217;</span>
+</pre></div>
+</div>
+</div></div>
+<div class="section" id="structured-proofs">
+<span id="id6"></span><h2>3.6. Structured Proofs<a class="headerlink" href="#structured-proofs" title="Permalink to this headline">&#182;</a></h2>
+<p>Syntactic sugar is provided for writing structured proof terms:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">assume</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">p,</span> <span class="pre">t</span></code> is sugar for <code class="docutils literal"><span class="pre">&#955;</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">p,</span> <span class="pre">t</span></code></li>
+<li><code class="docutils literal"><span class="pre">have</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">p,</span> <span class="pre">from</span> <span class="pre">s,</span> <span class="pre">t</span></code> is sugar for <code class="docutils literal"><span class="pre">(&#955;</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">p,</span> <span class="pre">t)</span> <span class="pre">s</span></code></li>
+<li><code class="docutils literal"><span class="pre">suffices</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">p,</span> <span class="pre">from</span> <span class="pre">s,</span> <span class="pre">t</span></code> is sugar for <code class="docutils literal"><span class="pre">(&#955;</span> <span class="pre">h</span> <span class="pre">:</span> <span class="pre">p,</span> <span class="pre">s)</span> <span class="pre">t</span></code></li>
+<li><code class="docutils literal"><span class="pre">show</span> <span class="pre">p,</span> <span class="pre">t</span></code> is sugar for <code class="docutils literal"><span class="pre">(t</span> <span class="pre">:</span> <span class="pre">p)</span></code></li>
+</ul>
+<p>As with <code class="docutils literal"><span class="pre">&#955;</span></code>, multiple variables can be bound with <code class="docutils literal"><span class="pre">assume</span></code>, and types can be omitted when they can be inferred by Lean. Lean also allows the syntax <code class="docutils literal"><span class="pre">assume</span> <span class="pre">:</span> <span class="pre">p,</span> <span class="pre">t</span></code>, which gives the assumption the name <code class="docutils literal"><span class="pre">this</span></code> in the local context.  Similarly, Lean recognizes the variants <code class="docutils literal"><span class="pre">have</span> <span class="pre">p,</span> <span class="pre">from</span> <span class="pre">s,</span> <span class="pre">t</span></code> and <code class="docutils literal"><span class="pre">suffices</span> <span class="pre">p,</span> <span class="pre">from</span> <span class="pre">s,</span> <span class="pre">t</span></code>, which use the name <code class="docutils literal"><span class="pre">this</span></code> for the new hypothesis.</p>
+<p>The notation <code class="docutils literal"><span class="pre">&#8249;p&#8250;</span></code> is notation for <code class="docutils literal"><span class="pre">(by</span> <span class="pre">assumption</span> <span class="pre">:</span> <span class="pre">p)</span></code>, and can therefore be used to apply hypotheses in the local context.</p>
+<p>As noted in <a class="reference internal" href="#constructors-projections-and-matching"><span class="std std-numref">Section 3.5</span></a>, anonymous constructors and projections and match syntax can be used in proofs just as in expressions that denote data.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=example%20(p%20q%20r%20:%20Prop)%20:%20p%20%E2%86%92%20(q%20%E2%88%A7%20r)%20%E2%86%92%20p%20%E2%88%A7%20q%20:=%0Aassume%20h%E2%82%81%20:%20p,%0Aassume%20h%E2%82%82%20:%20q%20%E2%88%A7%20r,%0Ahave%20h%E2%82%83%20:%20q,%20from%20and.left%20h%E2%82%82,%0Ashow%20p%20%E2%88%A7%20q,%20from%20and.intro%20h%E2%82%81%20h%E2%82%83%0A%0Aexample%20(p%20q%20r%20:%20Prop)%20:%20p%20%E2%86%92%20(q%20%E2%88%A7%20r)%20%E2%86%92%20p%20%E2%88%A7%20q%20:=%0Aassume%20:%20p,%0Aassume%20:%20q%20%E2%88%A7%20r,%0Ahave%20q,%20from%20and.left%20this,%0Ashow%20p%20%E2%88%A7%20q,%20from%20and.intro%20%E2%80%B9p%E2%80%BA%20this%0A%0Aexample%20(p%20q%20r%20:%20Prop)%20:%20p%20%E2%86%92%20(q%20%E2%88%A7%20r)%20%E2%86%92%20p%20%E2%88%A7%20q%20:=%0Aassume%20h%E2%82%81%20:%20p,%0Aassume%20h%E2%82%82%20:%20q%20%E2%88%A7%20r,%0Asuffices%20h%E2%82%83%20:%20q,%20from%20and.intro%20h%E2%82%81%20h%E2%82%83,%0Ashow%20q,%20from%20and.left%20h%E2%82%82" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">example</span> <span class="o">(</span><span class="n">p</span> <span class="n">q</span> <span class="n">r</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">)</span> <span class="o">:</span> <span class="n">p</span> <span class="bp">&#8594;</span> <span class="o">(</span><span class="n">q</span> <span class="bp">&#8743;</span> <span class="n">r</span><span class="o">)</span> <span class="bp">&#8594;</span> <span class="n">p</span> <span class="bp">&#8743;</span> <span class="n">q</span> <span class="o">:=</span>
+<span class="k">assume</span> <span class="n">h&#8321;</span> <span class="o">:</span> <span class="n">p</span><span class="o">,</span>
+<span class="k">assume</span> <span class="n">h&#8322;</span> <span class="o">:</span> <span class="n">q</span> <span class="bp">&#8743;</span> <span class="n">r</span><span class="o">,</span>
+<span class="k">have</span> <span class="n">h&#8323;</span> <span class="o">:</span> <span class="n">q</span><span class="o">,</span> <span class="k">from</span> <span class="n">and.left</span> <span class="n">h&#8322;</span><span class="o">,</span>
+<span class="k">show</span> <span class="n">p</span> <span class="bp">&#8743;</span> <span class="n">q</span><span class="o">,</span> <span class="k">from</span> <span class="n">and.intro</span> <span class="n">h&#8321;</span> <span class="n">h&#8323;</span>
+
+<span class="kd">example</span> <span class="o">(</span><span class="n">p</span> <span class="n">q</span> <span class="n">r</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">)</span> <span class="o">:</span> <span class="n">p</span> <span class="bp">&#8594;</span> <span class="o">(</span><span class="n">q</span> <span class="bp">&#8743;</span> <span class="n">r</span><span class="o">)</span> <span class="bp">&#8594;</span> <span class="n">p</span> <span class="bp">&#8743;</span> <span class="n">q</span> <span class="o">:=</span>
+<span class="k">assume</span> <span class="o">:</span> <span class="n">p</span><span class="o">,</span>
+<span class="k">assume</span> <span class="o">:</span> <span class="n">q</span> <span class="bp">&#8743;</span> <span class="n">r</span><span class="o">,</span>
+<span class="k">have</span> <span class="n">q</span><span class="o">,</span> <span class="k">from</span> <span class="n">and.left</span> <span class="n">this</span><span class="o">,</span>
+<span class="k">show</span> <span class="n">p</span> <span class="bp">&#8743;</span> <span class="n">q</span><span class="o">,</span> <span class="k">from</span> <span class="n">and.intro</span> <span class="o">&#8249;</span><span class="n">p</span><span class="o">&#8250;</span> <span class="n">this</span>
+
+<span class="kd">example</span> <span class="o">(</span><span class="n">p</span> <span class="n">q</span> <span class="n">r</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">)</span> <span class="o">:</span> <span class="n">p</span> <span class="bp">&#8594;</span> <span class="o">(</span><span class="n">q</span> <span class="bp">&#8743;</span> <span class="n">r</span><span class="o">)</span> <span class="bp">&#8594;</span> <span class="n">p</span> <span class="bp">&#8743;</span> <span class="n">q</span> <span class="o">:=</span>
+<span class="k">assume</span> <span class="n">h&#8321;</span> <span class="o">:</span> <span class="n">p</span><span class="o">,</span>
+<span class="k">assume</span> <span class="n">h&#8322;</span> <span class="o">:</span> <span class="n">q</span> <span class="bp">&#8743;</span> <span class="n">r</span><span class="o">,</span>
+<span class="k">suffices</span> <span class="n">h&#8323;</span> <span class="o">:</span> <span class="n">q</span><span class="o">,</span> <span class="k">from</span> <span class="n">and.intro</span> <span class="n">h&#8321;</span> <span class="n">h&#8323;</span><span class="o">,</span>
+<span class="k">show</span> <span class="n">q</span><span class="o">,</span> <span class="k">from</span> <span class="n">and.left</span> <span class="n">h&#8322;</span>
+</pre></div>
+</div>
+</div><p>Lean also supports a calculational environment, which is introduced with the keyword <code class="docutils literal"><span class="pre">calc</span></code>. The syntax is as follows:</p>
+<div class="highlight-text"><div class="highlight"><pre>calc
+  &lt;expr&gt;_0  &#39;op_1&#39;  &lt;expr&gt;_1  &#39;:&#39;  &lt;proof&gt;_1
+    &#39;...&#39;   &#39;op_2&#39;  &lt;expr&gt;_2  &#39;:&#39;  &lt;proof&gt;_2
+     ...
+    &#39;...&#39;   &#39;op_n&#39;  &lt;expr&gt;_n  &#39;:&#39;  &lt;proof&gt;_n
+</pre></div>
+</div>
+<p>Each <code class="docutils literal"><span class="pre">&lt;proof&gt;_i</span></code> is a proof for <code class="docutils literal"><span class="pre">&lt;expr&gt;_{i-1}</span> <span class="pre">op_i</span> <span class="pre">&lt;expr&gt;_i</span></code>.</p>
+<p>Here is an example:</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=variables%20(a%20b%20c%20d%20e%20:%20%E2%84%95)%0Avariable%20h1%20:%20a%20=%20b%0Avariable%20h2%20:%20b%20=%20c%20+%201%0Avariable%20h3%20:%20c%20=%20d%0Avariable%20h4%20:%20e%20=%201%20+%20d%0A%0Atheorem%20T%20:%20a%20=%20e%20:=%0Acalc%0A%20%20a%20%20%20%20%20=%20b%20%20%20%20%20%20:%20h1%0A%20%20%20%20...%20=%20c%20+%201%20%20:%20h2%0A%20%20%20%20...%20=%20d%20+%201%20%20:%20congr_arg%20_%20h3%0A%20%20%20%20...%20=%201%20+%20d%20%20:%20add_comm%20d%20(1%20:%20%E2%84%95)%0A%20%20%20%20...%20=%20%20e%20%20%20%20%20:%20eq.symm%20h4" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">variables</span> <span class="o">(</span><span class="n">a</span> <span class="n">b</span> <span class="n">c</span> <span class="n">d</span> <span class="n">e</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+<span class="kd">variable</span> <span class="n">h1</span> <span class="o">:</span> <span class="n">a</span> <span class="bp">=</span> <span class="n">b</span>
+<span class="kd">variable</span> <span class="n">h2</span> <span class="o">:</span> <span class="n">b</span> <span class="bp">=</span> <span class="n">c</span> <span class="bp">+</span> <span class="mi">1</span>
+<span class="kd">variable</span> <span class="n">h3</span> <span class="o">:</span> <span class="n">c</span> <span class="bp">=</span> <span class="n">d</span>
+<span class="kd">variable</span> <span class="n">h4</span> <span class="o">:</span> <span class="n">e</span> <span class="bp">=</span> <span class="mi">1</span> <span class="bp">+</span> <span class="n">d</span>
+
+<span class="kd">theorem</span> <span class="n">T</span> <span class="o">:</span> <span class="n">a</span> <span class="bp">=</span> <span class="n">e</span> <span class="o">:=</span>
+<span class="k">calc</span>
+  <span class="n">a</span>     <span class="bp">=</span> <span class="n">b</span>      <span class="o">:</span> <span class="n">h1</span>
+    <span class="bp">...</span> <span class="bp">=</span> <span class="n">c</span> <span class="bp">+</span> <span class="mi">1</span>  <span class="o">:</span> <span class="n">h2</span>
+    <span class="bp">...</span> <span class="bp">=</span> <span class="n">d</span> <span class="bp">+</span> <span class="mi">1</span>  <span class="o">:</span> <span class="n">congr_arg</span> <span class="n">_</span> <span class="n">h3</span>
+    <span class="bp">...</span> <span class="bp">=</span> <span class="mi">1</span> <span class="bp">+</span> <span class="n">d</span>  <span class="o">:</span> <span class="n">add_comm</span> <span class="n">d</span> <span class="o">(</span><span class="mi">1</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+    <span class="bp">...</span> <span class="bp">=</span>  <span class="n">e</span>     <span class="o">:</span> <span class="n">eq.symm</span> <span class="n">h4</span>
+</pre></div>
+</div>
+</div><p>The style of writing proofs is most effective when it is used in conjunction with the <code class="docutils literal"><span class="pre">simp</span></code> and <code class="docutils literal"><span class="pre">rewrite</span></code> tactics.</p>
+</div>
+<div class="section" id="computation">
+<span id="id7"></span><h2>3.7. Computation<a class="headerlink" href="#computation" title="Permalink to this headline">&#182;</a></h2>
+<p>Two expressions that differ up to a renaming of their bound variables are said to be <em>&#945;-equivalent</em>, and are treated as syntactically equivalent by Lean.</p>
+<p>Every expression in Lean has a natural computational interpretation, unless it involves classical elements that block computation, as described in the next section. The system recognizes the following notions of <em>reduction</em>:</p>
+<ul class="simple">
+<li><em>&#946;-reduction</em> : An expression <code class="docutils literal"><span class="pre">(&#955;</span> <span class="pre">x,</span> <span class="pre">t)</span> <span class="pre">s</span></code> &#946;-reduces to <code class="docutils literal"><span class="pre">t[s/x]</span></code>, that is, the result of replacing <code class="docutils literal"><span class="pre">x</span></code> by <code class="docutils literal"><span class="pre">s</span></code> in <code class="docutils literal"><span class="pre">t</span></code>.</li>
+<li><em>&#950;-reduction</em> : An expression <code class="docutils literal"><span class="pre">let</span> <span class="pre">x</span> <span class="pre">:=</span> <span class="pre">s</span> <span class="pre">in</span> <span class="pre">t</span></code> &#950;-reduces to <code class="docutils literal"><span class="pre">t[s/x]</span></code>.</li>
+<li><em>&#948;-reduction</em> : If <code class="docutils literal"><span class="pre">c</span></code> is a defined constant with definition <code class="docutils literal"><span class="pre">t</span></code>, then <code class="docutils literal"><span class="pre">c</span></code> &#948;-reduces to to <code class="docutils literal"><span class="pre">t</span></code>.</li>
+<li><em>&#953;-reduction</em> : When a function defined by recursion on an inductive type is applied to an element given by an explicit constructor, the result &#953;-reduces to the specified function value, as described in <a class="reference internal" href="declarations.html#inductive-types"><span class="std std-numref">Section 4.4</span></a>.</li>
+</ul>
+<p>The reduction relation is transitive, which is to say, is <code class="docutils literal"><span class="pre">s</span></code> reduces to <code class="docutils literal"><span class="pre">s'</span></code> and <code class="docutils literal"><span class="pre">t</span></code> reduces to <code class="docutils literal"><span class="pre">t'</span></code>, then <code class="docutils literal"><span class="pre">s</span> <span class="pre">t</span></code> reduces to <code class="docutils literal"><span class="pre">s'</span> <span class="pre">t'</span></code>, <code class="docutils literal"><span class="pre">&#955;</span> <span class="pre">x,</span> <span class="pre">s</span></code> reduces to <code class="docutils literal"><span class="pre">&#955;</span> <span class="pre">x,</span> <span class="pre">s'</span></code>, and so on. If <code class="docutils literal"><span class="pre">s</span></code> and <code class="docutils literal"><span class="pre">t</span></code> reduce to a common term, they are said to be <em>definitionally equal</em>. Definitional equality is defined to be the smallest equivalence relation that satisfies all these properties and also includes &#945;-equivalence and the following two relations:</p>
+<ul class="simple">
+<li><em>&#951;-equivalence</em> : An expression <code class="docutils literal"><span class="pre">(&#955;x,</span> <span class="pre">t</span> <span class="pre">x)</span></code> is &#951;-equivalent to <code class="docutils literal"><span class="pre">t</span></code>, assuming <code class="docutils literal"><span class="pre">x</span></code> does not occur in <code class="docutils literal"><span class="pre">t</span></code>.</li>
+<li><em>proof irrelevance</em> : If <code class="docutils literal"><span class="pre">p</span> <span class="pre">:</span> <span class="pre">Prop</span></code>, <code class="docutils literal"><span class="pre">s</span> <span class="pre">:</span> <span class="pre">p</span></code>, and <code class="docutils literal"><span class="pre">t</span> <span class="pre">:</span> <span class="pre">p</span></code>, then <code class="docutils literal"><span class="pre">s</span></code> and <code class="docutils literal"><span class="pre">t</span></code> are  considered to be equivalent.</li>
+</ul>
+<p>This last fact reflects the intuition that once we have proved a proposition <code class="docutils literal"><span class="pre">p</span></code>, we only care that is has been proved; the proof does nothing more than witness the fact that <code class="docutils literal"><span class="pre">p</span></code> is true.</p>
+<p>Definitional equality is a strong notion of equalty of values. Lean&#8217;s logical foundations sanction treating definitionally equal terms as being the same when checking that a term is well-typed and/or that it has a given type.</p>
+<p>The reduction relation is believed to be strongly normalizing, which is to say, every sequence of reductions applied to a term will eventually terminate. The property guarantees that Lean&#8217;s type-checking algorithm terminates, at least in principle. The consistency of Lean and its soundness with respect to set-theoretic semantics do not depend on either of these properties.</p>
+<p>Lean provides two commands to compute with expressions:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#reduce</span> <span class="pre">t</span></code> : use the kernel type-checking procedures to carry out reductions on <code class="docutils literal"><span class="pre">t</span></code> until no more reductions are possible, and show the result</li>
+<li><code class="docutils literal"><span class="pre">#eval</span> <span class="pre">t</span></code> : evaluate <code class="docutils literal"><span class="pre">t</span></code> using a fast bytecode evaluator, and show the result</li>
+</ul>
+<p>Every computable definition in Lean is compiled to bytecode at definition time. Bytecode evaluation is more liberal than kernel evaluation: types and all propositional information are erased, and functions are evaluated using a stack-based virtual machine. As a result, <code class="docutils literal"><span class="pre">#eval</span></code> is more efficient than <code class="docutils literal"><span class="pre">#reduce,</span></code> and can be used to execute complex programs. In contrast, <code class="docutils literal"><span class="pre">#reduce</span></code> is designed to be small and reliable, and to produce type-correct terms at each step. Bytecode is never used in type checking, so as far as soundness and consistency are concerned, only kernel reduction is part of the trusted computing base.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=#reduce%20(%CE%BB%20x,%20x%20+%203)%205%0A#eval%20%20%20(%CE%BB%20x,%20x%20+%203)%205%0A%0A#reduce%20let%20x%20:=%205%20in%20x%20+%203%0A#eval%20%20%20let%20x%20:=%205%20in%20x%20+%203%0A%0Adef%20f%20x%20:=%20x%20+%203%0A%0A#reduce%20f%205%0A#eval%20%20%20f%205%0A%0A#reduce%20&#64;nat.rec%20(%CE%BB%20n,%20%E2%84%95)%20(0%20:%20%E2%84%95)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20(%CE%BB%20n%20recval%20:%20%E2%84%95,%20recval%20+%20n%20+%201)%20(5%20:%20%E2%84%95)%0A#eval%20%20%20&#64;nat.rec%20(%CE%BB%20n,%20%E2%84%95)%20(0%20:%20%E2%84%95)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20(%CE%BB%20n%20recval%20:%20%E2%84%95,%20recval%20+%20n%20+%201)%20(5%20:%20%E2%84%95)%0A%0Adef%20g%20:%20%E2%84%95%20%E2%86%92%20%E2%84%95%0A%7C%200%20%20%20%20%20:=%200%0A%7C%20(n+1)%20:=%20g%20n%20+%20n%20+%201%0A%0A#reduce%20g%205%0A#eval%20%20%20g%205%0A%0A#eval%20%20%20g%2050000%0A%0Aexample%20:%20(%CE%BB%20x,%20x%20+%203)%205%20=%208%20:=%20rfl%0Aexample%20:%20(%CE%BB%20x,%20f%20x)%20=%20f%20:=%20rfl%0Aexample%20(p%20:%20Prop)%20(h%E2%82%81%20h%E2%82%82%20:%20p)%20:%20h%E2%82%81%20=%20h%E2%82%82%20:=%20rfl" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="k">#reduce</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">3</span><span class="o">)</span> <span class="mi">5</span>
+<span class="k">#eval</span>   <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">3</span><span class="o">)</span> <span class="mi">5</span>
+
+<span class="k">#reduce</span> <span class="k">let</span> <span class="n">x</span> <span class="o">:=</span> <span class="mi">5</span> <span class="k">in</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">3</span>
+<span class="k">#eval</span>   <span class="k">let</span> <span class="n">x</span> <span class="o">:=</span> <span class="mi">5</span> <span class="k">in</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">3</span>
+
+<span class="kd">def</span> <span class="n">f</span> <span class="n">x</span> <span class="o">:=</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">3</span>
+
+<span class="k">#reduce</span> <span class="n">f</span> <span class="mi">5</span>
+<span class="k">#eval</span>   <span class="n">f</span> <span class="mi">5</span>
+
+<span class="k">#reduce</span> <span class="bp">@</span><span class="n">nat.rec</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">n</span><span class="o">,</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">(</span><span class="mi">0</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+                 <span class="o">(</span><span class="bp">&#955;</span> <span class="n">n</span> <span class="n">recval</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">,</span> <span class="n">recval</span> <span class="bp">+</span> <span class="n">n</span> <span class="bp">+</span> <span class="mi">1</span><span class="o">)</span> <span class="o">(</span><span class="mi">5</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+<span class="k">#eval</span>   <span class="bp">@</span><span class="n">nat.rec</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">n</span><span class="o">,</span> <span class="n">&#8469;</span><span class="o">)</span> <span class="o">(</span><span class="mi">0</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+                 <span class="o">(</span><span class="bp">&#955;</span> <span class="n">n</span> <span class="n">recval</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">,</span> <span class="n">recval</span> <span class="bp">+</span> <span class="n">n</span> <span class="bp">+</span> <span class="mi">1</span><span class="o">)</span> <span class="o">(</span><span class="mi">5</span> <span class="o">:</span> <span class="n">&#8469;</span><span class="o">)</span>
+
+<span class="kd">def</span> <span class="n">g</span> <span class="o">:</span> <span class="n">&#8469;</span> <span class="bp">&#8594;</span> <span class="n">&#8469;</span>
+<span class="bp">|</span> <span class="mi">0</span>     <span class="o">:=</span> <span class="mi">0</span>
+<span class="bp">|</span> <span class="o">(</span><span class="n">n</span><span class="bp">+</span><span class="mi">1</span><span class="o">)</span> <span class="o">:=</span> <span class="n">g</span> <span class="n">n</span> <span class="bp">+</span> <span class="n">n</span> <span class="bp">+</span> <span class="mi">1</span>
+
+<span class="k">#reduce</span> <span class="n">g</span> <span class="mi">5</span>
+<span class="k">#eval</span>   <span class="n">g</span> <span class="mi">5</span>
+
+<span class="k">#eval</span>   <span class="n">g</span> <span class="mi">50000</span>
+
+<span class="kd">example</span> <span class="o">:</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">x</span> <span class="bp">+</span> <span class="mi">3</span><span class="o">)</span> <span class="mi">5</span> <span class="bp">=</span> <span class="mi">8</span> <span class="o">:=</span> <span class="n">rfl</span>
+<span class="kd">example</span> <span class="o">:</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">x</span><span class="o">,</span> <span class="n">f</span> <span class="n">x</span><span class="o">)</span> <span class="bp">=</span> <span class="n">f</span> <span class="o">:=</span> <span class="n">rfl</span>
+<span class="kd">example</span> <span class="o">(</span><span class="n">p</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">)</span> <span class="o">(</span><span class="n">h&#8321;</span> <span class="n">h&#8322;</span> <span class="o">:</span> <span class="n">p</span><span class="o">)</span> <span class="o">:</span> <span class="n">h&#8321;</span> <span class="bp">=</span> <span class="n">h&#8322;</span> <span class="o">:=</span> <span class="n">rfl</span>
+</pre></div>
+</div>
+</div><p>Note: the combination of proof irrelevance and singleton <code class="docutils literal"><span class="pre">Prop</span></code> elimination in &#953;-reduction renders the ideal version of definitional equality, as described above, undecidable. Lean&#8217;s procedure for checking definitional equality is only an approximation to the ideal. It is not transitive, as illustrated by the example below. Once again, this does not compromise the consistency or soundness of Lean; it only means that Lean is more conservative in the terms it recognizes as well typed, and this does not cause problems in practice. Singleton elimination will be discussed in greater detail in <a class="reference internal" href="declarations.html#inductive-types"><span class="std std-numref">Section 4.4</span></a>.</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=def%20R%20(x%20y%20:%20unit)%20:=%20false%0Adef%20accrec%20:=%20&#64;acc.rec%20unit%20R%20(%CE%BB_,%20unit)%20(%CE%BB%20_%20a%20ih,%20())%20()%0Aexample%20(h)%20:%20accrec%20h%20=%20accrec%20(acc.intro%20_%20(%CE%BB%20y,%20acc.inv%20h))%20:=%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20rfl%0Aexample%20(h)%20:%20accrec%20(acc.intro%20_%20(%CE%BB%20y,%20acc.inv%20h))%20=%20()%20:=%20rfl%0Aexample%20(h)%20:%20accrec%20h%20=%20()%20:=%20sorry%20%20%20--%20rfl%20fails" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">def</span> <span class="n">R</span> <span class="o">(</span><span class="n">x</span> <span class="n">y</span> <span class="o">:</span> <span class="n">unit</span><span class="o">)</span> <span class="o">:=</span> <span class="n">false</span>
+<span class="kd">def</span> <span class="n">accrec</span> <span class="o">:=</span> <span class="bp">@</span><span class="n">acc.rec</span> <span class="n">unit</span> <span class="n">R</span> <span class="o">(</span><span class="bp">&#955;</span><span class="n">_</span><span class="o">,</span> <span class="n">unit</span><span class="o">)</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">_</span> <span class="n">a</span> <span class="n">ih</span><span class="o">,</span> <span class="o">())</span> <span class="o">()</span>
+<span class="kd">example</span> <span class="o">(</span><span class="n">h</span><span class="o">)</span> <span class="o">:</span> <span class="n">accrec</span> <span class="n">h</span> <span class="bp">=</span> <span class="n">accrec</span> <span class="o">(</span><span class="n">acc.intro</span> <span class="n">_</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">y</span><span class="o">,</span> <span class="n">acc.inv</span> <span class="n">h</span><span class="o">))</span> <span class="o">:=</span>
+              <span class="n">rfl</span>
+<span class="kd">example</span> <span class="o">(</span><span class="n">h</span><span class="o">)</span> <span class="o">:</span> <span class="n">accrec</span> <span class="o">(</span><span class="n">acc.intro</span> <span class="n">_</span> <span class="o">(</span><span class="bp">&#955;</span> <span class="n">y</span><span class="o">,</span> <span class="n">acc.inv</span> <span class="n">h</span><span class="o">))</span> <span class="bp">=</span> <span class="o">()</span> <span class="o">:=</span> <span class="n">rfl</span>
+<span class="kd">example</span> <span class="o">(</span><span class="n">h</span><span class="o">)</span> <span class="o">:</span> <span class="n">accrec</span> <span class="n">h</span> <span class="bp">=</span> <span class="o">()</span> <span class="o">:=</span> <span class="n">sorry</span>   <span class="c1">-- rfl fails</span>
+</pre></div>
+</div>
+</div></div>
+<div class="section" id="axioms">
+<h2>3.8. Axioms<a class="headerlink" href="#axioms" title="Permalink to this headline">&#182;</a></h2>
+<p>Lean&#8217;s foundational framework consists of:</p>
+<ul class="simple">
+<li>type universes and dependent function types, as described above</li>
+<li>inductive definitions, as described in <a class="reference internal" href="declarations.html#inductive-types"><span class="std std-numref">Section 4.4</span></a> and <a class="reference internal" href="declarations.html#inductive-families"><span class="std std-numref">Section 4.5</span></a>.</li>
+</ul>
+<p>In addition, the core library defines (and trusts) the following axiomatic extensions:</p>
+<ul>
+<li><p class="first">propositional extensionality:</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=namespace%20hide%0A%0A--%20BEGIN%0Aaxiom%20propext%20%7Ba%20b%20:%20Prop%7D%20:%20(a%20%E2%86%94%20b)%20%E2%86%92%20a%20=%20b%0A--%20END%0A%0Aend%20hide" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">axiom</span> <span class="n">propext</span> <span class="o">{</span><span class="n">a</span> <span class="n">b</span> <span class="o">:</span> <span class="kt">Prop</span><span class="o">}</span> <span class="o">:</span> <span class="o">(</span><span class="n">a</span> <span class="bp">&#8596;</span> <span class="n">b</span><span class="o">)</span> <span class="bp">&#8594;</span> <span class="n">a</span> <span class="bp">=</span> <span class="n">b</span>
+</pre></div>
+</div>
+</div></li>
+<li><p class="first">quotients:</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=namespace%20hide%0A--%20BEGIN%0Auniverses%20u%20v%0A%0Aconstant%20quot%20%20%20%20%20%20:%20%CE%A0%20%7B%CE%B1%20:%20Sort%20u%7D,%20(%CE%B1%20%E2%86%92%20%CE%B1%20%E2%86%92%20Prop)%20%E2%86%92%20Sort%20u%0A%0Aconstant%20quot.mk%20%20%20:%20%CE%A0%20%7B%CE%B1%20:%20Sort%20u%7D%20(r%20:%20%CE%B1%20%E2%86%92%20%CE%B1%20%E2%86%92%20Prop),%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%CE%B1%20%E2%86%92%20quot%20r%0A%0Aaxiom%20%20%20%20quot.ind%20%20:%20%E2%88%80%20%7B%CE%B1%20:%20Sort%20u%7D%20%7Br%20:%20%CE%B1%20%E2%86%92%20%CE%B1%20%E2%86%92%20Prop%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%CE%B2%20:%20quot%20r%20%E2%86%92%20Prop%7D,%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20(%E2%88%80%20a,%20%CE%B2%20(quot.mk%20r%20a))%20%E2%86%92%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%88%80%20(q%20:%20quot%20r),%20%CE%B2%20q%0A%0Aconstant%20quot.lift%20:%20%CE%A0%20%7B%CE%B1%20:%20Sort%20u%7D%20%7Br%20:%20%CE%B1%20%E2%86%92%20%CE%B1%20%E2%86%92%20Prop%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%CE%B2%20:%20Sort%20u%7D%20(f%20:%20%CE%B1%20%E2%86%92%20%CE%B2),%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20(%E2%88%80%20a%20b,%20r%20a%20b%20%E2%86%92%20f%20a%20=%20f%20b)%20%E2%86%92%20quot%20r%20%E2%86%92%20%CE%B2%0A%0Aaxiom%20quot.sound%20%20%20:%20%E2%88%80%20%7B%CE%B1%20:%20Type%20u%7D%20%7Br%20:%20%CE%B1%20%E2%86%92%20%CE%B1%20%E2%86%92%20Prop%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7Ba%20b%20:%20%CE%B1%7D,%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20r%20a%20b%20%E2%86%92%20quot.mk%20r%20a%20=%20quot.mk%20r%20b%0A--%20END%0Aend%20hide" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">universes</span> <span class="n">u</span> <span class="n">v</span>
+
+<span class="kd">constant</span> <span class="n">quot</span>      <span class="o">:</span> <span class="bp">&#928;</span> <span class="o">{</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Sort</span> <span class="n">u</span><span class="o">},</span> <span class="o">(</span><span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="kt">Prop</span><span class="o">)</span> <span class="bp">&#8594;</span> <span class="kt">Sort</span> <span class="n">u</span>
+
+<span class="kd">constant</span> <span class="n">quot.mk</span>   <span class="o">:</span> <span class="bp">&#928;</span> <span class="o">{</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Sort</span> <span class="n">u</span><span class="o">}</span> <span class="o">(</span><span class="n">r</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="kt">Prop</span><span class="o">),</span>
+                     <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">quot</span> <span class="n">r</span>
+
+<span class="kd">axiom</span>    <span class="n">quot.ind</span>  <span class="o">:</span> <span class="bp">&#8704;</span> <span class="o">{</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Sort</span> <span class="n">u</span><span class="o">}</span> <span class="o">{</span><span class="n">r</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="kt">Prop</span><span class="o">}</span>
+                       <span class="o">{</span><span class="n">&#946;</span> <span class="o">:</span> <span class="n">quot</span> <span class="n">r</span> <span class="bp">&#8594;</span> <span class="kt">Prop</span><span class="o">},</span>
+                     <span class="o">(</span><span class="bp">&#8704;</span> <span class="n">a</span><span class="o">,</span> <span class="n">&#946;</span> <span class="o">(</span><span class="n">quot.mk</span> <span class="n">r</span> <span class="n">a</span><span class="o">))</span> <span class="bp">&#8594;</span>
+                       <span class="bp">&#8704;</span> <span class="o">(</span><span class="n">q</span> <span class="o">:</span> <span class="n">quot</span> <span class="n">r</span><span class="o">),</span> <span class="n">&#946;</span> <span class="n">q</span>
+
+<span class="kd">constant</span> <span class="n">quot.lift</span> <span class="o">:</span> <span class="bp">&#928;</span> <span class="o">{</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Sort</span> <span class="n">u</span><span class="o">}</span> <span class="o">{</span><span class="n">r</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="kt">Prop</span><span class="o">}</span>
+                       <span class="o">{</span><span class="n">&#946;</span> <span class="o">:</span> <span class="kt">Sort</span> <span class="n">u</span><span class="o">}</span> <span class="o">(</span><span class="n">f</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">&#946;</span><span class="o">),</span>
+                     <span class="o">(</span><span class="bp">&#8704;</span> <span class="n">a</span> <span class="n">b</span><span class="o">,</span> <span class="n">r</span> <span class="n">a</span> <span class="n">b</span> <span class="bp">&#8594;</span> <span class="n">f</span> <span class="n">a</span> <span class="bp">=</span> <span class="n">f</span> <span class="n">b</span><span class="o">)</span> <span class="bp">&#8594;</span> <span class="n">quot</span> <span class="n">r</span> <span class="bp">&#8594;</span> <span class="n">&#946;</span>
+
+<span class="kd">axiom</span> <span class="n">quot.sound</span>   <span class="o">:</span> <span class="bp">&#8704;</span> <span class="o">{</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Type</span> <span class="n">u</span><span class="o">}</span> <span class="o">{</span><span class="n">r</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="kt">Prop</span><span class="o">}</span>
+                       <span class="o">{</span><span class="n">a</span> <span class="n">b</span> <span class="o">:</span> <span class="n">&#945;</span><span class="o">},</span>
+                     <span class="n">r</span> <span class="n">a</span> <span class="n">b</span> <span class="bp">&#8594;</span> <span class="n">quot.mk</span> <span class="n">r</span> <span class="n">a</span> <span class="bp">=</span> <span class="n">quot.mk</span> <span class="n">r</span> <span class="n">b</span>
+</pre></div>
+</div>
+</div><p><code class="docutils literal"><span class="pre">quot</span> <span class="pre">r</span></code> represents the quotient of <code class="docutils literal"><span class="pre">&#945;</span></code> by the smallest equivalence relation containing <code class="docutils literal"><span class="pre">r</span></code>. <code class="docutils literal"><span class="pre">quot.mk</span></code> and <code class="docutils literal"><span class="pre">quot.lift</span></code> satisfy the following computation rule:</p>
+<div class="highlight-text"><div class="highlight"><pre>quot.lift f h (quot.mk r a) = f a
+</pre></div>
+</div>
+</li>
+<li><p class="first">choice:</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=namespace%20hide%0Auniverse%20u%0A%0A--%20BEGIN%0Aaxiom%20choice%20%7B%CE%B1%20:%20Sort%20u%7D%20:%20nonempty%20%CE%B1%20%E2%86%92%20%CE%B1%0A--%20END%0A%0Aend%20hide" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">axiom</span> <span class="n">choice</span> <span class="o">{</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Sort</span> <span class="n">u</span><span class="o">}</span> <span class="o">:</span> <span class="n">nonempty</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">&#945;</span>
+</pre></div>
+</div>
+</div><p>Here <code class="docutils literal"><span class="pre">nonempty</span> <span class="pre">&#945;</span></code> is defined as follows:</p>
+<div style="position: relative">
+<div style='position: absolute; right: 0; top: 0; padding: 1ex'><a href="https://leanprover.github.io/live/3.3.0/#code=namespace%20hide%0Auniverse%20u%0A%0A--%20BEGIN%0Aclass%20inductive%20nonempty%20(%CE%B1%20:%20Sort%20u)%20:%20Prop%0A%7C%20intro%20:%20%CE%B1%20%E2%86%92%20nonempty%0A--%20END%0A%0Aend%20hide" target="_blank">
+try it!</a></div><div class="highlight-lean"><div class="highlight"><pre><span class="kd">class</span> <span class="kd">inductive</span> <span class="n">nonempty</span> <span class="o">(</span><span class="n">&#945;</span> <span class="o">:</span> <span class="kt">Sort</span> <span class="n">u</span><span class="o">)</span> <span class="o">:</span> <span class="kt">Prop</span>
+<span class="bp">|</span> <span class="n">intro</span> <span class="o">:</span> <span class="n">&#945;</span> <span class="bp">&#8594;</span> <span class="n">nonempty</span>
+</pre></div>
+</div>
+</div><p>It is equivalent to  <code class="docutils literal"><span class="pre">&#8707;</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">&#945;,</span> <span class="pre">true</span></code>.</p>
+</li>
+</ul>
+<p>The quotient construction implies function extensionality. The <code class="docutils literal"><span class="pre">choice</span></code> principle, in conjunction with the others, makes the axiomatic foundation classical; in particular, it implies the law of the excluded middle and propositional decidability. Functions that make use of <code class="docutils literal"><span class="pre">choice</span></code> to produce data are incompatible with a computational interpretation, and do not produce bytecode. They have to be declared <code class="docutils literal"><span class="pre">noncomputable</span></code>.</p>
+<p>For metaprogramming purposes, Lean also allows the definition of objects which stand outside the object language. These are denoted with the <code class="docutils literal"><span class="pre">meta</span></code> keyword, as described in <a class="reference internal" href="programming.html#programming"><span class="std std-numref">Chapter 7</span></a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">The Lean Reference Manual</a></h1>
+
+
+
+
+
+
+
+
+<!-- <h3>Navigation</h3> -->
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="using_lean.html">1. Using Lean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lexical_structure.html">2. Lexical Structure</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">3. Expressions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#universes">3.1. Universes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#expression-syntax">3.2. Expression Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implicit-arguments">3.3. Implicit Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-data-types-and-assertions">3.4. Basic Data Types and Assertions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#constructors-projections-and-matching">3.5. Constructors, Projections, and Matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#structured-proofs">3.6. Structured Proofs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#computation">3.7. Computation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axioms">3.8. Axioms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="declarations.html">4. Declarations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="other_commands.html">5. Other Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tactics.html">6. Tactics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">7. Programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metaprogramming.html">8. Metaprogramming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libraries.html">9. Libraries</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="lean_reference.pdf">PDF version</a></li>
+    
+    <li class="toctree-l1"><a href="https://leanprover.github.io/">Lean Home</a></li>
+    
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Jeremy Avigad, Gabriel Ebner, Sebastian Ullrich.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/expressions.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
