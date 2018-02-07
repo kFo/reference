@@ -126,7 +126,7 @@ The ``leanpkg new`` command creates a new package.  You can use ``leanpkg add`` 
    leanpkg add leanprover/mathlib
    # shorthand for `leanpkg add https://github.com/leanprover/mathlib`
 
-You can now add new ``.lean`` files inside the ``my_awesome_pkg`` directory.
+You can now add new ``.lean`` files inside the ``src`` directory.
 
 Scratch files
 -------------
