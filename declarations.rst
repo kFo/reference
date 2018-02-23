@@ -307,7 +307,7 @@ In fact, Lean implements a slight generalization of the inductive types describe
    ...
    | constructorₙ : Π (b : βₙ), foo tₙ
 
-Here ``(a : α)`` is a context, ``(c : γ)`` is a telescope in context ``(a : γ)``, each ``(b : βᵢ)`` is a telescope in the context ``(a : α)`` together with ``(foo : Π (c : γ), Sort u)`` subject to the constraints below, and each ``tᵢ`` is a tuple of terms in the context ``(a : α) (b : βᵢ)`` having the types ``γ``. Instead of defining a single inductive type ``foo a``, we are now defining a family of types ``foo a c`` indexed by elements ``c : γ``.  Each constructor, ``constructorᵢ``, places its result in the type ``foo a tᵢ``, the member of the family with index ``tᵢ``. 
+Here ``(a : α)`` is a context, ``(c : γ)`` is a telescope in context ``(a : α)``, each ``(b : βᵢ)`` is a telescope in the context ``(a : α)`` together with ``(foo : Π (c : γ), Sort u)`` subject to the constraints below, and each ``tᵢ`` is a tuple of terms in the context ``(a : α) (b : βᵢ)`` having the types ``γ``. Instead of defining a single inductive type ``foo a``, we are now defining a family of types ``foo a c`` indexed by elements ``c : γ``.  Each constructor, ``constructorᵢ``, places its result in the type ``foo a tᵢ``, the member of the family with index ``tᵢ``. 
 
 The modifications to the scheme in the previous section are straightforward. Suppose the telescope ``(b : βᵢ)`` is ``(b₁ : βᵢ₁) ... (bᵤ : βᵢᵤ)``.
 
@@ -389,15 +389,15 @@ The first generalization allows for multiple inductive types to be defined simul
    | constructor₂₁ : Π (b : β₂₁), bar t₂₁ 
    | constructor₂₂ : Π (b : β₂₂), bar t₂₂ 
    ...
-   | constructor₂ₙ : Π (b : β₂ₙ), bar t₂ₘ
+   | constructor₂ₘ : Π (b : β₂ₘ), bar t₂ₘ
 
-Here the syntax is shown for defining two inductive families, ``foo`` and ``bar``, but any number is allowed. The restrictions are the almost same as for ordinary inductive families. For example, each ``(b : βᵢⱼ)`` is a telescope relative to the context ``(a : α)``. The difference is that the constructors can now have recursive arguments whose return types are any of the inductive families currently being defined, in this case ``foo`` and ``bar``. Note that all of the inductive definitions share the same parameters ``(a : α)``, though they may have different indices.
+Here the syntax is shown for defining two inductive families, ``foo`` and ``bar``, but any number is allowed. The restrictions are almost the same as for ordinary inductive families. For example, each ``(b : βᵢⱼ)`` is a telescope relative to the context ``(a : α)``. The difference is that the constructors can now have recursive arguments whose return types are any of the inductive families currently being defined, in this case ``foo`` and ``bar``. Note that all of the inductive definitions share the same parameters ``(a : α)``, though they may have different indices.
 
 A mutual inductive definition is compiled down to an ordinary inductive definition using an extra finite-valued index to distinguish the components. The details of the internal construction are meant to be hidden from most users. Lean defines the expected type formers ``foo`` and ``bar`` and constructors ``constructorᵢⱼ`` from the internal inductive definition. There is no straightforward elimination principle, however. Instead, Lean defines an appropriate ``sizeof`` measure, meant for use with well-founded recursion, with the property that the recursive arguments to a constructor are smaller than the constructed value.
 
 The second generalization relaxes the restriction that in the recursive definition of ``foo``, ``foo`` can only occur strictly positively in the type of any of its recursive arguments. Specifically, in a nested inductive definition, ``foo`` can appear as an argument to another inductive type constructor, so long as the corresponding parameter occurs strictly positively in the constructors for *that* inductive type. This process can be iterated, so that additional type constructors can be applied to those, and so on.
 
-A nested inductive definitions are compiled down to an ordinary inductive definition using a mutual inductive definition to define copies of all the nested types simultaneously. Lean then constructing isomorphisms between the mutually defined nested types and their independently defined counterparts. Once again, the internal details are not meant to be manipulated by users. Rather, the type former and constructors are made available and work as expected, while an appropriate ``sizeof`` measure is generated for use with well-founded recursion.
+A nested inductive definition is compiled down to an ordinary inductive definition using a mutual inductive definition to define copies of all the nested types simultaneously. Lean then constructs isomorphisms between the mutually defined nested types and their independently defined counterparts. Once again, the internal details are not meant to be manipulated by users. Rather, the type former and constructors are made available and work as expected, while an appropriate ``sizeof`` measure is generated for use with well-founded recursion.
 
 .. code-block:: lean
 
@@ -446,7 +446,7 @@ Each term ``tᵢ`` is an expression in the context ``(a : α)`` together with th
 
 When identifiers are marked with the ``[pattern]`` attribute, the equation compiler unfolds them in the hopes of exposing a constructor. For example, this makes it possible to write ``n+1`` and ``0`` instead of ``nat.succ n`` and ``nat.zero`` in patterns.
 
-For a nonrecursive definition involving case splits, the defining equations will hold definitionally. With inductive types like ``char``, ``string``, and ``fin n``, a case split on would produce definitions with an inordinate number of cases. To avoid this, the equation compiler uses ``if ... then ... else`` instead of ``cases_on`` when defining the function. In this case, the defining equations hold definitionally as well.
+For a nonrecursive definition involving case splits, the defining equations will hold definitionally. With inductive types like ``char``, ``string``, and ``fin n``, a case split would produce definitions with an inordinate number of cases. To avoid this, the equation compiler uses ``if ... then ... else`` instead of ``cases_on`` when defining the function. In this case, the defining equations hold definitionally as well.
 
 .. code-block:: lean
 
@@ -470,7 +470,7 @@ For a nonrecursive definition involving case splits, the defining equations will
     | 'B' := 2
     | _   := 3
 
-If any of the terms ``tᵢ`` in the template above contain a recursive call to ``foo``, the equation compiler tries to interpret the definition as a structural recursion. In order for that to succeed, the recursive arguments must be subterms of the corresponding arguments on the left-hand side. The function is then defined using a *course of values* recursion, using automatically generated functions ``below`` and ``brec`` in the namespace corresponding to the inductive type of the recursive argument. In this case the defining equations hold definitionally, possible with additional case splits.
+If any of the terms ``tᵢ`` in the template above contain a recursive call to ``foo``, the equation compiler tries to interpret the definition as a structural recursion. In order for that to succeed, the recursive arguments must be subterms of the corresponding arguments on the left-hand side. The function is then defined using a *course of values* recursion, using automatically generated functions ``below`` and ``brec`` in the namespace corresponding to the inductive type of the recursive argument. In this case the defining equations hold definitionally, possibly with additional case splits.
 
 .. code-block:: lean
 
@@ -639,7 +639,7 @@ Lean supports a ``match ... with ...`` construct similar to ones found in most f
 
 Here ``t₁, ..., tₙ`` are any terms in the context in which the expression appears, the expressions ``pᵢⱼ`` are patterns, and the terms ``sᵢ`` are expressions in the local context together with variables introduced by the patterns on the left-hand side. Each ``sᵢ`` should have the expected type of the entire ``match`` expression.
 
-Any ``match`` expression is interpreted using the equation compiler, which generalizes ``t₁, ..., tₙ``, defines an internal function meeting the specification, and then applies it to ``t₁, ..., tₙ``. In contrast to the definitions in :numref:`the_equation_compiler`, the term ``tᵢ`` are arbitrary terms rather than just variables, and the expression can occur anywhere within a Lean expression, not just at the top level of a definition. Note that the syntax here is somewhat different: both the terms ``tᵢ`` and the patterns ``pᵢⱼ`` are separated by commas.
+Any ``match`` expression is interpreted using the equation compiler, which generalizes ``t₁, ..., tₙ``, defines an internal function meeting the specification, and then applies it to ``t₁, ..., tₙ``. In contrast to the definitions in :numref:`the_equation_compiler`, the terms ``tᵢ`` are arbitrary terms rather than just variables, and the expression can occur anywhere within a Lean expression, not just at the top level of a definition. Note that the syntax here is somewhat different: both the terms ``tᵢ`` and the patterns ``pᵢⱼ`` are separated by commas.
 
 .. code-block:: lean
 
